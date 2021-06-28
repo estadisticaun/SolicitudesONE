@@ -96,5 +96,14 @@ Sexo_dedi_doc <- UnalData::Docentes %>%
 write_xlsx(Sexo_dedi_doc, "Datos/Entrega2/Sexo_doc_dedicacion.xlsx")
 
 
+######################################-
+# 3 Solicitud 28-06-2021 -----
+######################################-
 
+# Demanda : Maria Claudia Galindo Gonzales 
+
+# Descripción: Entrega de base de datos histórica de graduados 
+# 2009-2020 para contrastarla con lo disponible en el OLE
+
+write_xlsx(UnalData::Graduados, "Datos/Entrega3/Consolidado_graduados.xlsx")
 
