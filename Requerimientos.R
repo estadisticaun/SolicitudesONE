@@ -2,6 +2,7 @@
 # Librerías ----
 ######################################-
 library(UnalData)
+library(UnalR)
 library(dplyr)
 library(tidyr)
 library(readxl)
@@ -107,3 +108,56 @@ write_xlsx(Sexo_dedi_doc, "Datos/Entrega2/Sexo_doc_dedicacion.xlsx")
 
 write_xlsx(UnalData::Graduados, "Datos/Entrega3/Consolidado_graduados.xlsx")
 
+######################################-
+# 4 Solicitud 07-07-2021 -----
+######################################-
+
+# Demanda : Yeidri Sulay Taborda Rojas
+
+# Descripción: Entrega de bases agregadas de aspirantes, admitidos y
+# matriculados al programa de zootecnia en las sedes de Bogotá, Palmira y Medellín
+# Se requieren para el proceso de acreditación del programa de Zootecnia de la
+# Universidad Universidad Francisco de Paula Santander seccional Ocaña
+
+# Medio de la solicitud: correo de la oficina a través de diregis_med@unal.edu.co
+# Fecha Entrega : 8/07/2021
+# Tiempo de respuesta: 1 días
+# Observaciones: No fue posible, por la política de admisiones, entregar aspirantes
+                # para los programas de Zootecnia
+
+
+# Base de matriculados
+
+Matricula_UFPS <- UnalData::Matriculados %>% filter(SNIES_PROGRA %in% c(3, 143, 16926))
+Matricula_UFPS$SNIES_PROGRA <- as.factor(Matricula_UFPS$SNIES_PROGRA)
+
+# Crear consolidado de matriculados
+Zootecnia_UFPS_Mat <- Agregar(SNIES_PROGRA ~ YEAR + SEMESTRE, 
+        frecuencia = list(c(2015:2020), c(1:2)),
+        intervalo = list(c(2015, 2), c(2020, 2)),
+        datos = Matricula_UFPS,
+        textNA = "Sin información") %>% 
+  pivot_wider(names_from = c(YEAR, SEMESTRE), values_from = Total)
+
+View(Zootecnia_UFPS_Mat)
+
+write_xlsx(Zootecnia_UFPS_Mat, "Datos/Entrega4/Zootecnia_UFPS_Mat.xlsx")
+
+
+# Base de admitidos
+
+Admitidos_UFPS <- UnalData::Aspirantes %>% filter(ADMITIDO == "Sí", 
+SNIES_PROGRA %in% c(3, 143, 16926))
+Admitidos_UFPS$SNIES_PROGRA <- as.factor(Admitidos_UFPS$SNIES_PROGRA)
+
+# Crear consolidado de admitidos
+Zootecnia_UFPS_Adm <- Agregar(SNIES_PROGRA ~ YEAR + SEMESTRE, 
+                          frecuencia = list(c(2015:2021), c(1:2)),
+                          intervalo = list(c(2015, 2), c(2021, 1)),
+                          datos = Admitidos_UFPS,
+                          textNA = "Sin información") %>% 
+  pivot_wider(names_from = c(YEAR, SEMESTRE), values_from = Total)
+
+View(Zootecnia_UFPS_Adm)
+
+write_xlsx(Zootecnia_UFPS_Adm, "Datos/Entrega4/Zootecnia_UFPS_Adm.xlsx")
