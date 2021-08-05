@@ -161,3 +161,42 @@ Zootecnia_UFPS_Adm <- Agregar(SNIES_PROGRA ~ YEAR + SEMESTRE,
 View(Zootecnia_UFPS_Adm)
 
 write_xlsx(Zootecnia_UFPS_Adm, "Datos/Entrega4/Zootecnia_UFPS_Adm.xlsx")
+
+######################################-
+# 5 Solicitud 03-08-2021 -----
+######################################-
+
+# Demanda : Maria Claudia Galindo Gonzales
+
+# Descripción: Tabla con graduados por estrato y año
+# Para firma de convenio con el ICETEX
+
+Graduados_Estrato <- UnalData::Graduados %>% 
+                     filter(TIPO_NIVEL == "Pregrado") %>% 
+                      group_by(YEAR, ESTRATO_ORIG) %>% 
+                      summarise(Total = n()) %>% 
+                      ungroup() %>%  
+pivot_wider(names_from = c(ESTRATO_ORIG), values_from = Total)
+
+write_xlsx(Graduados_Estrato, "Datos/Entrega5/Graduados_Estrato.xlsx")
+
+# Alternativa 2
+
+DGraduados_Estrato <- UnalData::Graduados %>% 
+  filter(TIPO_NIVEL == "Pregrado") 
+
+Graduados_Estrato_1 <- Agregar(formula = ESTRATO_ORIG ~ YEAR, 
+          frecuencia = c(2009:2020),
+          intervalo = c(2009, 2020),
+          datos = DGraduados_Estrato,
+          textNA = "Sin información") %>% 
+  pivot_wider(names_from = c(Clase), values_from = Total) %>% 
+  select(-Variable)
+
+View(Graduados_Estrato_1)
+
+# Comparar las dos bases de datos
+
+all_equal(Graduados_Estrato, Graduados_Estrato_1, convert = TRUE)
+# OJO: Se utiliza el argumento convert en razón a que los tipos de las
+# variables (class) de los dos conjuntos de datos son diferentes
