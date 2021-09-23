@@ -202,7 +202,313 @@ all_equal(Graduados_Estrato, Graduados_Estrato_1, convert = TRUE)
 # variables (class) de los dos conjuntos de datos son diferentes
 
 ######################################-
-# 6 Solicitud 02-09-2021 -----
+# 6 Solicitud 06-08-2021 -----
+######################################-
+
+# Demanda : Maria Claudia Galindo Gonzales
+
+# Descripción: Tablas con distribución de aspirantes(postgrado), admitidos, matriculados y
+# graduados por programas académicos
+
+# Aspirantes a postgrado
+
+Pro_postgrado <- UnalData:: Aspirantes %>%
+  filter(TIPO_NIVEL == "Postgrado")
+
+# Convertir código SNIES a character
+
+Pro_postgrado$SNIES_PROGRA <- as.character(Pro_postgrado$SNIES_PROGRA)
+
+Pro_pos <- Agregar(formula = SNIES_PROGRA ~ YEAR + SEMESTRE,
+                   frecuencia = list(c(2009:2020), c(1:2)),
+                   intervalo = list(c(2009, 1), c(2020, 2)),
+                   datos = Pro_postgrado,
+                   textNA = "Sin información") %>%
+  pivot_wider(names_from = c(YEAR, SEMESTRE), values_from = Total) %>%
+  select(-Variable) %>% rename(SNIES_PROGRA = Clase)
+
+Pro_pos_Nivel <- Pro_postgrado %>% group_by(SNIES_PROGRA, NIVEL, PROGRAMA, INS_SEDE_NOMBRE) %>%
+  count() %>% select(-n)
+
+
+Pro_pos_Nivel <- Pro_postgrado %>% group_by(SNIES_PROGRA, NIVEL, PROGRAMA, INS_SEDE_NOMBRE) %>%
+  count() %>% select(-n) %>% ungroup() %>% group_by(SNIES_PROGRA, INS_SEDE_NOMBRE) %>% count() %>%
+  ungroup() %>% group_by(SNIES_PROGRA) %>% count()
+
+
+Pro_post_aspirantes <- left_join(Pro_pos, Pro_pos_Nivel) %>%
+  relocate(SNIES_PROGRA, NIVEL, PROGRAMA, INS_SEDE_NOMBRE)
+
+write_xlsx(Pro_post_aspirantes, "Datos/Entrega6/Prog_Asp_Post.xlsx")
+
+
+View(Pro_postgrado %>% filter(SNIES_PROGRA == "16892" ))
+
+# Aspirantes a pregrado
+
+
+Pro_pregrado <- UnalData:: Aspirantes %>%
+  filter(TIPO_NIVEL == "Pregrado",
+         ADMITIDO == "Sí",
+         INS_SEDE_NOMBRE %in% c("Bogotá", "Medellín", "Manizales", "Palmira", "De La Paz"))
+
+
+# Convertir código SNIES a character
+
+Pro_pregrado$SNIES_PROGRA <- as.character(Pro_pregrado$SNIES_PROGRA)
+
+Pro_pre <- Agregar(formula = SNIES_PROGRA ~ YEAR + SEMESTRE,
+                   frecuencia = list(c(2008:2020), c(1:2)),
+                   intervalo = list(c(2008, 1), c(2020, 2)),
+                   datos = Pro_pregrado,
+                   textNA = "Sin información") %>%
+  pivot_wider(names_from = c(YEAR, SEMESTRE), values_from = Total) %>%
+  select(-Variable) %>% rename(SNIES_PROGRA = Clase)
+
+# Crear base de datos con nombre de programas
+
+Pro_pre_Nivel <- Pro_pregrado %>% group_by(SNIES_PROGRA, NIVEL, PROGRAMA, INS_SEDE_NOMBRE) %>%
+  count() %>% select(-n) %>% ungroup() %>% group_by(SNIES_PROGRA, NIVEL, INS_SEDE_NOMBRE) %>%
+  summarise(PROGRAMA = max(PROGRAMA))
+
+# Cruzar base de datos
+
+
+Pro_pre_aspirantes <- left_join(Pro_pre, Pro_pre_Nivel) %>%
+  relocate(SNIES_PROGRA, NIVEL, PROGRAMA, INS_SEDE_NOMBRE)
+
+write_xlsx(Pro_pre_aspirantes, "Datos/Entrega6/Prog_Asp_Preg.xlsx")
+
+###################-
+# Matriculados en postgrado
+###################-
+
+
+Mat_postgrado <- UnalData::Matriculados %>%
+  filter(TIPO_NIVEL == "Postgrado")
+
+# Convertir código SNIES a character
+
+Mat_postgrado$SNIES_PROGRA <- as.character(Mat_postgrado$SNIES_PROGRA)
+
+Mat_pos <- Agregar(formula = SNIES_PROGRA ~ YEAR + SEMESTRE,
+                   frecuencia = list(c(2009:2020), c(1:2)),
+                   intervalo = list(c(2009, 1), c(2020, 2)),
+                   datos = Mat_postgrado,
+                   textNA = "Sin información") %>%
+  pivot_wider(names_from = c(YEAR, SEMESTRE), values_from = Total) %>%
+  select(-Variable) %>% rename(SNIES_PROGRA = Clase)
+
+
+# Nombres de programas académicos
+
+Mat_pos_Nivel <- Mat_postgrado %>% group_by(SNIES_PROGRA, NIVEL, PROGRAMA, SEDE_NOMBRE_MAT) %>%
+  count() %>% select(-n) %>% ungroup() %>% group_by(SNIES_PROGRA, SEDE_NOMBRE_MAT) %>%
+  summarise(PROGRAMA = max(PROGRAMA), NIVEL = max(NIVEL))
+
+# Cruce de bases de datos
+
+Post_matriculados <- left_join(Mat_pos, Mat_pos_Nivel) %>%
+  relocate(SNIES_PROGRA, NIVEL, PROGRAMA, SEDE_NOMBRE_MAT)
+
+write_xlsx(Post_matriculados, "Datos/Entrega6/Prog_Mat_Post.xlsx")
+
+
+View(Mat_postgrado %>% filter(SNIES_PROGRA == "52737" ))
+
+
+###################-
+# Matriculados en pregrado
+###################-
+
+
+Mat_pregrado <- UnalData:: Matriculados %>%
+  filter(TIPO_NIVEL == "Pregrado",
+         SEDE_NOMBRE_MAT %in% c("Bogotá", "Medellín", "Manizales", "Palmira", "De La Paz"))
+
+
+# Convertir código SNIES a character
+
+Mat_pregrado$SNIES_PROGRA <- as.character(Mat_pregrado$SNIES_PROGRA)
+
+Mat_pre <- Agregar(formula = SNIES_PROGRA ~ YEAR + SEMESTRE,
+                   frecuencia = list(c(2009:2020), c(1:2)),
+                   intervalo = list(c(2009, 1), c(2020, 2)),
+                   datos = Mat_pregrado,
+                   textNA = "Sin información") %>%
+  pivot_wider(names_from = c(YEAR, SEMESTRE), values_from = Total) %>%
+  select(-Variable) %>% rename(SNIES_PROGRA = Clase)
+
+
+# Nombres de programas académicos
+
+Mat_pre_Nivel <- Mat_pregrado %>% group_by(SNIES_PROGRA, NIVEL, PROGRAMA, SEDE_NOMBRE_MAT) %>%
+  count() %>% select(-n) %>% ungroup() %>% group_by(SNIES_PROGRA, SEDE_NOMBRE_MAT) %>%
+  summarise(PROGRAMA = max(PROGRAMA), NIVEL = max(NIVEL))
+
+
+View(Mat_pre_Nivel %>% group_by(SNIES_PROGRA) %>% count())
+
+# Cruce de bases de datos
+
+Pre_matriculados <- left_join(Mat_pre, Mat_pre_Nivel) %>%
+  relocate(SNIES_PROGRA, NIVEL, PROGRAMA, SEDE_NOMBRE_MAT)
+
+write_xlsx(Pre_matriculados, "Datos/Entrega6/Prog_Mat_Pre.xlsx")
+
+
+View(Mat_postgrado %>% filter(SNIES_PROGRA == "52737" ))
+
+
+###################-
+# Graduados en Postgrado
+###################-
+
+
+Gra_postgrado <- UnalData::Graduados %>%
+  filter(TIPO_NIVEL == "Postgrado")
+
+
+# Convertir código SNIES a character
+
+Gra_postgrado$SNIES_PROGRA <- as.character(Gra_postgrado$SNIES_PROGRA)
+
+Gra_pos <- Agregar(formula = SNIES_PROGRA ~ YEAR + SEMESTRE,
+                   frecuencia = list(c(2009:2020), c(1:2)),
+                   intervalo = list(c(2009, 1), c(2020, 2)),
+                   datos = Gra_postgrado,
+                   textNA = "Sin información") %>%
+  pivot_wider(names_from = c(YEAR, SEMESTRE), values_from = Total) %>%
+  select(-Variable) %>% rename(SNIES_PROGRA = Clase)
+
+
+# Nombres de programas académicos
+
+Gra_pos_Nivel <- Gra_postgrado %>% group_by(SNIES_PROGRA, NIVEL, PROGRAMA, SEDE_NOMBRE_MAT) %>%
+  count() %>% select(-n) %>% ungroup() %>% group_by(SNIES_PROGRA, SEDE_NOMBRE_MAT) %>%
+  summarise(PROGRAMA = max(PROGRAMA), NIVEL = max(NIVEL))
+
+
+View(Gra_pos_Nivel %>% group_by(SNIES_PROGRA) %>% count())
+
+
+# Cruce de bases de datos
+
+Post_graduados <- left_join(Gra_pos, Gra_pos_Nivel) %>%
+  relocate(SNIES_PROGRA, NIVEL, PROGRAMA, SEDE_NOMBRE_MAT)
+
+write_xlsx(Post_graduados, "Datos/Entrega6/Prog_Gra_Post.xlsx")
+
+
+View(Mat_postgrado %>% filter(SNIES_PROGRA == "52737" ))
+
+###################-
+# Graduados en pregrado
+###################-
+
+
+Gra_pregrado <- UnalData:: Graduados %>%
+  filter(TIPO_NIVEL == "Pregrado",
+         SEDE_NOMBRE_MAT %in% c("Bogotá", "Medellín", "Manizales", "Palmira", "De La Paz"))
+
+
+# Convertir código SNIES a character
+
+Gra_pregrado$SNIES_PROGRA <- as.character(Gra_pregrado$SNIES_PROGRA)
+
+Gra_pre <- Agregar(formula = SNIES_PROGRA ~ YEAR + SEMESTRE,
+                   frecuencia = list(c(2009:2020), c(1:2)),
+                   intervalo = list(c(2009, 1), c(2020, 2)),
+                   datos = Gra_pregrado,
+                   textNA = "Sin información") %>%
+  pivot_wider(names_from = c(YEAR, SEMESTRE), values_from = Total) %>%
+  select(-Variable) %>% rename(SNIES_PROGRA = Clase)
+
+
+# Nombres de programas académicos
+
+Gra_pre_Nivel <- Gra_pregrado %>% group_by(SNIES_PROGRA, NIVEL, PROGRAMA, SEDE_NOMBRE_MAT) %>%
+  count() %>% select(-n) %>% ungroup() %>% group_by(SNIES_PROGRA, SEDE_NOMBRE_MAT) %>%
+  summarise(PROGRAMA = max(PROGRAMA), NIVEL = max(NIVEL))
+
+
+View(Gra_pre_Nivel %>% group_by(SNIES_PROGRA) %>% count())
+
+# Cruce de bases de datos
+
+Pre_graduados <- left_join(Gra_pre, Gra_pre_Nivel) %>%
+  relocate(SNIES_PROGRA, NIVEL, PROGRAMA, SEDE_NOMBRE_MAT)
+
+write_xlsx(Pre_graduados, "Datos/Entrega6/Prog_Gra_Pre.xlsx")
+
+#################################
+# Cruzar las bases de datos Admitidos - Matriculados y Graduados
+#################################
+
+###
+# Postgrado
+###
+
+# Apirantes
+postgrado_Asp <- UnalData:: Aspirantes %>%
+  filter(TIPO_NIVEL == "Postgrado") %>% group_by(SNIES_PROGRA) %>%
+  count(name = "Aspirantes")
+
+# Matriculados
+postgrado_mat <- UnalData::Matriculados %>%
+  filter(TIPO_NIVEL == "Postgrado") %>% group_by(SNIES_PROGRA) %>%
+  count(name = "Matriculados")
+
+# Graduados
+postgrado_gra <- UnalData::Graduados %>%
+  filter(TIPO_NIVEL == "Postgrado") %>% group_by(SNIES_PROGRA) %>%
+  count(name = "Graduados")
+
+# Base de datos consolidada
+
+Pos1 <- full_join(postgrado_Asp, postgrado_mat)  
+SNIES_Postgrado <- full_join(Pos1,  postgrado_gra) %>% ungroup() %>%
+  mutate(across(Aspirantes:Graduados, ~if_else(is.na(.), 0, 1)))
+
+
+write_xlsx(SNIES_Postgrado, "Datos/Entrega6/SNIES_Postgrado.xlsx")
+
+###
+# Pregrado
+###
+
+# Aspirantes
+
+Pro_pregrado <- UnalData:: Aspirantes %>%
+  filter(TIPO_NIVEL == "Pregrado",
+         ADMITIDO == "Sí",
+         INS_SEDE_NOMBRE %in% c("Bogotá", "Medellín", "Manizales", "Palmira", "De La Paz"))%>% group_by(SNIES_PROGRA) %>%
+  count(name = "Aspirantes")
+
+# Matriculados
+
+Mat_pregrado <- UnalData:: Matriculados %>%
+  filter(TIPO_NIVEL == "Pregrado",
+         SEDE_NOMBRE_MAT %in% c("Bogotá", "Medellín", "Manizales", "Palmira", "De La Paz"))%>% group_by(SNIES_PROGRA) %>%
+  count(name = "Matriculados")
+
+# Graduados
+
+Gra_pregrado <- UnalData:: Graduados %>%
+  filter(TIPO_NIVEL == "Pregrado",
+         SEDE_NOMBRE_MAT %in% c("Bogotá", "Medellín", "Manizales", "Palmira", "De La Paz"))%>% group_by(SNIES_PROGRA) %>%
+  count(name = "Graduados")
+
+# Base de datos consolidada
+
+Pre1 <- full_join(Pro_pregrado, Mat_pregrado)  
+SNIES_Pregrado <- full_join(Pre1, Gra_pregrado) %>% ungroup() %>%
+  mutate(across(Aspirantes:Graduados, ~if_else(is.na(.), 0, 1)))
+
+write_xlsx(SNIES_Pregrado, "Datos/Entrega6/SNIES_Pregrado.xlsx")
+
+######################################-
+# 7 Solicitud 02-09-2021 -----
 ######################################-
 
 # Demanda : amixsegura_nal@unal.edu.co
