@@ -200,3 +200,133 @@ View(Graduados_Estrato_1)
 all_equal(Graduados_Estrato, Graduados_Estrato_1, convert = TRUE)
 # OJO: Se utiliza el argumento convert en razón a que los tipos de las
 # variables (class) de los dos conjuntos de datos son diferentes
+
+######################################-
+# 6 Solicitud 02-09-2021 -----
+######################################-
+
+# Demanda : amixsegura_nal@unal.edu.co
+# Estudio Multidimensional De Las Violencias eje cual 
+
+# Descripción: Nos comunicamos con ustedes para consultar la 
+# disponibilidad de información sociodemográfica (edad, estrato 
+# socioeconómico, sexo/género, orientación e identidad sexual, 
+# adscripción étnica, lugar de nacimiento y residencia) 
+# del estudiantado matriculado en los últimos cinco años
+# académicos en los programas de pregrado de Ingeniería Geológica,
+# Ingeniería de Petróleos e Ingeniería Ambiental de la Facultad 
+# de Minas de la sede de Medellín y del pregrado de Diseño 
+# Gráfico de la Facultad de Artes en la sede de Bogotá. 
+# Esta información aportará sustancialmente a la selección de 
+# la muestra conceptual para las entrevistas a profundidad que
+# realizaremos con estudiantes de pregrado que han sido víctimas 
+# de violencia sexual. 
+
+# Seleccionar programas de interés
+# Ingeniería Geológica - Medellín - 126
+# Ingeniería de Petróleos - Medellín - 119
+# Ingeniería Ambiental - Medellín - 55189
+# Diseño Gráfico _ Bogotá - 4
+
+Mat_Programas <- UnalData::Matriculados %>% 
+  filter(SNIES_PROGRA %in% c(126, 119, 55189, 4))
+
+
+# Variable Edad
+Mat_Programas <- mutate(Mat_Programas, CAT_EDAD = if_else(is.na(CAT_EDAD), "Sin información", CAT_EDAD)) 
+Mat_Programas <- mutate(Mat_Programas, CAT_EDAD = ifelse(CAT_EDAD == "26 o  más años", "26 o más años", CAT_EDAD)) 
+
+Mat_Programas_Edad <- Mat_Programas %>% 
+  filter(YEAR %in% c(2016:2020)) %>% 
+  group_by(YEAR, SEMESTRE, SNIES_PROGRA, PROGRAMA, CAT_EDAD) %>% 
+  summarise(Total = n()) %>% 
+  pivot_wider(names_from = c(CAT_EDAD), values_from = Total) %>% 
+  arrange(SNIES_PROGRA)
+
+# Variable Estrato
+
+Mat_Programas_Estrato <- Mat_Programas %>% 
+  filter(YEAR %in% c(2016:2020)) %>% 
+  group_by(YEAR, SEMESTRE, SNIES_PROGRA, PROGRAMA, ESTRATO_ORIG) %>% 
+  summarise(Total = n()) %>% 
+  pivot_wider(names_from = c(ESTRATO_ORIG), values_from = Total) %>% 
+  arrange(SNIES_PROGRA) %>% 
+  mutate(across(.cols = c(`Estrato 1`: `Estrato 6`),
+                .fns = ~replace_na(.x, 0)))
+  
+
+# Variable Sexo
+
+Mat_Programas_Sexo <- Mat_Programas %>% 
+  filter(YEAR %in% c(2016:2020)) %>% 
+  group_by(YEAR, SEMESTRE, SNIES_PROGRA, PROGRAMA, SEXO) %>% 
+  summarise(Total = n()) %>% 
+  pivot_wider(names_from = c(SEXO), values_from = Total) %>% 
+  arrange(SNIES_PROGRA)
+  
+# Variable Tipo de Admisión - TIPO_ADM
+
+Mat_Programas_Admi <- Mat_Programas %>% 
+  filter(YEAR %in% c(2016:2020)) %>% 
+  group_by(YEAR, SEMESTRE, SNIES_PROGRA, PROGRAMA, TIPO_ADM) %>% 
+  summarise(Total = n()) %>% 
+  pivot_wider(names_from = c(TIPO_ADM), values_from = Total) %>% 
+  arrange(SNIES_PROGRA) %>% 
+  mutate(across(.cols = c(PAES:PEAMA),
+                .fns = ~replace_na(.x, 0)))
+
+
+# Variable Tipo de Admisión - TIPO_ADM - PAES
+
+Mat_Programas_PAES <- Mat_Programas %>% 
+  filter(YEAR %in% c(2016:2020), TIPO_ADM == "PAES") %>% 
+  group_by(YEAR, SEMESTRE, SNIES_PROGRA, PROGRAMA, PAES) %>% 
+  summarise(Total = n()) %>% 
+  pivot_wider(names_from = c(PAES), values_from = Total) %>% 
+  arrange(SNIES_PROGRA) %>% 
+  mutate(across(.cols = c(`Comunidades indígenas`:`Victimas del conflicto armado interno en Colombia`),
+                .fns = ~replace_na(.x, 0)))
+
+
+# Cruzar Bases de Datos Edad, Estrato, Sexo, TIPO_ADM, PAES
+
+Mat_Programas_Edad
+Mat_Programas_Estrato
+Mat_Programas_Sexo
+Mat_Programas_Admi 
+Mat_Programas_PAES
+
+c1 <- left_join(Mat_Programas_Edad, Mat_Programas_Estrato, by = c("YEAR", "SEMESTRE", "SNIES_PROGRA", "PROGRAMA"))
+c2 <- left_join(c1,  Mat_Programas_Sexo, by = c("YEAR", "SEMESTRE", "SNIES_PROGRA", "PROGRAMA"))
+c3 <- left_join(c2,  Mat_Programas_Admi, by = c("YEAR", "SEMESTRE", "SNIES_PROGRA", "PROGRAMA"))
+Base_Final <- left_join(c3,  Mat_Programas_PAES, by = c("YEAR", "SEMESTRE", "SNIES_PROGRA", "PROGRAMA"))
+
+write_xlsx(Base_Final, "C:/Users/Alberto/Documents/Sistema Estadistico/Rta_ONE/Programas.xlsx")
+
+
+# Variable Lugar/Municipio de Nacimiento
+
+Mat_Programas_Naci <- Mat_Programas %>% 
+  filter(YEAR %in% c(2016:2020))%>% 
+  group_by(YEAR, SEMESTRE, SNIES_PROGRA, PROGRAMA, DEP_NAC, CIU_NAC) %>% 
+  summarise(Total = n()) %>% ungroup() %>% 
+  mutate(across(.cols = c(DEP_NAC, CIU_NAC),
+                .fns = ~replace_na(.x, "Sin información")))
+
+write_xlsx(Mat_Programas_Naci, "C:/Users/Alberto/Documents/Sistema Estadistico/Rta_ONE/Nacimiento.xlsx")
+
+
+# Variable Lugar/Municipio de Procedencia
+
+Mat_Programas_Proc <- Mat_Programas %>% 
+  filter(YEAR %in% c(2016:2020))%>% 
+  group_by(YEAR, SEMESTRE, SNIES_PROGRA, PROGRAMA, DEP_PROC, CIU_PROC) %>% 
+  summarise(Total = n()) %>% ungroup() %>% 
+  mutate(across(.cols = c(DEP_PROC, CIU_PROC),
+                .fns = ~replace_na(.x, "Sin información")))
+
+
+write_xlsx(Mat_Programas_Proc, "C:/Users/Alberto/Documents/Sistema Estadistico/Rta_ONE/Procedencia.xlsx")
+
+
+
