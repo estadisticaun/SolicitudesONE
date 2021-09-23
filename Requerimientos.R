@@ -634,5 +634,67 @@ Mat_Programas_Proc <- Mat_Programas %>%
 
 write_xlsx(Mat_Programas_Proc, "C:/Users/Alberto/Documents/Sistema Estadistico/Rta_ONE/Procedencia.xlsx")
 
+######################################-
+# 8 Solicitud 23-09-2021 -----
+######################################-
+
+# Demanda : Paula Rios - Sede Manizales
+# Solicitud datos de 2 programas curriculares Sede 
+
+# Dado que la sede se está preparando para recibir visita de
+# evaluación externa para la renovación de la acreditación de
+#l pregrado en Ingeniería Industrial y  doctorado en ingeniería - industria y organizaciones, 
+# muy cordialmente, solicitamos colaboración en el suministro de la siguiente información:
+#   
+# Cifras de estudiantes matriculados, 
+# procedencia de los estudiantes matriculados y graduados 
+# de los programas en mención.
+# 
+# Lo anterior, en una línea de tiempo de 5 años.
+
+# Pregrado Ingeniería Industrial SNIES = 4124
+# Doctorado en ingeniería - industria y organizaciones = 55184
+
+# Base de datos de matriculados por programa
+
+Mat_Programas <- UnalData::Matriculados %>% 
+  filter(SNIES_PROGRA %in% c(4124, 55184), YEAR %in% c(2016:2021)) %>% 
+  group_by(YEAR, SEMESTRE, NIVEL, SNIES_PROGRA, PROGRAMA) %>% 
+  summarise(Total = n()) %>% 
+  arrange(desc(NIVEL))
+
+# Base de datos de graduados por programa
+
+Gra_Programas <- UnalData::Graduados %>% 
+  filter(SNIES_PROGRA %in% c(4124, 55184), YEAR %in% c(2016:2021)) %>% 
+  group_by(YEAR, SEMESTRE, NIVEL, SNIES_PROGRA, PROGRAMA) %>% 
+  summarise(Total = n()) %>% 
+  arrange(desc(NIVEL))
 
 
+# Variable Lugar/Municipio de Nacimiento - Matriculados
+
+Mat_Programas_Naci <- UnalData::Matriculados %>% 
+  filter(SNIES_PROGRA %in% c(4124, 55184), YEAR %in% c(2016:2021)) %>%  
+  group_by(YEAR, SEMESTRE, NIVEL, SNIES_PROGRA, PROGRAMA, DEP_NAC, CIU_NAC) %>% 
+  summarise(Total = n(), .groups = "drop" ) %>% 
+  mutate(across(.cols = c(DEP_NAC, CIU_NAC),
+                .fns = ~replace_na(.x, "Sin información")))%>% 
+  arrange(desc(NIVEL))
+
+# Variable Lugar/Municipio de Nacimiento - Graduados
+
+Gra_Programas_Naci <- UnalData::Graduados %>% 
+  filter(SNIES_PROGRA %in% c(4124, 55184), YEAR %in% c(2016:2021)) %>%  
+  group_by(YEAR, SEMESTRE, NIVEL, SNIES_PROGRA, PROGRAMA, DEP_NAC, CIU_NAC) %>% 
+  summarise(Total = n(), .groups = "drop" ) %>% 
+  mutate(across(.cols = c(DEP_NAC, CIU_NAC),
+                .fns = ~replace_na(.x, "Sin información")))%>% 
+  arrange(desc(NIVEL))
+
+# Exportar Resultados
+
+write_xlsx(Mat_Programas, "Datos/Entrega8/Mat_Programas.xlsx")
+write_xlsx(Gra_Programas, "Datos/Entrega8/Gra_Programas.xlsx")
+write_xlsx(Mat_Programas_Naci, "Datos/Entrega8/Mat_Programas_Naci.xlsx")
+write_xlsx(Gra_Programas_Naci, "Datos/Entrega8/Gra_Programas_Naci.xlsx")
