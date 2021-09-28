@@ -698,3 +698,70 @@ write_xlsx(Mat_Programas, "Datos/Entrega8/Mat_Programas.xlsx")
 write_xlsx(Gra_Programas, "Datos/Entrega8/Gra_Programas.xlsx")
 write_xlsx(Mat_Programas_Naci, "Datos/Entrega8/Mat_Programas_Naci.xlsx")
 write_xlsx(Gra_Programas_Naci, "Datos/Entrega8/Gra_Programas_Naci.xlsx")
+
+
+######################################-
+# 9 Solicitud 28-09-2021 -----
+######################################-
+
+# Demanda : Paola Andrea Ribero Ortega - ENEL - Codensa
+# Solicitud datos para PROYECTO ENEL - MUJERES EN CARRERAS STEM
+
+# Buenas tardes, estimados. Cordial saludo.
+# 
+# El Grupo Enel creemos en la diversidad y actualmente 
+# estamos trabajando fuertemente en abrir excelentes 
+# oportunidades para que cada vez más mujeres talentosas 
+# se puedan unir a nuestro equipo y puedan aportar en un 
+# sector que históricamente ha sido liderado en su gran 
+# mayoría por hombres. Es por esta razón, que hemos 
+# implementado diferentes acciones para lograr este 
+# objetivo, y en esta oportunidad ustedes son un actor 
+# fundamental para lograrlo.
+# 
+# A través de su pagina web pudimos encontrar información 
+# referente al número de personas matriculadas y graduadas 
+# en los diferentes periodos académicos desde el 2009
+# hasta el 2021, pero necesitamos conocer la cantidad de 
+# hombres y mujeres matriculados y egresados por facultad, 
+# para el estudio previo que estamos llevando a cabo. Es por
+# esto que quisiéramos pedirles apoyo con el envío de una 
+# base de datos que contenga esta información con respecto 
+# a los periodos académicos de los últimos 5 años, para 
+# las facultades de Enfermería, Medicina, Ciencias, 
+# Ingeniería, y Ciencias Económicas únicamente.
+
+# Base de datos de matriculados por Facultad y Sexo
+
+Mat_Programas <- UnalData::Matriculados %>% 
+  mutate(PERIODO = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  filter(SEDE_NOMBRE_MAT == "Bogotá",
+         FACULTAD %in% c("Ingeniería", "Enfermería", "Medicina", "Ciencias", "Ciencias económicas"),
+         TIPO_NIVEL == "Pregrado",
+         YEAR %in% c(2016:2021),
+         MAT_PVEZ == "Sí") %>% 
+  group_by(PERIODO, SEXO, FACULTAD) %>% 
+  summarise(Total = n()) %>%
+  pivot_wider(names_from = c(FACULTAD, SEXO), values_from = Total) %>% 
+  relocate(c(4, 9, 6, 11, 2, 7, 5, 10, 3, 8), .after = 1)
+
+
+# Base de datos de graduados por Facultad y Sexo
+
+Gra_Programas <- UnalData::Graduados %>% 
+  mutate(PERIODO = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  filter(SEDE_NOMBRE_MAT == "Bogotá",
+         FACULTAD %in% c("Ingeniería", "Enfermería", "Medicina", "Ciencias", "Ciencias económicas"),
+         TIPO_NIVEL == "Pregrado",
+         YEAR %in% c(2016:2021)) %>% 
+  group_by(PERIODO, SEXO, FACULTAD) %>% 
+  summarise(Total = n()) %>%
+  pivot_wider(names_from = c(FACULTAD, SEXO), values_from = Total) %>% 
+  relocate(c(4, 9, 6, 11, 2, 7, 5, 10, 3, 8), .after = 1) %>% 
+  arrange(desc(PERIODO))
+
+
+# Exportar Resultados
+
+write_xlsx(Mat_Programas, "Datos/Entrega9/Mat_Facultades.xlsx")
+write_xlsx(Gra_Programas, "Datos/Entrega9/Gra_Facultades.xlsx")
