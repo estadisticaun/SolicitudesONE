@@ -607,7 +607,7 @@ c2 <- left_join(c1,  Mat_Programas_Sexo, by = c("YEAR", "SEMESTRE", "SNIES_PROGR
 c3 <- left_join(c2,  Mat_Programas_Admi, by = c("YEAR", "SEMESTRE", "SNIES_PROGRA", "PROGRAMA"))
 Base_Final <- left_join(c3,  Mat_Programas_PAES, by = c("YEAR", "SEMESTRE", "SNIES_PROGRA", "PROGRAMA"))
 
-write_xlsx(Base_Final, "C:/Users/Alberto/Documents/Sistema Estadistico/Rta_ONE/Programas.xlsx")
+write_xlsx(Base_Final, "Datos/Entrega7/Programas.xlsx")
 
 
 # Variable Lugar/Municipio de Nacimiento
@@ -633,6 +633,20 @@ Mat_Programas_Proc <- Mat_Programas %>%
 
 
 write_xlsx(Mat_Programas_Proc, "C:/Users/Alberto/Documents/Sistema Estadistico/Rta_ONE/Procedencia.xlsx")
+
+# NUEVO REQUERIMIENTO - ENTREGA BASE CRUZADA TOTAL VARIABLES DE INTERÉS
+
+Mat_Programas_agregado <- UnalData::Matriculados %>% 
+  filter(SNIES_PROGRA %in% c(126, 119, 55189, 4), 
+         YEAR %in% c(2016:2020)) %>% 
+  group_by(YEAR, SEMESTRE, SNIES_PROGRA, PROGRAMA, SEXO, 
+           CAT_EDAD, ESTRATO_ORIG, TIPO_ADM, PAES,
+           DEP_NAC, CIU_NAC, DEP_PROC, CIU_PROC) %>% 
+  summarise(`Total matriculados` = n())         
+
+write_xlsx(Mat_Programas_agregado, "Datos/Entrega7/Agregado.xlsx")
+
+
 
 ######################################-
 # 8 Solicitud 23-09-2021 -----
