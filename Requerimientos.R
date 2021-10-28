@@ -779,3 +779,16 @@ Gra_Programas <- UnalData::Graduados %>%
 
 write_xlsx(Mat_Programas, "Datos/Entrega9/Mat_Facultades.xlsx")
 write_xlsx(Gra_Programas, "Datos/Entrega9/Gra_Facultades.xlsx")
+
+
+######################################-
+# 10 Solicitud 27-10-2021 -----
+######################################-
+
+# Total de municipios con estudiantes matriculados
+
+names(UnalData::Matriculados)
+
+View(UnalData::Matriculados %>% mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-" )) %>% 
+  filter(Periodo == "2021-1") %>% 
+  group_by(COD_CIU_NAC) %>% count())
