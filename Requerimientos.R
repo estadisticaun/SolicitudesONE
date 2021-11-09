@@ -792,3 +792,20 @@ names(UnalData::Matriculados)
 View(UnalData::Matriculados %>% mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-" )) %>% 
   filter(Periodo == "2021-1") %>% 
   group_by(COD_CIU_NAC) %>% count())
+
+######################################-
+# 10 Solicitud 09-11-2021 -----
+######################################-
+
+# Total de graduados de la Sede Orinoquía
+
+Grad_Orinoquia <- UnalData::Graduados %>% filter(TIPO_NIVEL == "Pregrado", SEDE_NOMBRE_ADM == "Orinoquía") %>% 
+                  select(c("ID", "TID", "YEAR", "SEMESTRE", "EDAD_MOD", "CAT_EDAD", 
+                           "DEP_NAC", "COD_DEP_NAC", "CIU_NAC", "COD_CIU_NAC",
+                           "SEDE_NOMBRE_MAT", "FACULTAD", "SNIES_PROGRA", "PROGRAMA"))
+
+
+# Exportar Resultados
+
+write_xlsx(Grad_Orinoquia, "C:/Users/Alberto/Documents/Sistema Estadistico/Rta_ONE/Gra_Orinoquia.xlsx")
+
