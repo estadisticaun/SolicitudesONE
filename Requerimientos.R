@@ -794,7 +794,7 @@ View(UnalData::Matriculados %>% mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-"
   group_by(COD_CIU_NAC) %>% count())
 
 ######################################-
-# 10 Solicitud 09-11-2021 -----
+# 11 Solicitud 09-11-2021 -----
 ######################################-
 
 # Total de graduados de la Sede Orinoquía
