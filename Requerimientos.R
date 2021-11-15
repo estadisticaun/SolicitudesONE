@@ -809,3 +809,39 @@ Grad_Orinoquia <- UnalData::Graduados %>% filter(TIPO_NIVEL == "Pregrado", SEDE_
 
 write_xlsx(Grad_Orinoquia, "C:/Users/Alberto/Documents/Sistema Estadistico/Rta_ONE/Gra_Orinoquia.xlsx")
 
+######################################-
+# 12 Solicitud 16-11-2021 -----
+######################################-
+
+# Demanda : Luis Alfredo Montes - Director Área Curricular
+# 
+
+# Buenos días:
+  
+# Cordial saludo, para fines de nuestro proceso de autoevaluación y construcción del informe de gestión 2021, 
+# amablemente solicito la siguiente información:
+  
+# Número de admitidos 2021 de los programas PAES y PEAMA, 
+# indicando sede de origen.
+
+# Admitidos PEAMA 2021
+
+Adm_PEAMA <- UnalData::Aspirantes %>% 
+             filter(SNIES_PROGRA == 34, YEAR == 2021, TIPO_INS == "PEAMA") %>% 
+             mutate(PERIODO = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+             group_by(SNIES_PROGRA,	PROGRAMA, PERIODO, PEAMA) %>% 
+             summarise(Total = n(), .groups = "drop") %>% 
+             pivot_wider(names_from = c(PEAMA), values_from = Total, values_fill = 0) 
+
+
+Adm_PAES <- UnalData::Aspirantes %>% 
+  filter(SNIES_PROGRA == 34, YEAR == 2021, TIPO_INS == "PAES") %>% 
+  mutate(PERIODO = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  group_by(SNIES_PROGRA,	PROGRAMA, PERIODO, PAES) %>% 
+  summarise(Total = n(), .groups = "drop") %>% 
+  pivot_wider(names_from = c(PAES), values_from = Total, values_fill = 0)
+
+Adm_Geologia <- left_join(Adm_PEAMA, Adm_PAES, by = c("PERIODO","SNIES_PROGRA", "PROGRAMA"))
+
+write_xlsx(Adm_Geologia, "Datos/Entrega12/Adm_Geologia.xlsx")
+
