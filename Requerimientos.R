@@ -824,7 +824,11 @@ write_xlsx(Grad_Orinoquia, "C:/Users/Alberto/Documents/Sistema Estadistico/Rta_O
 # Número de admitidos 2021 de los programas PAES y PEAMA, 
 # indicando sede de origen.
 
-# Admitidos PEAMA 2021
+##########################-
+# Programa de Geología
+##########################-
+
+# Admitidos PEAMA 2021 
 
 Adm_PEAMA <- UnalData::Aspirantes %>% 
              filter(SNIES_PROGRA == 34, YEAR == 2021, TIPO_INS == "PEAMA") %>% 
@@ -833,6 +837,7 @@ Adm_PEAMA <- UnalData::Aspirantes %>%
              summarise(Total = n(), .groups = "drop") %>% 
              pivot_wider(names_from = c(PEAMA), values_from = Total, values_fill = 0) 
 
+# Admitidos PAES 2021 
 
 Adm_PAES <- UnalData::Aspirantes %>% 
   filter(SNIES_PROGRA == 34, YEAR == 2021, TIPO_INS == "PAES") %>% 
@@ -844,4 +849,62 @@ Adm_PAES <- UnalData::Aspirantes %>%
 Adm_Geologia <- left_join(Adm_PEAMA, Adm_PAES, by = c("PERIODO","SNIES_PROGRA", "PROGRAMA"))
 
 write_xlsx(Adm_Geologia, "Datos/Entrega12/Adm_Geologia.xlsx")
+
+#####################-
+# Sede Bogotá
+#####################-
+
+# Admitidos PEAMA 2021 
+
+Adm_PEAMA_Bog <- UnalData::Aspirantes %>% 
+  filter(TIPO_INS == "PEAMA", ADM_ANDINA_PEAMA == "Bogotá", YEAR == 2021) %>% 
+  mutate(PERIODO = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  group_by(ADM_ANDINA_PEAMA, PERIODO, PEAMA) %>% 
+  summarise(Total = n(), .groups = "drop") %>% 
+  pivot_wider(names_from = c(PEAMA), values_from = Total, values_fill = 0) 
+
+# Admitidos PAES 2021 
+
+Adm_PAES_Bog <- UnalData::Aspirantes %>% 
+  filter(TIPO_INS == "PAES", ADM_SEDE_NOMBRE == "Bogotá" , YEAR == 2021) %>% 
+  mutate(PERIODO = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  group_by(ADM_SEDE_NOMBRE, PERIODO, PAES) %>% 
+  summarise(Total = n(), .groups = "drop") %>% 
+  pivot_wider(names_from = c(PAES), values_from = Total, values_fill = 0)
+
+
+######################################-
+# 13 Solicitud 22-11-2021 -----
+######################################-
+
+# Asunto: Derecho de Petición
+# NOMBRE DEL PETICIONARIO: Carlos Alberto
+# APELLIDO DEL PETICIONARIO: Pulgarin Galvis
+# Estudiante del programa de Biología
+# Universidad del Quindío
+# TIPO DE IDENTIFICACIÓN:
+# CÉDULA DE CIUDADANÍA NÚMERO: 1094929876
+# DIRECCIÓN:
+# BARRIO: Portal de Pinares Manzana 16 casa 3
+# MUNICIPIO DÓNDE RESIDE: Armenia
+# CORREO ELECTRÓNICO: carlosa.pulgaring@uqvirtual.edu.co
+# TELÉFONOS DE CONTACTO: 3122207799
+
+# Solicito amablemente
+# La siguiente información referente al Programa de Biología que oferta su universidad
+# Costo en pesos de la matricula académica.
+# Número de egresados acumulado hasta la fecha desde la creación del programa.
+# Número de egresados del año más reciente.
+# Número de estudiantes actuales en el programa.
+# Año en que se inició el programa.
+
+# Selecionar base de datos de graduados en Biología
+
+Grad_Biologia <- UnalData::Graduados %>% 
+  filter(SNIES_PROGRA == 31) %>% 
+  mutate(PERIODO = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  group_by(SNIES_PROGRA,	PROGRAMA, PERIODO) %>% 
+  summarise(Total = n(), .groups = "drop") %>% 
+  arrange(PERIODO)
+
 
