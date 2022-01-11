@@ -907,4 +907,43 @@ Grad_Biologia <- UnalData::Graduados %>%
   summarise(Total = n(), .groups = "drop") %>% 
   arrange(PERIODO)
 
+######################################-
+# 14 Solicitud 11-01-2022 -----
+######################################-
+
+# Respuesta Derecho de Petición
+# Guillem Frederick Solo
+# C.C. 1.095.929.687
+# Memorando de Rectoría 15 de 2022
+
+# 1. ¿Cuál es la edad promedio de los jóvenes que obtienen su título de pregrado en la
+# institución? En caso de no poseer la información dejarlo claro en su respuesta.
+# 
+# 2. Clasificación de la plata docente discriminado por máximo nivel académico logrado, es decir,
+# cuantos cuentan con doctorados, cuantos con maestría, cuantos con especialización o solo
+# con título de pregrado.
+# 
+# 3. Se precisa conocer datos de la infraestructura física tales como: número de salones de clase
+# de clases, número de laboratorios, área total construida en metros cuadrados. 
+
+# EDAD PROMEDIO GRADUADOS PREGRADO
+
+Edad_graduados <- UnalData::Graduados %>% 
+  filter(TIPO_NIVEL == "Pregrado") %>% 
+  group_by(YEAR, SEMESTRE) %>% 
+  summarise('Total Graduado' = n(),
+            'Edad Promedio' = round(mean(EDAD_MOD, na.rm = TRUE), 2)) %>% 
+  arrange(desc(YEAR), desc(SEMESTRE))
+
+# MÁXIMO NIVEL DE FORMACIÓN DOCENTES
+
+Formacion_Docentes <- UnalData::Docentes %>% 
+  group_by(YEAR, SEMESTRE, FORMACION) %>% 
+  summarise('Total Docentes' = n())
+
+# Exportar resultados
+
+write_xlsx(Edad_graduados, "Datos/Entrega14/Edad_Graduados.xlsx")
+write_xlsx(Formacion_Docentes, "Datos/Entrega14/Formacion_Docentes.xlsx")
+
 
