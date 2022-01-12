@@ -946,4 +946,26 @@ Formacion_Docentes <- UnalData::Docentes %>%
 write_xlsx(Edad_graduados, "Datos/Entrega14/Edad_Graduados.xlsx")
 write_xlsx(Formacion_Docentes, "Datos/Entrega14/Formacion_Docentes.xlsx")
 
+######################################-
+# 15 Solicitud 12-01-2022 -----
+######################################-
 
+
+# Demandante: Angie Geraldin Aldana Fandino
+
+# Buenas tardes señores Estadistica UNAL 
+# 
+# Mi nombre es Angie Aldana, estudiante de medicina veterinaria de la Universidad Nacional sede Bogotá, me encuentro realizando una encuesta para la asignatura de salud pública, para lo cual necesito saber cuántos estudiantes están matriculados SOLAMENTE en la carrera de Medicina Veterinaria, hasta el año 2021, 
+# ya que consulté la plataforma estadística sin embargo me aparecen estudiantes de "veterinaria y zootecnia" juntos.  
+# 
+# Agradezco su atención y quedo atenta a sus comentarios  
+
+# CONSULTA MATRICULADOS MEDICINA VETERINARIA Y ZOOTECNIA
+
+Matricula_MVZ <- UnalData::Matriculados %>% filter(SNIES_PROGRA == 2) %>% group_by(YEAR, SEMESTRE) %>% 
+                 count(name = "Total Matriculados") %>% 
+                 arrange(desc(YEAR), desc(SEMESTRE))
+
+# Exportar resultados
+
+write_xlsx(Matricula_MVZ, "Datos/Entrega15/Matricula_MVZ.xlsx")
