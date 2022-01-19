@@ -969,3 +969,38 @@ Matricula_MVZ <- UnalData::Matriculados %>% filter(SNIES_PROGRA == 2) %>% group_
 # Exportar resultados
 
 write_xlsx(Matricula_MVZ, "Datos/Entrega15/Matricula_MVZ.xlsx")
+
+######################################-
+# 16 Solicitud 18-01-2022 -----
+######################################-
+
+# Demandante: SOLÁNGEL MARÍN PEÑARANDA - Secretaria de Sede - Sede Amazonia
+
+# Buenos días Alberto, mi nombre es Solangel Marin Pañaranda, 
+# Secretaría de Sede. 
+# Mi solicitud respetuosa es que desde la sede Amazonía se 
+# requiere el reporte de graduados de los periodos 2020-1, 2020-2, 2021-1 y 2021-2,
+# por lo que teniendo en cuenta que la Dirección de Planeación es la dependencia que
+# emite las cifras oficiales de la Universidad, es muy importante contar con dicha 
+# información oficial para los respectivos fines y actividades.
+
+# Microdatos
+
+  Grad_Amazonia <- UnalData::Graduados %>% 
+  mutate(PERIODO = paste(YEAR, SEMESTRE, sep = "-")) %>%
+  filter(SNIES_SEDE_ADM == 1125, YEAR %in% c(2020, 2021))
+
+# Consolidado
+
+Con_Grad_Amazonia <- UnalData::Graduados %>% 
+                 mutate(PERIODO = paste(YEAR, SEMESTRE, sep = "-")) %>%
+                 filter(SNIES_SEDE_ADM == 1125, YEAR %in% c(2020, 2021)) %>% 
+                 group_by(PERIODO, TIPO_NIVEL) %>%  
+                 summarise(Total = n()) %>%
+                 pivot_wider(names_from = c(TIPO_NIVEL), values_from = Total)
+
+# Exportar resultados
+
+write_xlsx(Grad_Amazonia, "Datos/Entrega16/Grad_Amazonia.xlsx")
+write_xlsx(Con_Grad_Amazonia, "Datos/Entrega16/Con_Grad_Amazonia.xlsx")
+
