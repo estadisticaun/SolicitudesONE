@@ -7,6 +7,9 @@ library(dplyr)
 library(tidyr)
 library(readxl)
 library(writexl)
+library(tidyverse)
+library(ggthemes)
+library(ggrepel)
 
 ######################################-
 # 1 Solicitud 14-05-2021 -----
@@ -1003,4 +1006,382 @@ Con_Grad_Amazonia <- UnalData::Graduados %>%
 
 write_xlsx(Grad_Amazonia, "Datos/Entrega16/Grad_Amazonia.xlsx")
 write_xlsx(Con_Grad_Amazonia, "Datos/Entrega16/Con_Grad_Amazonia.xlsx")
+
+
+######################################-
+# 17 Solicitud 19-01-2022 -----
+######################################-
+
+# Demanda: Maria Claudia Galindo Gonzales
+# Análisis Sisben IV - Impacto en la UNAL
+
+# Importar y transformar datos de pregrado
+
+SisbenIV <- read_excel("Datos/Fuentes/SisbenIV.xlsx") %>% 
+            filter(NIVEL == "PREGRADO") %>% 
+            mutate(SEXO = case_when(SEXO == 'F' ~ "Femenino",
+                                    SEXO == 'M' ~ "Masculino"),
+                   CAT_PBM = case_when(PBM <= 11 ~ "11 o menos",
+                                       between(PBM, 12, 17) ~ "12 a 17",
+                                       between(PBM, 18, 50) ~ "18 a 50",
+                                       between(PBM, 51, 100) ~ "51 a 100",
+                                       is.na(PBM) ~ "Sin información"),
+                   CAT_EDAD = case_when(EDAD <= 17 ~ "17 años o menos",
+                                       between(EDAD, 18, 20) ~ "18 a 20 años",
+                                       between(EDAD, 21, 25) ~ "21 a 25 años",
+                                       EDAD >= 26 ~ "26 o más años")
+
+                   )
+
+# Construcción de Gráficos
+
+
+# ANÁLISIS SISBEN
+
+# Estudiantes Sisbenizados
+
+# Obtener las posiciones
+
+Sisben <- SisbenIV %>% 
+  group_by(SISBEN) %>%
+  summarize(Total = n()) %>% 
+  mutate(pct = Total/sum(Total),
+         Porcentaje = scales::percent(pct),
+         Porcentaje = paste(Porcentaje, "\n", paste0("(", "N=", Total, ")"))) 
+
+
+ggplot(Sisben, aes(x = "" , y = Total, fill = fct_inorder(SISBEN))) +
+  geom_bar(stat = "identity")+
+  coord_polar(theta = "y", start = 0) +
+  geom_text(aes(vjust = -1.6, y = Total, label= Porcentaje), col = "white", size = 5, fontface = "bold")+
+  scale_fill_manual(values = c("#377eb8", "#e41a1c"))+
+  labs(fill = "¿Con Sisben IV?")+
+  theme_void() +
+  ggtitle("Proporción de estudiantes matriculados en pregrado en la UNAL con Sisben IV",
+          subtitle = "Periodo 2021-1")+
+  theme(legend.position = c(1,0.1),
+        legend.title = element_text(size=13),
+        legend.text = element_text(size=13))
+  
+# Grupos Sisben
+
+Sisben_grupo <- SisbenIV %>% 
+  filter(SISBEN == "Sí") %>% 
+  group_by(GRUPO_S) %>%
+  summarize(Total = n()) %>% 
+  mutate(pct = Total/sum(Total),
+         Porcentaje = scales::percent(pct),
+         Porcentaje = paste(Porcentaje, "\n", paste0("(", Total, ")"))) 
+
+ggplot(Sisben_grupo, aes(x = GRUPO_S, y=pct)) + 
+  geom_bar(stat = 'identity', fill = "#74c476")+
+  scale_y_continuous(limits=c(0, 1), 
+                     breaks = seq(0, 1, .2), 
+                     label = c('0%', '20%', '40%', '60%', '80%', '100%')) +
+  geom_text(aes(label = Porcentaje), 
+            size = 4, 
+            position = position_stack(vjust = 0.5)) +
+  ggtitle("Estudiantes Pregrado UNAL en la base Sisben IV \n por grupos Sisben") +
+  xlab("Grupo Sisben") + ylab("Porcentaje \n ")+
+  theme_stata() +
+  labs(fill = "¿Con Sisben IV?")+
+  theme(
+    plot.title = element_text(color="black", size=14, face="bold", hjust = 0.5 ),
+    axis.title.x = element_text(color="black", size=13, face="bold"),
+    axis.title.y = element_text(color="black", size=13, face="bold" ),
+    legend.title = element_text(colour="blue", size=10, face="bold", vjust = 0.5))+
+    annotate("text", x = 1:4, y = c(0.20, 0.37, 0.53, 0.35), angle = 90, color = "red", 
+           label = c("Pobreza\nextrema", "Pobreza\nmoderada", "Vulnerable", "Población no pobre,\nno vulnerable"), 
+           size=4, fontface = 'bold') 
+  
+
+# ANÁLISIS DISTRIBUCIÓN SISBEN POR VARIABLES
+
+# Distribución Sisben IV - Por sexo
+
+  Sisben_sex <- SisbenIV %>%
+  group_by(SEXO, SISBEN) %>%
+  summarize(Total = n()) %>% 
+  mutate(pct = Total/sum(Total),
+         Porcentaje = scales::percent(pct),
+         Porcentaje = paste(Porcentaje, "\n", paste0("(", Total, ")"))) 
+
+  ggplot(Sisben_sex, aes(x = SEXO, y=pct, fill=SISBEN)) + 
+    geom_bar(position = "fill", stat = 'identity')+
+    geom_hline(yintercept = 0.34, linetype="dashed", color = "red", size = 0.5) +
+    scale_y_continuous(breaks = seq(0, 1, .2), 
+                       label = c('0%', '20%', '40%', '60%', '80%', '100%')) +
+    geom_text(aes(label = Porcentaje), 
+              size = 4, 
+              position = position_stack(vjust = 0.5)) +
+    scale_fill_brewer(palette = "Set2")+
+    ggtitle("Estudiantes Pregrado UNAL en la base Sisben IV \n por sexo") +
+    xlab("Sexo") + ylab("Porcentaje \n ")+
+    theme_stata() +
+    labs(fill = "¿Con Sisben IV?")+
+    theme(
+      plot.title = element_text(color="black", size=14, face="bold", hjust = 0.5 ),
+      axis.title.x = element_text(color="black", size=13, face="bold"),
+      axis.title.y = element_text(color="black", size=13, face="bold" ),
+      legend.title = element_text(colour="blue", size=10, face="bold", vjust = 0.5))
+
+# Distribución Sisben IV - Por Estrato
+  
+  Sisben_estrato <- SisbenIV %>%
+    group_by(ESTRATO, SISBEN) %>%
+    summarize(Total = n()) %>% 
+    mutate(pct = Total/sum(Total),
+           Porcentaje = scales::percent(pct),
+           Porcentaje = paste(Porcentaje, "\n", paste0("(", Total, ")")))  
+  
+  ggplot(Sisben_estrato, aes(x = ESTRATO, y=pct, fill=SISBEN)) + 
+    geom_bar(position = "fill", stat = 'identity')+
+    geom_hline(yintercept = 0.34, linetype="dashed", color = "red", size = 0.5) +
+    scale_y_continuous(breaks = seq(0, 1, .2), 
+                       label = c('0%', '20%', '40%', '60%', '80%', '100%')) +
+    geom_text(aes(label = Porcentaje), 
+              size = 4, 
+              position = position_stack(vjust = 0.5)) +
+    scale_fill_brewer(palette = "Set2")+
+    ggtitle("Estudiantes Pregrado UNAL en la base Sisben IV \n por estrato") +
+    xlab(" \n Estrato") + ylab("Porcentaje \n ")+
+    theme_stata() +
+    labs(fill = "¿Con Sisben IV?")+
+    theme(
+      plot.title = element_text(color="black", size=14, face="bold", hjust = 0.5 ),
+      axis.title.x = element_text(color="black", size=13, face="bold"),
+      axis.title.y = element_text(color="black", size=13, face="bold" ),
+      legend.title = element_text(colour="blue", size=10, face="bold", vjust = 0.5))
+  
+# Distribución Sisben IV - Tipología del colegio
+  
+  Sisben_colegio <- SisbenIV %>%
+    group_by(TIPCOLEGIO, SISBEN) %>%
+    summarize(Total = n()) %>% 
+    mutate(pct = Total/sum(Total),
+           Porcentaje = scales::percent(pct),
+           Porcentaje = paste(Porcentaje, "\n", paste0("(", Total, ")"))) 
+  
+  ggplot(Sisben_colegio, aes(x = TIPCOLEGIO, y=pct, fill=SISBEN)) + 
+    geom_bar(position = "fill", stat = 'identity')+
+    geom_hline(yintercept = 0.34, linetype="dashed", color = "red", size = 0.5) +
+    scale_y_continuous(breaks = seq(0, 1, .2), 
+                       label = c('0%', '20%', '40%', '60%', '80%', '100%')) +
+    geom_text(aes(label = Porcentaje), 
+              size = 4, 
+              position = position_stack(vjust = 0.5)) +
+    scale_fill_brewer(palette = "Set2")+
+    ggtitle("Estudiantes Pregrado UNAL en la base Sisben IV \n por tipología de colegio") +
+    xlab(" \n Tipo Colegio") + ylab("Porcentaje \n ")+
+    theme_stata() +
+    labs(fill = "¿Con Sisben IV?")+
+    theme(
+      plot.title = element_text(color="black", size=14, face="bold", hjust = 0.5 ),
+      axis.title.x = element_text(color="black", size=13, face="bold"),
+      axis.title.y = element_text(color="black", size=13, face="bold" ),
+      legend.title = element_text(colour="blue", size=10, face="bold", vjust = 0.5))
+  
+# Distribución Sisben IV - Programa PAES
+  
+  Sisben_paes <- SisbenIV %>%
+    group_by(PAES, SISBEN) %>%
+    summarize(Total = n()) %>% 
+    mutate(pct = Total/sum(Total),
+           Porcentaje = scales::percent(pct),
+           Porcentaje = paste(Porcentaje, "\n", paste0("(", Total, ")")))  
+  
+  ggplot(Sisben_paes, aes(x = PAES, y=pct, fill=SISBEN)) + 
+    geom_bar(position = "fill", stat = 'identity')+
+    geom_hline(yintercept = 0.34, linetype="dashed", color = "red", size = 0.5) +
+    scale_y_continuous(breaks = seq(0, 1, .2), 
+                       label = c('0%', '20%', '40%', '60%', '80%', '100%')) +
+    geom_text(aes(label = Porcentaje), 
+              size = 4, 
+              position = position_stack(vjust = 0.5)) +
+    scale_fill_brewer(palette = "Set2")+
+    ggtitle("Estudiantes Pregrado UNAL en la base Sisben IV \n Programa PAES") +
+    xlab(" \n Integrantes Programa PAES") + ylab("Porcentaje \n ")+
+    theme_stata() +
+    labs(fill = "¿Con Sisben IV?")+
+    theme(
+      plot.title = element_text(color="black", size=14, face="bold", hjust = 0.5 ),
+      axis.title.x = element_text(color="black", size=13, face="bold"),
+      axis.title.y = element_text(color="black", size=13, face="bold" ),
+      legend.title = element_text(colour="blue", size=10, face="bold", vjust = 0.5))
+
+# Distribución Sisben IV - Modalidades PAES
+  
+  Sisben_paes_mod <- SisbenIV %>%
+    filter(PAES == "Sí") %>% 
+    group_by(MOD_PAES, SISBEN) %>%
+    summarize(Total = n()) %>% 
+    mutate(pct = Total/sum(Total),
+           Porcentaje = scales::percent(pct),
+           Porcentaje = paste(Porcentaje, "\n", paste0("(", Total, ")")))  
+  
+  ggplot(Sisben_paes_mod, aes(x = MOD_PAES, y=pct, fill=SISBEN)) + 
+    geom_bar(position = "fill", stat = 'identity')+
+    geom_hline(yintercept = 0.34, linetype="dashed", color = "red", size = 0.5) +
+    scale_y_continuous(breaks = seq(0, 1, .2), 
+                       label = c('0%', '20%', '40%', '60%', '80%', '100%')) +
+    geom_text(aes(label = Porcentaje), 
+              size = 4, 
+              position = position_stack(vjust = 0.5)) +
+    scale_fill_brewer(palette = "Set2")+
+    ggtitle("Estudiantes Pregrado UNAL en la base Sisben IV \n Modalidades PAES") +
+    xlab(" \n Integrantes Modalidades Programa PAES") + ylab("Porcentaje \n ")+
+    theme_stata() +
+    labs(fill = "¿Con Sisben IV?")+
+    theme(
+      plot.title = element_text(color="black", size=14, face="bold", hjust = 0.5 ),
+      axis.title.x = element_text(color="black", size=13, face="bold"),
+      axis.title.y = element_text(color="black", size=13, face="bold" ),
+      legend.title = element_text(colour="blue", size=10, face="bold", vjust = 0.5))
+  
+
+# Distribución Sisben IV - Programa PEAMA
+  
+  Sisben_peama <- SisbenIV %>%
+    group_by(PEAMA, SISBEN) %>%
+    summarize(Total = n()) %>% 
+    mutate(pct = Total/sum(Total),
+           Porcentaje = scales::percent(pct),
+           Porcentaje = paste(Porcentaje, "\n", paste0("(", Total, ")"))) 
+  
+  ggplot(Sisben_peama, aes(x = PEAMA, y=pct, fill=SISBEN)) + 
+    geom_bar(position = "fill", stat = 'identity')+
+    geom_hline(yintercept = 0.34, linetype="dashed", color = "red", size = 0.5) +
+    scale_y_continuous(breaks = seq(0, 1, .2), 
+                       label = c('0%', '20%', '40%', '60%', '80%', '100%')) +
+    geom_text(aes(label = Porcentaje), 
+              size = 4, 
+              position = position_stack(vjust = 0.5)) +
+    scale_fill_brewer(palette = "Set2")+
+    ggtitle("Estudiantes Pregrado UNAL en la base Sisben IV \n Programa PEAMA") +
+    xlab(" \n Integrantes Programa PEAMA") + ylab("Porcentaje \n ")+
+    theme_stata() +
+    labs(fill = "¿Con Sisben IV?")+
+    theme(
+      plot.title = element_text(color="black", size=14, face="bold", hjust = 0.5 ),
+      axis.title.x = element_text(color="black", size=13, face="bold"),
+      axis.title.y = element_text(color="black", size=13, face="bold" ),
+      legend.title = element_text(colour="blue", size=10, face="bold", vjust = 0.5))
+
+# Distribución Sisben IV - PBM
+  
+  Sisben_pbm <- SisbenIV %>%
+    filter(CAT_PBM != "Sin información") %>% 
+    group_by(CAT_PBM, SISBEN) %>%
+    summarize(Total = n()) %>% 
+    mutate(pct = Total/sum(Total),
+           Porcentaje = scales::percent(pct),
+           Porcentaje = paste(Porcentaje, "\n", paste0("(", Total, ")"))) 
+  
+  ggplot(Sisben_pbm, aes(x = CAT_PBM, y=pct, fill=SISBEN)) + 
+    geom_bar(position = "fill", stat = 'identity')+
+    geom_hline(yintercept = 0.34, linetype="dashed", color = "red", size = 0.5) +
+    scale_y_continuous(breaks = seq(0, 1, .2), 
+                       label = c('0%', '20%', '40%', '60%', '80%', '100%')) +
+    geom_text(aes(label = Porcentaje), 
+              size = 4, 
+              position = position_stack(vjust = 0.5)) +
+    scale_fill_brewer(palette = "Set2")+
+    ggtitle("Estudiantes Pregrado UNAL en la base Sisben IV \n Grupos Puntaje Básico de Matrícula (PBM)") +
+    xlab(" \n Puntaje Básico de Matrícula (PBM)") + ylab("Porcentaje \n ")+
+    theme_stata() +
+    labs(fill = "¿Con Sisben IV?")+
+    theme(
+      plot.title = element_text(color="black", size=14, face="bold", hjust = 0.5 ),
+      axis.title.x = element_text(color="black", size=13, face="bold"),
+      axis.title.y = element_text(color="black", size=13, face="bold" ),
+      legend.title = element_text(colour="blue", size=10, face="bold", vjust = 0.5))
+
+# Distribución Sisben IV - PBM11
+  
+  Sisben_PBM11 <- SisbenIV %>% 
+    filter(SISBEN == "Sí", CAT_PBM == "11 o menos") %>% 
+    group_by(GRUPO_S) %>%
+    summarize(Total = n()) %>% 
+    mutate(pct = Total/sum(Total),
+           Porcentaje = scales::percent(pct),
+           Porcentaje = paste(Porcentaje, "\n", paste0("(", Total, ")"))) 
+  
+  ggplot(Sisben_PBM11, aes(x = GRUPO_S, y=pct)) + 
+    geom_bar(stat = 'identity', fill = "#74c476")+
+    scale_y_continuous(limits=c(0, 1), 
+                       breaks = seq(0, 1, .2), 
+                       label = c('0%', '20%', '40%', '60%', '80%', '100%')) +
+    geom_text(aes(label = Porcentaje), 
+              size = 4, 
+              position = position_stack(vjust = 0.5)) +
+    ggtitle("Estudiantes Pregrado UNAL en la base Sisben IV \n Grupos Sisben Estudiantes con PBM <= 11 (11 o menos)") +
+    xlab("Grupo Sisben") + ylab("Porcentaje \n ")+
+    theme_stata() +
+    labs(fill = "¿Con Sisben IV?")+
+    theme(
+      plot.title = element_text(color="black", size=14, face="bold", hjust = 0.5 ),
+      axis.title.x = element_text(color="black", size=13, face="bold"),
+      axis.title.y = element_text(color="black", size=13, face="bold" ),
+      legend.title = element_text(colour="blue", size=10, face="bold", vjust = 0.5))+
+      annotate("text", x = 1:4, y = c(0.27, 0.45, 0.45, 0.25), angle = 90, color = "red", 
+             label = c("Pobreza\nextrema", "Pobreza\nmoderada", "Vulnerable", "Población no pobre,\nno vulnerable"), 
+             size=4, fontface = 'bold') 
+  
+# Distribución Sisben IV - EDAD
+  
+Sisben_edad <- SisbenIV %>%
+    filter(CAT_PBM != "Sin información") %>% 
+    group_by(CAT_EDAD, SISBEN) %>%
+    summarize(Total = n()) %>% 
+    mutate(pct = Total/sum(Total),
+           Porcentaje = scales::percent(pct),
+           Porcentaje = paste(Porcentaje, "\n", paste0("(", Total, ")"))) 
+  
+ggplot(Sisben_edad, aes(x = CAT_EDAD, y=pct, fill=SISBEN)) + 
+    geom_bar(position = "fill", stat = 'identity')+
+    geom_hline(yintercept = 0.34, linetype="dashed", color = "red", size = 0.5) +
+    scale_y_continuous(breaks = seq(0, 1, .2), 
+                       label = c('0%', '20%', '40%', '60%', '80%', '100%')) +
+    geom_text(aes(label = Porcentaje), 
+              size = 4, 
+              position = position_stack(vjust = 0.5)) +
+    scale_fill_brewer(palette = "Set2")+
+    ggtitle("Estudiantes Pregrado UNAL en la base Sisben IV \n Grupos de edad") +
+    xlab(" \n Grupos de edad") + ylab("Porcentaje \n ")+
+    theme_stata() +
+    labs(fill = "¿Con Sisben IV?")+
+    theme(
+      plot.title = element_text(color="black", size=14, face="bold", hjust = 0.5 ),
+      axis.title.x = element_text(color="black", size=13, face="bold"),
+      axis.title.y = element_text(color="black", size=13, face="bold" ),
+      legend.title = element_text(colour="blue", size=10, face="bold", vjust = 0.5))   
+
+# Distribución Sisben IV - SEDES
+
+Sisben_sedes <- SisbenIV %>%
+  group_by(SEDE, SISBEN) %>%
+  summarize(Total = n()) %>% 
+  mutate(pct = Total/sum(Total),
+         Porcentaje = scales::percent(pct),
+         Porcentaje = paste(Porcentaje, "\n", paste0("(", Total, ")"))) 
+
+ggplot(Sisben_sedes, aes(x = SEDE, y=pct, fill=SISBEN)) + 
+  geom_bar(position = "fill", stat = 'identity')+
+  geom_hline(yintercept = 0.34, linetype="dashed", color = "red", size = 0.5) +
+  scale_y_continuous(breaks = seq(0, 1, .2), 
+                     label = c('0%', '20%', '40%', '60%', '80%', '100%')) +
+  geom_text(aes(label = Porcentaje), 
+            size = 4, 
+            position = position_stack(vjust = 0.5)) +
+  scale_fill_brewer(palette = "Set2")+
+  ggtitle("Estudiantes Pregrado UNAL en la base Sisben IV \n  Sedes de la Universidad") +
+  xlab(" \n Sedes UNAL") + ylab("Porcentaje \n ")+
+  theme_stata() +
+  labs(fill = "¿Con Sisben IV?")+
+  theme(
+    plot.title = element_text(color="black", size=14, face="bold", hjust = 0.5 ),
+    axis.title.x = element_text(color="black", size=13, face="bold"),
+    axis.title.y = element_text(color="black", size=13, face="bold" ),
+    legend.title = element_text(colour="blue", size=10, face="bold", vjust = 0.5))   
+
 
