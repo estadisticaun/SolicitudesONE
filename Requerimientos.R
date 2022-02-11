@@ -1384,4 +1384,32 @@ ggplot(Sisben_sedes, aes(x = SEDE, y=pct, fill=SISBEN)) +
     axis.title.y = element_text(color="black", size=13, face="bold" ),
     legend.title = element_text(colour="blue", size=10, face="bold", vjust = 0.5))   
 
+######################################-
+# 18 Solicitud 11-02-2022 -----
+######################################-
+
+# Demanda: Sistema de Quejas Sede Bogotá
+# A1.	Conocer el número de admitidos por posgrado en cada programa y en cada semestre de la sede Bogotá desde el 2010 al 2021
+# Peticionario: Mg. Psic. Olmo Jesús Sierra Moreno
+# CC: 1020771265
+# Tel.: 300563530
+# CORREO: ojsierram@unal.edu.co
+
+Base_Pos_Bog <- UnalData::Aspirantes %>% 
+                filter(YEAR >= 2010, 
+                       MOD_INS == "Regular",
+                       TIPO_NIVEL == "Postgrado",
+                       SNIES_SEDE == 1101) %>% 
+                group_by(YEAR, SEMESTRE, NIVEL, ADMITIDO, SNIES_PROGRA, PROGRAMA) %>% 
+                group_by(YEAR, SEMESTRE, NIVEL, ADMITIDO, SNIES_PROGRA, PROGRAMA) %>% 
+                count(name = "Total") %>% 
+                pivot_wider(names_from = c(YEAR, SEMESTRE, ADMITIDO), values_from = Total, values_fill = 0) %>% 
+                arrange(SNIES_PROGRA)
+    
+
+# Exportar resultados
+
+write_xlsx(Base_Pos_Bog, "Datos/Entrega18/Base_Pos_Bog.xlsx")
+
+
 
