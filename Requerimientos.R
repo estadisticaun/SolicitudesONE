@@ -1411,5 +1411,23 @@ Base_Pos_Bog <- UnalData::Aspirantes %>%
 
 write_xlsx(Base_Pos_Bog, "Datos/Entrega18/Base_Pos_Bog.xlsx")
 
+######################################-
+# 19 Solicitud 30-03-2022 -----
+######################################-
+
+# Demanda: DNPE Jose Ignacio Maya
+# Demanda: Cifras de las facultades de Ciencias Medellín y
+# Ciencias Exactas y Naturales de Manizales
+# Para propuesta modificación CA estructura académico administrativas
 
 
+# Evolución de aspirantes a postgrado Sede Manizales
+
+View(UnalData::Aspirantes %>% filter(TIPO_INS == "Regular",
+                                ADM_SEDE_NOMBRE == "Manizales", 
+                                TIPO_NIVEL == "Postgrado", 
+                                FACULTAD == "Ciencias exactas y naturales") %>% 
+                         group_by(YEAR, SEMESTRE) %>% count())
+
+names(UnalData::Aspirantes)
+unique(UnalData::Aspirantes$TIPO_INS)
