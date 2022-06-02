@@ -10,6 +10,9 @@ library(writexl)
 library(tidyverse)
 library(ggthemes)
 library(ggrepel)
+library(skimr)
+library(forcats)
+library(magrittr)
 
 ######################################-
 # 1 Solicitud 14-05-2021 -----
@@ -1431,3 +1434,889 @@ View(UnalData::Aspirantes %>% filter(TIPO_INS == "Regular",
 
 names(UnalData::Aspirantes)
 unique(UnalData::Aspirantes$TIPO_INS)
+
+######################################-
+# 20 Solicitud 21-04-2022 -----
+######################################-
+
+# Demanda: Mónica Mantilla
+# Descripción: ajustar/corregir, en el documento del PGD y el PLEI, el gráfico
+# de tendencias de la evolución de programas académcios en la Universidad
+
+Programas <- read_excel("Datos/Fuentes/Serie_Programas.xlsx") %>% 
+             pivot_longer(cols = Pregrado:Total, names_to = "Clase", values_to = "Total") %>% 
+             arrange(Clase) %>% 
+             mutate(Variable = ifelse(Clase == "Total", "TOTAL", Variable)) 
+
+# Serie General 
+
+Plot.Series(
+  datos     = Programas,
+  categoria = "TOTAL",
+  colores   = c("#0071bc"),
+  titulo    = "Evolución de programas académicos",
+  labelY    = "N\u00famero de Programas"
+)
+
+# Serie por nivel de formación
+
+Plot.Series(
+    datos     = Programas,
+    categoria = "TIPO_NIVEL",
+    colores   = c("#f15a24", "#8cc63f"),
+    titulo    = "Evolución de programas académicos por nivel de formación",
+    labelY    = "N\u00famero de Programas"
+  )
+
+######################################-
+# 21 Solicitud 26-04-2022 -----
+######################################-
+
+# Demanda: RICHARD MORENO RODRIGUEZ -
+# CONSEJO NACIONAL DE PAZ AFROCOLOMBIANO - CONPA
+# DERECHO DE PETICIÓN CON EL FIN DE OBTENER 
+# INFORMACIÓN, SOBRE EL ACCESO, PERMANENCIA Y GRADUACIÓN 
+# DE LAS COMUNIDADES NEGRAS, AFROCOLOMBIANAS, RAIZALES Y 
+# PALENQUERAS QUE SE ENCUENTRAN EN LA EDUCACIÓN SUPERIOR.
+
+######################################-
+# 22 Solicitud 06-05-2022 -----
+######################################-
+
+# Demanda: DNPE - Director
+# Propósito: Análisis Saber Pro país e institución
+# Análisis aspirantes y admitidos de pregrado
+
+# Importar datos
+
+SaberPais2016 <- read_excel("Datos/SaberPais/SaberPais2016.xlsx", 
+                            sheet = "Saber2016",
+                            guess_max = 300000)
+
+SaberPais2016 <- SaberPais2016 |> select(c(ESTU_TIPODOCUMENTO, PERIODO, ESTU_FECHANACIMIENTO, ESTU_GENERO, ESTU_CONSECUTIVO,
+                                           ESTU_DEPTO_RESIDE, ESTU_COD_RESIDE_DEPTO, ESTU_MCPIO_RESIDE, 
+                                           ESTU_COD_RESIDE_MCPIO, FAMI_ESTRATO_VIVIENDA, INST_COD_INSTITUCION,
+                                           INST_NOMBRE_INSTITUCION, ESTU_PRGM_ACADEMICO, ESTU_SNIES_PRGMACADEMICO,
+                                           ESTU_METODO_PRGM, INST_CARACTER_ACADEMICO, INST_ORIGEN, 
+                                           MOD_RAZONA_CUANTITAT_PUNT, MOD_LECTURA_CRITICA_PUNT, 
+                                           MOD_COMPETEN_CIUDADA_PUNT, MOD_INGLES_PUNT, MOD_COMUNI_ESCRITA_PUNT)) |> 
+                                           mutate(MOD_COMUNI_ESCRITA_PUNT = replace_na(MOD_COMUNI_ESCRITA_PUNT, 0),
+                                                  PUNT_GLOBAL = round((MOD_RAZONA_CUANTITAT_PUNT +
+                                                                 MOD_LECTURA_CRITICA_PUNT +
+                                                                 MOD_COMPETEN_CIUDADA_PUNT +
+                                                                 MOD_INGLES_PUNT +
+                                                                 MOD_COMUNI_ESCRITA_PUNT)/5, 0),
+                                                  YEAR = 2016) |> 
+                                          rename(FAMI_ESTRATOVIVIENDA = FAMI_ESTRATO_VIVIENDA)
+
+SaberPais2016$ESTU_FECHANACIMIENTO <- as.character(SaberPais2016$ESTU_FECHANACIMIENTO)
+
+
+SaberPais2017 <- read_excel("Datos/SaberPais/SaberPais2017.xlsx", 
+                            sheet = "Saber2017",
+                            guess_max = 300000)
+
+SaberPais2017 <- SaberPais2017 |> select(c(ESTU_TIPODOCUMENTO, PERIODO, ESTU_FECHANACIMIENTO, ESTU_GENERO, ESTU_CONSECUTIVO,
+                                          ESTU_DEPTO_RESIDE, ESTU_COD_RESIDE_DEPTO, ESTU_MCPIO_RESIDE,
+                                          ESTU_COD_RESIDE_MCPIO, FAMI_ESTRATOVIVIENDA, INST_COD_INSTITUCION, 
+                                          INST_NOMBRE_INSTITUCION, ESTU_PRGM_ACADEMICO, ESTU_SNIES_PRGMACADEMICO,
+                                          ESTU_METODO_PRGM, INST_CARACTER_ACADEMICO, INST_ORIGEN, MOD_RAZONA_CUANTITAT_PUNT,
+                                          MOD_LECTURA_CRITICA_PUNT, MOD_COMPETEN_CIUDADA_PUNT, MOD_INGLES_PUNT,
+                                          MOD_COMUNI_ESCRITA_PUNT, PUNT_GLOBAL)) |> 
+                                  mutate(YEAR = 2017)
+
+SaberPais2018 <- read_excel("Datos/SaberPais/SaberPais2018.xlsx", 
+                            sheet = "Saber2018",
+                            guess_max = 300000)
+
+SaberPais2018 <- SaberPais2018 |> select(c(ESTU_TIPODOCUMENTO, PERIODO, ESTU_FECHANACIMIENTO, ESTU_GENERO, ESTU_CONSECUTIVO,
+                                           ESTU_DEPTO_RESIDE, ESTU_COD_RESIDE_DEPTO, ESTU_MCPIO_RESIDE,
+                                           ESTU_COD_RESIDE_MCPIO, FAMI_ESTRATOVIVIENDA, INST_COD_INSTITUCION, 
+                                           INST_NOMBRE_INSTITUCION, ESTU_PRGM_ACADEMICO, ESTU_SNIES_PRGMACADEMICO,
+                                           ESTU_METODO_PRGM, INST_CARACTER_ACADEMICO, INST_ORIGEN, MOD_RAZONA_CUANTITAT_PUNT,
+                                           MOD_LECTURA_CRITICA_PUNT, MOD_COMPETEN_CIUDADA_PUNT, MOD_INGLES_PUNT,
+                                           MOD_COMUNI_ESCRITA_PUNT, PUNT_GLOBAL)) |> 
+                                           mutate(YEAR = 2018)
+
+SaberPais2019 <- read_excel("Datos/SaberPais/SaberPais2019.xlsx", 
+                            sheet = "Saber2019",
+                            guess_max = 300000)
+
+SaberPais2019 <- SaberPais2019 |> select(c(ESTU_TIPODOCUMENTO, PERIODO, ESTU_FECHANACIMIENTO, ESTU_GENERO, ESTU_CONSECUTIVO,
+                                           ESTU_DEPTO_RESIDE, ESTU_COD_RESIDE_DEPTO, ESTU_MCPIO_RESIDE,
+                                           ESTU_COD_RESIDE_MCPIO, FAMI_ESTRATOVIVIENDA, INST_COD_INSTITUCION, 
+                                           INST_NOMBRE_INSTITUCION, ESTU_PRGM_ACADEMICO, ESTU_SNIES_PRGMACADEMICO,
+                                           ESTU_METODO_PRGM, INST_CARACTER_ACADEMICO, INST_ORIGEN, MOD_RAZONA_CUANTITAT_PUNT,
+                                           MOD_LECTURA_CRITICA_PUNT, MOD_COMPETEN_CIUDADA_PUNT, MOD_INGLES_PUNT,
+                                           MOD_COMUNI_ESCRITA_PUNT, PUNT_GLOBAL)) |> 
+                                           mutate(YEAR = 2019)
+
+
+SaberPais2020 <- read_excel("Datos/SaberPais/SaberPais2020.xlsx", 
+                            sheet = "Saber2020",
+                            guess_max = 300000)
+
+SaberPais2020 <- SaberPais2020 |> select(c(ESTU_TIPODOCUMENTO, PERIODO, ESTU_FECHANACIMIENTO, ESTU_GENERO, ESTU_CONSECUTIVO,
+                                           ESTU_DEPTO_RESIDE, ESTU_COD_RESIDE_DEPTO, ESTU_MCPIO_RESIDE,
+                                           ESTU_COD_RESIDE_MCPIO, FAMI_ESTRATOVIVIENDA, INST_COD_INSTITUCION,
+                                           NOMBRE_IES, ESTU_PRGM_ACADEMICO, ESTU_SNIES_PRGMACADEMICO,
+                                           ESTU_METODO_PRGM, INST_CARACTER_ACADEMICO, INST_ORIGEN, MOD_RAZONA_CUANTITAT_PUNT,
+                                           MOD_LECTURA_CRITICA_PUNT, MOD_COMPETEN_CIUDADA_PUNT, MOD_INGLES_PUNT,
+                                           MOD_COMUNI_ESCRITA_PUNT, PUNT_GLOBAL)) |> 
+                                   rename(INST_NOMBRE_INSTITUCION = NOMBRE_IES) |> 
+                                   mutate(YEAR = 2020)
+
+SaberPais2021 <- read_excel("Datos/SaberPais/SaberPais2021.xlsx", 
+                            sheet = "Saber2021",
+                            guess_max = 300000)
+
+SaberPais2021 <- SaberPais2021 |> select(c(ESTU_TIPODOCUMENTO, PERIODO, ESTU_FECHANACIMIENTO, ESTU_GENERO, ESTU_CONSECUTIVO,
+                                           ESTU_DEPTO_RESIDE, ESTU_COD_RESIDE_DEPTO, ESTU_MCPIO_RESIDE,
+                                           ESTU_COD_RESIDE_MCPIO, FAMI_ESTRATOVIVIENDA, INST_COD_INSTITUCION,
+                                           INST_NOMBRE_INSTITUCION, ESTU_PRGM_ACADEMICO, ESTU_SNIES_PRGMACADEMICO,
+                                           ESTU_METODO_PRGM, INST_CARACTER_ACADEMICO, INST_ORIGEN, MOD_RAZONA_CUANTITAT_PUNT,
+                                           MOD_LECTURA_CRITICA_PUNT, MOD_COMPETEN_CIUDADA_PUNT, MOD_INGLES_PUNT,
+                                           MOD_COMUNI_ESCRITA_PUNT, PUNT_GLOBAL)) |> 
+                                           mutate(YEAR = 2021)
+
+
+# Unir bases de datos históricas Saber Pro
+
+SaberPro <- bind_rows(SaberPais2016, SaberPais2017,
+                       SaberPais2018, SaberPais2019,
+                       SaberPais2020, SaberPais2021)
+
+# Crear variable UNAL
+
+SaberPro <- SaberPro %>% 
+  mutate(Unal =  case_when(.$INST_COD_INSTITUCION %in% c(1101, 1102, 1103, 1104, 1124, 1125, 1126, 9920) ~ "UNAL",
+                           TRUE ~ "Resto IES"))
+
+# Crear variable Sedes UNAL
+
+SaberPro <- SaberPro %>% 
+  mutate(Sunal =  case_when(.$INST_COD_INSTITUCION == 1101  ~ "UNAL-Bogota",
+                            .$INST_COD_INSTITUCION == 1102  ~ "UNAL-Medellin",
+                            .$INST_COD_INSTITUCION == 1103  ~ "UNAL-Manizales",
+                            .$INST_COD_INSTITUCION == 1104  ~ "UNAL-Palmira",
+                            TRUE ~ "Resto IES"))
+# Crear G12
+
+SaberPro <- SaberPro %>% 
+  mutate(G12 =  case_when(.$INST_COD_INSTITUCION == 1813  ~ "U. de los Andes",
+                          .$INST_COD_INSTITUCION == 1714  ~ "U. del Rosario",
+                          .$INST_COD_INSTITUCION == 1706  ~ "U. Externado",
+                          .$INST_COD_INSTITUCION == 1828  ~ "ICESI",
+                          .$INST_COD_INSTITUCION %in% c(1201, 1219, 1220, 1221, 1222, 1223, 9125) ~ "U. de Antioquia",
+                          .$INST_COD_INSTITUCION == 1712  ~ "EAFIT",
+                          .$INST_COD_INSTITUCION == 1203  ~ "U. del Valle",
+                          .$INST_COD_INSTITUCION %in% c(1701, 1702)  ~ "U. Javeriana",
+                          .$INST_COD_INSTITUCION == 1204  ~ "UIS",
+                          .$INST_COD_INSTITUCION == 1713  ~ "U. del Norte",
+                          .$INST_COD_INSTITUCION %in% c(1710, 1723, 1727, 1730)  ~ "U. Bolivariana",
+                          .$INST_COD_INSTITUCION %in% c(1101, 1102, 1103, 1104)  ~ "U. Nacional",
+                          TRUE ~ "Resto IES"))
+
+
+# Crear G15 (sedes Unal)
+
+SaberPro <- SaberPro %>% 
+  mutate(G15 =  case_when(.$INST_COD_INSTITUCION == 1813  ~ "U. de los Andes",
+                          .$INST_COD_INSTITUCION == 1714  ~ "U. del Rosario",
+                          .$INST_COD_INSTITUCION == 1706  ~ "U. Externado",
+                          .$INST_COD_INSTITUCION == 1828  ~ "ICESI",
+                          .$INST_COD_INSTITUCION %in% c(1201, 1219, 1220, 1221, 1222, 1223, 9125) ~ "U. de Antioquia",
+                          .$INST_COD_INSTITUCION == 1712  ~ "EAFIT",
+                          .$INST_COD_INSTITUCION == 1203  ~ "U. del Valle",
+                          .$INST_COD_INSTITUCION %in% c(1701, 1702)  ~ "U. Javeriana",
+                          .$INST_COD_INSTITUCION == 1204  ~ "UIS",
+                          .$INST_COD_INSTITUCION == 1713  ~ "U. del Norte",
+                          .$INST_COD_INSTITUCION %in% c(1710, 1723, 1727, 1730)  ~ "U. Bolivariana",
+                          .$INST_COD_INSTITUCION == 1101  ~ "UNAL-Bogota",
+                          .$INST_COD_INSTITUCION == 1102  ~ "UNAL-Medellin",
+                          .$INST_COD_INSTITUCION == 1103  ~ "UNAL-Manizales",
+                          .$INST_COD_INSTITUCION == 1104  ~ "UNAL-Palmira",
+                          TRUE ~ "Resto IES"))
+
+# Crear SUE General
+
+SaberPro <- SaberPro %>% 
+   mutate(SUE =  case_when(.$INST_COD_INSTITUCION %in%  c(1101, 1102, 1103, 1104, 1124, 1125, 1126, 9920, 9933, 1105,
+                                                          1106, 1107, 1108, 1109, 1110, 1111, 1112, 1113, 1114, 1115,
+                                                          1117, 1118, 1119, 1120, 1123, 1121, 1122, 1201, 1219, 1220,
+                                                          1221, 1222, 1223, 9125, 1202, 1203, 1204, 1205, 1206, 1207,
+                                                          1208, 1209, 1210, 1212, 1213, 1214, 1215, 1216, 1121, 1217,
+                                                          1218, 1301, 2102, 9929, 2743) ~ "SUE",
+                                                          TRUE ~ "Resto IES"))
+
+
+# Crear SUE + UNAL + General
+
+
+SaberPro <- SaberPro %>% 
+  mutate(SUE_UNAL =  case_when(.$INST_COD_INSTITUCION %in%  c(1101, 1102, 1103, 1104, 1124, 1125, 1126, 9920) ~ "UNAL",
+                               .$INST_COD_INSTITUCION %in%  c(9933, 1105, 1106, 1107, 1108, 1109, 1110, 1111, 1112, 
+                                                              1113, 1114, 1115, 1117, 1118, 1119, 1120, 1123, 1121, 
+                                                              1122, 1201, 1219, 1220, 1221, 1222, 1223, 9125, 1202, 
+                                                              1203, 1204, 1205, 1206, 1207, 1208, 1209, 1210, 1212, 
+                                                              1213, 1214, 1215, 1216, 1121, 1217, 1218, 1301, 2102, 
+                                                              9929, 2743) ~ "Resto SUE",
+                                                              TRUE ~ "Resto IES"))
+
+# Crear SUE Puro (Cada una de las IES del SUE)
+
+SaberPro <- SaberPro %>% 
+  mutate(SUE_UNO =  case_when(.$INST_COD_INSTITUCION %in% c(1101, 1102, 1103, 1104, 1124, 1125, 1126, 9920) ~ "UNAL",
+                               .$INST_COD_INSTITUCION %in% c(1105) ~ "Pedagógica",
+                               .$INST_COD_INSTITUCION %in% c(1106, 1107, 1108, 1109) ~ "UPTC",
+                               .$INST_COD_INSTITUCION %in% c(1110) ~ "Cauca",
+                               .$INST_COD_INSTITUCION %in% c(1111) ~ "UTP",
+                               .$INST_COD_INSTITUCION %in% c(1112) ~ "Caldas",
+                               .$INST_COD_INSTITUCION %in% c(1113) ~ "Córdoba",
+                               .$INST_COD_INSTITUCION %in% c(1114) ~ "Surcolombiana",
+                               .$INST_COD_INSTITUCION %in% c(1115) ~ "Amazonía",
+                               .$INST_COD_INSTITUCION %in% c(1117) ~ "Militar",
+                               .$INST_COD_INSTITUCION %in% c(1118) ~ "Tecn. Choco",
+                               .$INST_COD_INSTITUCION %in% c(1119) ~ "Llanos",
+                               .$INST_COD_INSTITUCION %in% c(1120, 1123) ~ "Pop. Cesar",
+                               .$INST_COD_INSTITUCION %in% c(1121) ~ "ColMay. C/marca",
+                               .$INST_COD_INSTITUCION %in% c(1122) ~ "Pacífico",
+                               .$INST_COD_INSTITUCION %in% c(1201, 1219, 1220, 1221, 1222, 1223, 9125)  ~ "U. Antioquia",
+                               .$INST_COD_INSTITUCION %in% c(1202) ~ "Atlantico",
+                               .$INST_COD_INSTITUCION %in% c(1203) ~ "Valle",
+                               .$INST_COD_INSTITUCION %in% c(1204) ~ "UIS",
+                               .$INST_COD_INSTITUCION %in% c(1205) ~ "Cartagena",
+                               .$INST_COD_INSTITUCION %in% c(1206) ~ "Nariño",
+                               .$INST_COD_INSTITUCION %in% c(1207) ~ "Tolima",
+                               .$INST_COD_INSTITUCION %in% c(1208) ~ "Quindio",
+                               .$INST_COD_INSTITUCION %in% c(1209) ~ "UFPS-Cúcuta",
+                               .$INST_COD_INSTITUCION %in% c(1210) ~ "UFPS-Ocaña",
+                               .$INST_COD_INSTITUCION %in% c(1212) ~ "Pamplona",
+                               .$INST_COD_INSTITUCION %in% c(1213) ~ "Magdalena",
+                               .$INST_COD_INSTITUCION %in% c(1214, 1215, 1216) ~ "Cundinamarca",
+                               .$INST_COD_INSTITUCION %in% c(1217) ~ "Sucre",
+                               .$INST_COD_INSTITUCION %in% c(1218) ~ "Guajira",
+                               .$INST_COD_INSTITUCION %in% c(1301) ~ "Distrital",
+                               .$INST_COD_INSTITUCION %in% c(2102) ~ "UNAD",
+                               .$INST_COD_INSTITUCION %in% c(9929) ~ "Indigena",
+                               .$INST_COD_INSTITUCION %in% c(2743) ~ "Unitropico",
+                               TRUE ~ "Resto IES"))
+
+
+# Crear SUE + UNAL_SEDES
+
+SaberPro <- SaberPro %>% 
+  mutate(SUE_UNO_SUNAL =  case_when(.$INST_COD_INSTITUCION %in% c(1101) ~ "UNAL-Bogotá",
+                              .$INST_COD_INSTITUCION %in% c(1102) ~ "UNAL-Medellín",
+                              .$INST_COD_INSTITUCION %in% c(1103) ~ "UNAL-Manizales",
+                              .$INST_COD_INSTITUCION %in% c(1104) ~ "UNAL-Palmira",
+                              .$INST_COD_INSTITUCION %in% c(1124) ~ "UNAL-Orinoquía",
+                              .$INST_COD_INSTITUCION %in% c(1125) ~ "UNAL-Amazonía",
+                              .$INST_COD_INSTITUCION %in% c(1126) ~ "UNAL-Caribe",
+                              .$INST_COD_INSTITUCION %in% c(9920) ~ "UNAL-Tumaco",
+                              .$INST_COD_INSTITUCION %in% c(9933) ~ "UNAL-La Paz",
+                              .$INST_COD_INSTITUCION %in% c(1105) ~ "Pedagógica",
+                              .$INST_COD_INSTITUCION %in% c(1106, 1107, 1108, 1109) ~ "UPTC",
+                              .$INST_COD_INSTITUCION %in% c(1110) ~ "Cauca",
+                              .$INST_COD_INSTITUCION %in% c(1111) ~ "UTP",
+                              .$INST_COD_INSTITUCION %in% c(1112) ~ "Caldas",
+                              .$INST_COD_INSTITUCION %in% c(1113) ~ "Córdoba",
+                              .$INST_COD_INSTITUCION %in% c(1114) ~ "Surcolombiana",
+                              .$INST_COD_INSTITUCION %in% c(1115) ~ "Amazonía",
+                              .$INST_COD_INSTITUCION %in% c(1117) ~ "Militar",
+                              .$INST_COD_INSTITUCION %in% c(1118) ~ "Tecn. Choco",
+                              .$INST_COD_INSTITUCION %in% c(1119) ~ "Llanos",
+                              .$INST_COD_INSTITUCION %in% c(1120, 1123) ~ "Pop. Cesar",
+                              .$INST_COD_INSTITUCION %in% c(1121) ~ "ColMay. C/marca",
+                              .$INST_COD_INSTITUCION %in% c(1122) ~ "Pacífico",
+                              .$INST_COD_INSTITUCION %in% c(1201, 1219, 1220, 1221, 1222, 1223, 9125)  ~ "U. Antioquia",
+                              .$INST_COD_INSTITUCION %in% c(1202) ~ "Atlantico",
+                              .$INST_COD_INSTITUCION %in% c(1203) ~ "Valle",
+                              .$INST_COD_INSTITUCION %in% c(1204) ~ "UIS",
+                              .$INST_COD_INSTITUCION %in% c(1205) ~ "Cartagena",
+                              .$INST_COD_INSTITUCION %in% c(1206) ~ "Nariño",
+                              .$INST_COD_INSTITUCION %in% c(1207) ~ "Tolima",
+                              .$INST_COD_INSTITUCION %in% c(1208) ~ "Quindio",
+                              .$INST_COD_INSTITUCION %in% c(1209) ~ "UFPS-Cúcuta",
+                              .$INST_COD_INSTITUCION %in% c(1210) ~ "UFPS-Ocaña",
+                              .$INST_COD_INSTITUCION %in% c(1212) ~ "Pamplona",
+                              .$INST_COD_INSTITUCION %in% c(1213) ~ "Magdalena",
+                              .$INST_COD_INSTITUCION %in% c(1214, 1215, 1216) ~ "Cundinamarca",
+                              .$INST_COD_INSTITUCION %in% c(1217) ~ "Sucre",
+                              .$INST_COD_INSTITUCION %in% c(1218) ~ "Guajira",
+                              .$INST_COD_INSTITUCION %in% c(1301) ~ "Distrital",
+                              .$INST_COD_INSTITUCION %in% c(2102) ~ "UNAD",
+                              .$INST_COD_INSTITUCION %in% c(9929) ~ "Indigena",
+                              .$INST_COD_INSTITUCION %in% c(2743) ~ "Unitropico",
+                              TRUE ~ "Resto IES"))
+
+# 1 UNIVERSIDAD NACIONAL DE COLOMBIA: c(1101, 1102, 1103, 1104, 1124, 1125, 1126, 9920, 9933)
+# 2 UNIVERSIDAD PEDAGOGICA NACIONAL: c(1105)
+# 3 UNIVERSIDAD TEC.DE COL. TUNJA: c(1106, 1107, 1108, 1109)
+# 4 UNIVERSIDAD DEL CAUCA: c(1110)
+# 5 UNIVERSIDAD TECNOLOGICA DE PEREIRA: c(1111)
+# 6 UNIVERSIDAD DE CALDAS: c(1112)
+# 7 UNIVERSIDAD CORDOBA: c(1113)
+# 8 UNIVERSIDAD SURCOLOMBIANA DE NEIVA: c(1114)
+# 9 UNIVERSIDAD DE LA AMAZONIA: c(1115)
+# 10 UNIVERSIDAD MILITAR NUEVA GRANADA: c(1117)
+# 11 UNIVERSIDAD TECNOLOGICA DEL CHOCO: c(1118)
+# 12 UNIVERSIDAD DE LLANOS ORIENTALES: c(1119)
+# 13 UNIVERSIDAD POPULAR DEL CESAR: c(1120, 1123)
+# 14 UNIVERSIDAD COLEGIO MAYOR DE C/MARCA: c(1121)
+# 15 UNIVERSIDAD DEL PACIFICO: c(1122)
+# 16 UNIVERSIDAD DE ANTIOQUIA: c(1201, 1219, 1220, 1221, 1222, 1223, 9125) 
+# 17 UNIVERSIDAD DEL ATLANTICO: c(1202)
+# 18 UNIVERSIDAD DEL VALLE: c(1203)
+# 19 UNIVERSIDAD INDUSTRIAL DE SANTANDER: c(1204)
+# 20 UNIVERSIDAD DE CARTAGENA: c(1205)
+# 21 UNIVERSIDAD DE NARINO: c(1206)
+# 22 UNIVERSIDAD DEL TOLIMA: c(1207)
+# 23 UNIVERSIDAD DEL QUINDIO: c(1208)
+# 24 UNIVERSIDAD FRANCISCO DE PAULA SANTANDER, CUCUTA: c(1209)
+# 25 UNIVERSIDAD FRANCISCO DE PAULA SANTANDER- OCANA: c(1210)
+# 26 UNIVERSIDAD DE PAMPLONA: c(1212)
+# 27 UNIVERSIDAD TEC. DEL MAGDALENA: c(1213)
+# 28 UNIVERSIDAD DE CUNDINAMARCA: c(1214, 1215, 1216)
+# 29 UNIVERSIDAD-COLEGIO MAYOR DE CUNDINAMARCA: c(1121)
+# 30 UNIVERSIDAD DE SUCRE: c(1217)
+# 31 UNIVERSIDAD DE LA GUAJIRA: c(1218)
+# 32 UNIVERSIDAD DISTRITAL "FRANCISCO JOSE DE CALDAS": c(1301)
+# 33 UNIVERSIDAD ABIERTA Y A DISTANCIA: c(2102)
+# 34 UNIVERSIDADA AUTONOMA INTERCULTURAL INDIGENA: c(9929)
+# 35 UNIVERSIDAD INTERNACIONAL DEL TRÓPICO AMERICANO: c(2743)
+
+# Inicio Fase de Análisis Saber Pro
+
+
+# Promedio Saber UNAL
+
+
+Media_Pais <- mean(SaberPro$PUNT_GLOBAL, na.rm = TRUE)
+Media_Unal <- SaberPro |> group_by(Unal) |> summarise(Media = mean(PUNT_GLOBAL, na.rm = TRUE))
+Media_Unal <- round(as.numeric(Media_Unal[2,2]), 2)
+
+
+
+# UNAL vs IES País - Variable Unal
+
+ggplot(data = SaberPro, aes(y = PUNT_GLOBAL, x = fct_reorder(Unal, PUNT_GLOBAL, .fun = median))) + 
+  geom_boxplot(outlier.color = "#addd8e", fill = "gray") +
+  ylim(0, 300) + geom_hline(yintercept = Media_Pais, col = "red", size = 1) +
+  geom_hline(yintercept = c(0, 300), col = "blue", size = 1, linetype="dashed") +
+  ggtitle("Distribución puntajes globales Saber Pro 2016-2021 UNAL vs Otras IES", subtitle = paste("Total Evaluados = ", nrow(SaberPro)))+
+  ylab(" \n Puntaje Promedio Global Saber PRO")+
+  xlab("Universidades")+coord_flip() +
+  theme(axis.text.y = element_text(size = 13, face = "bold"),
+        axis.text.x = element_text(size = 13, colour = "blue"),
+        axis.title = element_text(face="bold", color="black", size=16))
+
+
+# Sedes UNAL vs IES país - Variable Sunal
+
+ggplot(data = SaberPro, aes(y = PUNT_GLOBAL, x = fct_reorder(Sunal, PUNT_GLOBAL, .fun = median))) + 
+  geom_boxplot(outlier.color = "#addd8e", fill = "gray") +
+  ylim(0, 300) + geom_hline(yintercept = Media_Pais, col = "red", size = 1) +
+  geom_hline(yintercept = c(0, 300), col = "blue", size = 1, linetype="dashed") +
+  ggtitle("Distribución puntajes globales Saber Pro 2016-2021 Sedes de la UNAL vs Otras IES", subtitle = paste("Total Evaluados = ", nrow(SaberPro)))+
+  ylab(" \n Puntaje Promedio Global Saber PRO")+
+  xlab("Universidades")+coord_flip() +
+  theme(axis.text.y = element_text(size = 13, face = "bold"),
+        axis.text.x = element_text(size = 13, colour = "blue"),
+        axis.title = element_text(face="bold", color="black", size=16))
+
+
+# Sedes UNAL vs IES país - Variable Sunal
+
+ggplot(data = SaberPro, aes(y = PUNT_GLOBAL, x = fct_reorder(SUE_UNAL, PUNT_GLOBAL, .fun = median))) + 
+  geom_boxplot(outlier.color = "#addd8e", fill = "gray") +
+  ylim(0, 300) + geom_hline(yintercept = Media_Pais, col = "red", size = 1) +
+  geom_hline(yintercept = c(0, 300), col = "blue", size = 1, linetype="dashed") +
+  ggtitle("Distribución puntajes globales Saber Pro 2016-2021 UNAL, Resto del SUE y Otras IES", subtitle = paste("Total Evaluados = ", nrow(SaberPro)))+
+  ylab(" \n Puntaje Promedio Global Saber PRO")+
+  xlab("Universidades")+coord_flip() +
+  theme(axis.text.y = element_text(size = 13, face = "bold"),
+        axis.text.x = element_text(size = 13, colour = "blue"),
+        axis.title = element_text(face="bold", color="black", size=16))
+
+# Resultados Saber Pro G12
+
+ggplot(data = SaberPro, aes(y = PUNT_GLOBAL, x = fct_reorder(G12, PUNT_GLOBAL, .fun = median))) + 
+  geom_boxplot(outlier.color = "#addd8e", fill = "gray") +
+  ylim(0, 300) + geom_hline(yintercept = Media_Pais, col = "red", size = 1) +
+  geom_hline(yintercept = c(0, 300), col = "blue", size = 1, linetype="dashed") +
+  ggtitle("Distribución puntajes globales Saber Pro 2016-2021 ", subtitle = paste("Principales Universidades del País - ", "Total Evaluados = ", nrow(SaberPro)))+
+  ylab(" \n Puntaje Promedio Global Saber PRO")+
+  xlab("Universidades")+coord_flip() +
+  theme(axis.text.y = element_text(size = 13, face = "bold"),
+        axis.text.x = element_text(size = 13, colour = "blue"),
+        axis.title = element_text(face="bold", color="black", size=16))
+
+# Resultados Saber Pro G15
+
+ggplot(data = SaberPro, aes(y = PUNT_GLOBAL, x = fct_reorder(G15, PUNT_GLOBAL, .fun = median))) + 
+  geom_boxplot(outlier.color = "#addd8e", fill = "gray") +
+  ylim(0, 300) + geom_hline(yintercept = Media_Pais, col = "red", size = 1) +
+  geom_hline(yintercept = c(0, 300), col = "blue", size = 1, linetype="dashed") +
+  ggtitle("Distribución puntajes globales Saber Pro 2016-2021 ", subtitle = "Principales universidades del país\n ")+
+  ylab(" \n Puntaje Promedio Global Saber PRO")+
+  xlab("Universidades")+coord_flip() +
+  theme(axis.text.y = element_text(size = 13, face = "bold"),
+        axis.text.x = element_text(size = 13, colour = "blue"),
+        axis.title = element_text(face="bold", color="black", size=16))
+
+
+# Resultados Saber Pro Universidades del SUE
+
+ggplot(data = SaberPro, aes(y = PUNT_GLOBAL, x = fct_reorder(SUE_UNO, PUNT_GLOBAL, .fun = median))) + 
+  geom_boxplot(outlier.color = "#addd8e", fill = "gray") +
+  ylim(0, 300) + geom_hline(yintercept = Media_Pais, col = "red", size = 1) +
+  geom_hline(yintercept = c(0, 300), col = "blue", size = 1, linetype="dashed") +
+  ggtitle("Distribución puntajes globales Saber Pro 2016-2021 Universidades SUE", subtitle = paste("Total Evaluados = ", nrow(SaberPro)))+
+  ylab(" \n Puntaje Promedio Global Saber PRO")+
+  xlab("Universidades")+coord_flip() +
+  theme(axis.text.y = element_text(size = 13, face = "bold"),
+        axis.text.x = element_text(size = 13, colour = "blue"),
+        axis.title = element_text(face="bold", color="black", size=16))
+
+
+# Resultados Saber Pro Universidades del SUE + Sedes UNAL
+
+ggplot(data = SaberPro, aes(y = PUNT_GLOBAL, x = fct_reorder(SUE_UNO_SUNAL, PUNT_GLOBAL, .fun = median))) + 
+  geom_boxplot(outlier.color = "#addd8e", fill = "gray") +
+  ylim(0, 300) + geom_hline(yintercept = Media_Pais, col = "red", size = 1) +
+  geom_hline(yintercept = c(0, 300), col = "blue", size = 1, linetype="dashed") +
+  ggtitle("Distribución puntajes globales Saber Pro 2016-2021 Universidades SUE vs Sedes UNAL", subtitle = paste("Total Evaluados = ", nrow(SaberPro)))+
+  ylab(" \n Puntaje Promedio Global Saber PRO")+
+  xlab("Universidades")+coord_flip() +
+  theme(axis.text.y = element_text(size = 13, face = "bold"),
+        axis.text.x = element_text(size = 13, colour = "blue"),
+        axis.title = element_text(face="bold", color="black", size=16))
+
+# Análisis de resultados pruebas Saber Pro competencias genéricas
+
+# Crear variables competencias genéricas con nuevos nombres
+
+
+SaberPro1 <-  SaberPro |> rename(
+`Lectura Crítica` = MOD_LECTURA_CRITICA_PUNT, 
+`Razonamiento Cuantitativo` = MOD_RAZONA_CUANTITAT_PUNT, 
+`Competencias Ciudadanas` = MOD_COMPETEN_CIUDADA_PUNT,
+`Comunicación Escrita` = MOD_COMUNI_ESCRITA_PUNT,
+`Inglés` = MOD_INGLES_PUNT,
+`Global` = PUNT_GLOBAL)
+
+# Resultados Saber Pro Competencias UNAL
+
+SaberPro1 |> filter(Unal == "Unal") |> 
+  mutate(UNAL = "UNAL") |> 
+  Plot.Radar(categoria = Unal,
+  variables = vars(Global,  
+                   `Razonamiento Cuantitativo`, 
+                   `Competencias Ciudadanas`,
+                   `Comunicación Escrita`,
+                   Inglés,
+                   `Lectura Crítica`
+                   ),
+  # libreria  = "echarts",
+  # colores   = c("#af8dc3"),
+  rango     = c(0, 300)
+  # estilo      = list(
+  #   ply.LegendTitle = "SEDE:", ply.LegendPosition = list(x = 0, y = -0.15, orientation = "h"),
+  #   ply.Relleno = "tonext", ply.Opacidad = 0.8)
+)
+
+
+# Resultados Saber Pro Competencias UNAL - Por años
+
+
+SaberPro1 |> filter(Unal == "Unal") |> 
+  Plot.Radar(categoria = YEAR,
+             variables = vars(Global,  
+                              `Razonamiento Cuantitativo`, 
+                              `Competencias Ciudadanas`,
+                              `Comunicación Escrita`,
+                              Inglés,
+                              `Lectura Crítica`),
+             titulo      = "Evolución Resultados Promedio Competencias Genéricas UNAL Examen Saber Pro, por años.",
+             rango     = c(0, 300),
+             estilo      = list(
+               ply.LegendTitle = "Año:",
+               ply.Relleno = "tonext", ply.Opacidad = 0.8)
+  )
+
+
+# Resultados Saber Pro Competencias UNAL - Por Sedes
+
+color = c("#8CC63F", # VERDE       | Bogota
+          "#0071BC", # AZUL VIVO   | Manizales
+          "#F15A24", # NARANJA     | Medellin
+          "#93278F") # MORADO      | Palmira
+
+
+SaberPro1 |> filter(Unal == "Unal") |> 
+  Plot.Radar(categoria = Sunal,
+             variables = vars(Global,  
+                              `Razonamiento Cuantitativo`, 
+                              `Competencias Ciudadanas`,
+                              `Comunicación Escrita`,
+                              Inglés,
+                              `Lectura Crítica`),
+             # titulo = "<br>Evolución Resultados Promedio Competencias Genéricas UNAL Examen Saber Pro, <br> por años.",
+             rango = c(0, 200),
+             colores = color,
+             # libreria  = "echarts",
+             estilo      = list(
+               ply.LegendTitle = "Sedes:",
+               ply.Relleno = "none")
+  )
+
+
+####------------------------------------------
+# Análisis Resultados Examen Admisión vs Saber Pro
+
+## Importar base de cupos UNAL
+
+CuposUNAL <- read_excel("Datos/Fuentes/2016_2021_PRECuposUNAL.xlsx")
+
+# Tabla evolución total cupos
+
+Cupos_UNAL <- CuposUNAL |> 
+  group_by(YEAR, Sede) |> 
+  summarise(Cupos = sum(Total)) |> 
+  mutate(ID = paste0(YEAR, Sede),
+         YEAR_CUPOS = YEAR)
+
+# Promedio examen admisión por sedes y periodos
+
+Exa_UNAL <- UnalData::Aspirantes |> 
+            filter(TIPO_NIVEL == "Pregrado", !is.na(MOD_INS)) |> 
+            # mutate(PERIODO = paste(YEAR, SEMESTRE, sep = "-")) |> 
+            group_by(YEAR, INS_SEDE_NOMBRE) |> 
+            mutate(Total = n()) |> ungroup() |> 
+            filter(ADMITIDO == "Sí", YEAR %in% c(2016:2020)) |> 
+            group_by(YEAR, INS_SEDE_NOMBRE) |> 
+            summarise(Admitidos = n(),
+                      Aspirantes = max(Total),
+                      Mean_propio = mean(PTOTAL, na.rm = TRUE)) |>                      
+            filter(INS_SEDE_NOMBRE != "De La Paz") |> 
+            mutate(ID = paste0(YEAR, INS_SEDE_NOMBRE))
+
+# Promedio Saber Pro por Sedes
+
+Saber_UNAL <- UnalData::SaberPro |> 
+  group_by(YEAR, SEDE_NOMBRE_ADM) |> 
+  summarise(Evaluados = n(),
+            Mean_Saber = mean(PUNTAJE_GLOBAL, na.rm = TRUE)) |> 
+  mutate(ID = paste0(YEAR, SEDE_NOMBRE_ADM))
+
+# Cruzar bases de datos
+
+Saber_ExaUnal <- left_join(Exa_UNAL, Saber_UNAL, by = "ID") |> 
+                 left_join(Cupos_UNAL, by = "ID") |> 
+                 select(YEAR, Sede, Admitidos:Mean_propio, Evaluados:Mean_Saber, Cupos) |> 
+                 rename(Year= YEAR) |> 
+                 mutate(R_Asp_Cup = Aspirantes/Cupos) 
+
+# Visualización de resultados 
+
+
+Tema <- theme(legend.text = element_text(size = 10),
+      legend.title = element_text(color = "blue", size = 14, face = "bold"))
+
+# Media de resultados pruebas Saber Pro vs Total de Aspirantes - Con Bogotá
+
+Saber_ExaUnal |> ggplot(aes(x = Mean_Saber, y = Aspirantes))+
+                 geom_point(aes(color = Sede, shape = Sede), size = 6)+
+                 geom_smooth()+
+                 scale_shape_manual(values=c(8, 16,  8, 16, 16, 8, 16,  8))+
+                 scale_color_manual(values=c('#e41a1c','green','blue','#ff7f00','blue','green','red','#ff7f00'))+
+  labs(title = "Puntajes Promedio Global Anual Prueba Saber Pro vs Total de Aspirantes UNAL, por Sedes.", 
+       subtitle = "Años 2016 a 2020")+
+  xlab(" \n Puntaje Promedio Prueba Saber Pro")+
+  ylab("Total de aspirantes en la Universidad\n ")+
+  Tema
+ 
+# Media de resultados pruebas Saber Pro vs Total de Aspirantes - Sin Bogotá Y Medellín
+
+Saber_ExaUnal |> filter(!Sede %in% c("Bogotá", "Medellín")) |> 
+  ggplot(aes(x = Mean_Saber, y = Aspirantes))+
+  geom_point(aes(color = Sede, shape = Sede), size = 6)+
+  geom_smooth()+
+  scale_shape_manual(values=c(8, 16, 16, 8, 16,  8))+
+  scale_color_manual(values=c('#e41a1c','#ff7f00','blue','green','red','#ff7f00'))+
+  labs(title = "Puntajes Promedio Global Anual Prueba Saber Pro vs Total de Aspirantes UNAL, por Sedes sin Bogotá y Medellín.", 
+       subtitle = "Años 2016 a 2020")+
+  xlab(" \n Puntaje Promedio Prueba Saber Pro")+
+  ylab("Total de aspirantes en la Universidad\n ")+
+  Tema
+
+
+# Media de resultados pruebas Saber Pro vs Razón ASpirantes Admitidos
+
+Saber_ExaUnal |> ggplot(aes(x = Mean_Saber, y = R_Asp_Cup))+
+  geom_point(aes(color = Sede, shape = Sede), size = 6)+
+  geom_smooth()+
+  scale_shape_manual(values=c(8, 16,  8, 16, 16, 8, 16,  8))+
+  scale_color_manual(values=c('#e41a1c','green','blue','#ff7f00','blue','green','red','#ff7f00'))+
+  labs(title = "Puntajes Promedio Global Anual Prueba Saber Pro vs Razón Aspirantes por Cupos, por Sedes.", 
+       subtitle = "Años 2016 a 2020")+
+  xlab(" \n Puntaje Promedio Prueba Saber Pro")+
+  ylab("Razón Aspirantes por Cupos\n ")+
+  Tema
+
+
+# Media de resultados pruebas Saber Pro vs Razón ASpirantes Admitidos
+# Sin Bogotá
+
+Saber_ExaUnal |> filter(!Sede %in% c("Bogotá")) |> 
+  ggplot(aes(x = Mean_Saber, y = R_Asp_Cup))+
+  geom_point(aes(color = Sede, shape = Sede), size = 6)+
+  geom_smooth()+
+  scale_shape_manual(values=c(8, 16,  8, 16, 16, 8, 16,  8))+
+  scale_color_manual(values=c('#e41a1c','green','blue','#ff7f00','blue','green','red','#ff7f00'))+
+  labs(title = "Puntajes Promedio Global Anual Prueba Saber Pro vs Razón Aspirantes por Cupos, por Sedes.", 
+       subtitle = "Años 2016 a 2020")+
+  xlab(" \n Puntaje Promedio Prueba Saber Pro")+
+  ylab("Razón Aspirantes por Cupos\n ")+
+  ylim(0, 12)+
+  Tema
+
+
+# Resultados puntaje de admisión UNAl
+
+UnalData::Aspirantes |> 
+              filter(TIPO_NIVEL == "Pregrado", YEAR %in% c(2008:2022), !is.na(MOD_INS)) |> 
+              mutate(Unal = "UNAL") |> 
+              Plot.Boxplot(
+              variable = PTOTAL,
+              grupo1 = YEAR,
+              grupo2 = Unal,
+              outliers = TRUE,
+              colOutlier = "#969696")
+
+
+# Resultados puntaje de admisión UNAl (Admitidos vs No Admitidos)
+
+UnalData::Aspirantes |> 
+  filter(TIPO_NIVEL == "Pregrado", YEAR %in% c(2016:2022), !is.na(MOD_INS)) |> 
+  mutate(Unal = "UNAL") |> 
+  Plot.Boxplot(
+    variable = PTOTAL,
+    grupo1 = YEAR,
+    grupo2 = ADMITIDO,
+    outliers = FALSE,
+    colores = c("red", "blue"))
+
+
+# Resultados puntaje de admisión UNAl por sedes
+
+UnalData::Aspirantes |> 
+  filter(TIPO_NIVEL == "Pregrado", YEAR %in% c(2021:2022), !is.na(MOD_INS)) |> 
+  mutate(Unal = "UNAL") |> 
+  Plot.Boxplot(
+    variable = PTOTAL,
+    grupo1 = YEAR,
+    grupo2 = INS_SEDE_NOMBRE,
+    outliers = FALSE)
+
+
+# Mapa de resultados examen de admisión 
+# por departamentos y municipios
+
+
+# Mapa por departamentos
+
+     UnalData::Aspirantes |> 
+     filter(TIPO_NIVEL == "Pregrado", 
+     YEAR %in% c(2009:2022)) |> 
+     select(Code_Dept = COD_DEP_RES,
+            Code_Mun  = COD_CIU_RES,
+            ScoreGlobal   = PTOTAL) %$%
+  Plot.Mapa(
+  depto   = Code_Dept,
+  mpio    = Code_Mun,
+  tipo    = "Deptos",
+  estadistico   = "Promedio",
+  variable = ScoreGlobal,
+  naTo0 = FALSE, 
+  textSize = 0,
+  titulo  = "Puntaje Examen <br> Admisión UNAL",
+  cortes  = c(0, 400, 450, 500, 540, Inf), 
+  colores = c("#fd8d3c", "#fecc5c", "#99d8c9", "#6DE35B", "#69f728")
+  )
+
+# Mapa por municipios
+
+UnalData::Aspirantes |> 
+  filter(TIPO_NIVEL == "Pregrado", 
+         YEAR %in% c(2009:2022)) |> 
+  select(Code_Dept = COD_DEP_RES,
+         Code_Mun  = COD_CIU_RES,
+         ScoreGlobal   = PTOTAL) %$%
+  Plot.Mapa(
+    depto   = Code_Dept,
+    mpio    = Code_Mun,
+    tipo    = "Mpios",
+    estadistico   = "Promedio",
+    variable = ScoreGlobal,
+    naTo0 = FALSE, 
+    textSize = 0,
+    titulo  = "Puntaje Examen <br> Admisión UNAL",
+    cortes  = c(0, 400, 450, 500, 540, Inf), 
+    colores = c("#fd8d3c", "#fecc5c", "#99d8c9", "#6DE35B", "#69f728")
+    )
+  
+
+
+
+
+
+
+
+
+
+
+
+StaticPlot(Mapa1)
+
+
+class(Aspirantes_Map$PTOTAL)
+
+names(Aspirantes_Map)
+
+# Resultados puntaje de admisión ADMITIDOS UNAl por sedes
+
+UnalData::Aspirantes |> 
+  filter(TIPO_NIVEL == "Pregrado", YEAR %in% c(2021:2022), 
+         !is.na(MOD_INS), ADMITIDO == "Sí") |> 
+  mutate(Unal = "UNAL") |> 
+  Plot.Boxplot(
+    variable = PTOTAL,
+    grupo1 = YEAR,
+    grupo2 = INS_SEDE_NOMBRE,
+    outliers = FALSE)
+
+
+
+# Dispersión Puntajes Promedio Examen Propio UNAL vs Prueba Saber Pro, por Sedes.
+
+cor2 <- cor(x = Saber_ExaUnal$Mean_propio, y = Saber_ExaUnal$Mean_Saber, use = "complete.obs")
+
+Saber_ExaUnal |> ggplot(aes(x = Mean_propio, y = Mean_Saber))+
+  geom_point(aes(color = Sede, shape = Sede), size = 6)+
+  geom_smooth(method = "lm")+
+  scale_shape_manual(values=c(8, 16,  8, 16, 16, 8, 16,  8))+
+  scale_color_manual(values=c('#e41a1c','green','blue','#ff7f00','blue','green','red','#ff7f00'))+
+  annotate(geom="text", x=650, y=150, label=paste("Correlación = ", round(cor2,3)),
+           color="red",  fontface = 'italic', size =5) +
+  labs(title = "Dispersión Puntajes Promedio Anuales Examen Propio UNAL vs Prueba Saber Pro, por Sedes.", 
+       subtitle = "Años 2016 a 2020")+
+  xlab(" \n Puntaje Promedio Examen Propio")+
+  ylab("Promedio Puntaje Global Prueba Saber Pro\n ")+
+  Tema
+  
+
+# Evolución puntaje global UNAL Saber Pro
+
+Plot.Boxplot(
+  datos = SaberPro,
+  variable = PUNT_GLOBAL,
+  grupo1 = YEAR,
+  grupo2 = SUE_UNAL,
+  outliers = FALSE)
+
+Plot.Boxplot(
+  datos = SaberPro,
+  variable = PUNT_GLOBAL,
+  grupo1 = SUE_UNO,
+  outliers = TRUE,
+  colOutlier = "gray")
+
+Plot.Boxplot(
+  datos = SaberPro,
+  variable = PUNT_GLOBAL,
+  grupo1 = YEAR,
+  grupo2 = G12,
+  outliers = FALSE,
+  
+  violin = TRUE,
+  libreria = c("plotly"))
+
+######################################-
+# 23 Solicitud 16-05-2022 -----
+######################################-
+
+# Demanda: Julian Camilo Alfonso Suarez <jcalfonsosu@unal.edu.co>
+# Propósito: 
+# Somos los estudiantes de economía que llamamos por teléfono al medio día. Como solicitamos nos gustaría tener los datos de los matriculados para la sede Bogotá del periodo 2021-1  y las variables que necesitamos son puntaje, edad, estrato, PMB y naturaleza de colegio porfavor.
+# Muchas gracias y quedamos atentos a su respuesta.
+
+# Que pena, no son los estudiantes matriculados sino los admitidos. Muchas gracias
+
+# LA SOLICITUD SE RESPONDIO A TRAVÉS DE GESTIÓN DIRECTA DE 
+# LOS DATOS EN EXCEL
+
+######################################-
+# 24 Solicitud 16-05-2022 -----
+######################################-
+
+# Demanda: Claudia Patricia Joya Joya
+# Descripción :
+# Teniendo en cuenta una reunión que  va a desarrollar la
+# Dirección de la Sede con la Gobernadora de Arauca (e), 
+# Dra. Indira Luz Barrios Guarnizo, de manera  atenta solicito 
+# su colaboración en el sentido de facilitarme o indicarme donde 
+# puedo consultar  la información de los bachilleres graduados de 
+# los departamentos que componen el área de influencia de la Sede Orinoquia.
+
+# Departamentos: Arauca, Casanare, Vichada, Guainía y Guaviare
+
+# Importar Datos
+
+Saber11 <- read.csv("Datos/Fuentes/MEN_MATRICULA_EN_EDUCACION_EN_PREESCOLAR__B_SICA_Y_MEDIA_2018_2020.csv")
+
+# Agregar resultados
+
+Saber11_Orinoquia <- Saber11 %>% rename(PERIODO = ï..ANNO_INF) %>%
+                                 filter(PERIODO == "2,020",
+                                        GRADO == "Once",
+                                        COD_DANE_DEPARTAMENTO %in% c(81, 85, 99, 94, 95)) %>%
+                     group_by(PERIODO, COD_DANE_DEPARTAMENTO, DEPARTAMENTO) %>% 
+                     count(name = "Total")
+
+View(Saber11_Orinoquia)
+
+
+# Con Base en las Pruebas Saber 11 PERIODO 2019-2
+
+# Importar Datos
+
+Saber11_20192 <- read.csv("Datos/Fuentes/Saber_11__2019-2.csv")
+
+
+######################################-
+# 25 Solicitud 02-06-2022 -----
+######################################-
+
+# Demanda: Coordinacion Pregrado de Diseno Grafico
+           
+# Descripción :
+
+# Señores
+# Dirección de Estadística
+# Reciban un cordial saludo:
+# De manera atenta, solicitamos por favor nos compartan el histórico de la cantidad de graduandos del programa de Diseño Gráfico 2509 (UBA 2535), así como el número de promociones que tiene la carrera hasta el momento.
+# Esta información nos la están solicitando como parte del proceso de acreditación del programa y la pronta visita de pares que tendremos.
+# Agradecemos su atención y ayuda en este tema.
+
+DGrafico_Bog <- UnalData::Graduados |> 
+              filter(SNIES_PROGRA == 4) |> 
+              group_by(YEAR, SEMESTRE, PROGRAMA) |> 
+              count(name = "Total")
+
+
+# Exportar resultados
+
+write_xlsx(DGrafico_Bog, "Datos/Entrega25/DGrafico_Bog.xlsx")
+
