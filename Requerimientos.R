@@ -1606,6 +1606,9 @@ SaberPro <- SaberPro %>%
   mutate(G12 =  case_when(.$INST_COD_INSTITUCION == 1813  ~ "U. de los Andes",
                           .$INST_COD_INSTITUCION == 1714  ~ "U. del Rosario",
                           .$INST_COD_INSTITUCION == 1706  ~ "U. Externado",
+                          .$INST_COD_INSTITUCION == 1711  ~ "U. Sabana",
+                          .$INST_COD_INSTITUCION == 2813  ~ "EIA - Medellín",
+                          .$INST_COD_INSTITUCION == 2704  ~ "CESA - Bogotá",
                           .$INST_COD_INSTITUCION == 1828  ~ "ICESI",
                           .$INST_COD_INSTITUCION %in% c(1201, 1219, 1220, 1221, 1222, 1223, 9125) ~ "U. de Antioquia",
                           .$INST_COD_INSTITUCION == 1712  ~ "EAFIT",
@@ -1624,6 +1627,9 @@ SaberPro <- SaberPro %>%
   mutate(G15 =  case_when(.$INST_COD_INSTITUCION == 1813  ~ "U. de los Andes",
                           .$INST_COD_INSTITUCION == 1714  ~ "U. del Rosario",
                           .$INST_COD_INSTITUCION == 1706  ~ "U. Externado",
+                          .$INST_COD_INSTITUCION == 1711  ~ "U. Sabana",
+                          .$INST_COD_INSTITUCION == 2813  ~ "EIA - Medellín",
+                          .$INST_COD_INSTITUCION == 2704  ~ "CESA - Bogotá",
                           .$INST_COD_INSTITUCION == 1828  ~ "ICESI",
                           .$INST_COD_INSTITUCION %in% c(1201, 1219, 1220, 1221, 1222, 1223, 9125) ~ "U. de Antioquia",
                           .$INST_COD_INSTITUCION == 1712  ~ "EAFIT",
@@ -1971,6 +1977,90 @@ SaberPro1 |> filter(Unal == "Unal") |>
                ply.Relleno = "none")
   )
 
+#### -------------------------------------
+## Análisis posiciones UNAL vs G12 y SUE
+
+# Posiciones en el G12
+
+PosG12 <- SaberPro |> 
+          group_by(G12, YEAR) |> 
+          summarise(Promedio = round(mean(PUNT_GLOBAL, na.rm = TRUE), 2),
+                    Evaluados = n()) |> 
+          pivot_wider(names_from = YEAR, 
+                      values_from = c(Promedio, Evaluados)) |> 
+          ungroup() |> 
+          mutate(across(.cols = starts_with("Promedio"),
+                        .fns = ~row_number(desc(.x)), .names = "Posicion_{2016:2021}")) |> 
+          relocate(starts_with("Posicion"), .after = "Promedio_2021") |> 
+          arrange(desc(Promedio_2021))
+
+# Posiciones en el G12 + Sedes UNAL
+
+PosG12UNAL <- SaberPro |> 
+  group_by(G15, YEAR) |> 
+  summarise(Promedio = round(mean(PUNT_GLOBAL, na.rm = TRUE), 2),
+            Evaluados = n()) |> 
+  pivot_wider(names_from = YEAR, 
+              values_from = c(Promedio, Evaluados)) |> 
+  ungroup() |> 
+  mutate(across(.cols = starts_with("Promedio"),
+                .fns = ~row_number(desc(.x)), .names = "Posicion_{2016:2021}")) |> 
+  relocate(starts_with("Posicion"), .after = "Promedio_2021") |> 
+  arrange(desc(Promedio_2021))
+
+
+# Evolución Posiciones en el SUE
+  
+PosSUE <- SaberPro |> 
+  group_by(SUE_UNO, YEAR) |> 
+  summarise(Promedio = round(mean(PUNT_GLOBAL, na.rm = TRUE), 2),
+            Evaluados = n()) |> 
+  pivot_wider(names_from = YEAR, 
+              values_from = c(Promedio, Evaluados)) |> 
+  ungroup() |> 
+  mutate(across(.cols = starts_with("Promedio"),
+                .fns = ~row_number(desc(.x)), .names = "Posicion_{2016:2021}")) |> 
+  relocate(starts_with("Posicion"), .after = "Promedio_2021") |> 
+  arrange(desc(Promedio_2021))
+
+# Evolución Posiciones en el SUE + Sedes UNAL
+
+PosSUEUNAL <- SaberPro |> 
+  group_by(SUE_UNO_SUNAL, YEAR) |> 
+  summarise(Promedio = round(mean(PUNT_GLOBAL, na.rm = TRUE), 2),
+            Evaluados = n()) |> 
+  pivot_wider(names_from = YEAR, 
+              values_from = c(Promedio, Evaluados)) |> 
+  ungroup() |> 
+  mutate(across(.cols = starts_with("Promedio"),
+                .fns = ~row_number(desc(.x)), .names = "Posicion_{2016:2021}")) |> 
+  relocate(starts_with("Posicion"), .after = "Promedio_2021") |> 
+  arrange(desc(Promedio_2021))
+
+
+# Comparativo Nacional Rápido
+
+PosGeneral <- SaberPro |> 
+  group_by(INST_COD_INSTITUCION, YEAR) |> 
+  summarise(Promedio = round(mean(PUNT_GLOBAL, na.rm = TRUE), 2),
+            Evaluados = n()) |> 
+  pivot_wider(names_from = YEAR, 
+              values_from = c(Promedio, Evaluados)) |> 
+  ungroup() |> 
+  mutate(across(.cols = starts_with("Promedio"),
+                .fns = ~row_number(desc(.x)), .names = "Posicion_{2016:2021}")) |> 
+  relocate(starts_with("Posicion"), .after = "Promedio_2021") |> 
+  arrange(desc(Promedio_2021))
+
+
+# Exportar Resultados
+
+write_xlsx(PosG12, "Datos/Entrega22/PosG12.xlsx")
+write_xlsx(PosG12UNAL, "Datos/Entrega22/PosG12UNAL.xlsx")
+write_xlsx(PosSUE, "Datos/Entrega22/PosSUE.xlsx")
+write_xlsx(PosSUEUNAL, "Datos/Entrega22/PosSUEUNAL.xlsx")
+write_xlsx(PosGeneral, "Datos/Entrega22/PosGeneral.xlsx")
+
 
 ####------------------------------------------
 # Análisis Resultados Examen Admisión vs Saber Pro
@@ -2168,16 +2258,6 @@ UnalData::Aspirantes |>
     )
   
 
-
-
-
-
-
-
-
-
-
-
 StaticPlot(Mapa1)
 
 
@@ -2196,7 +2276,6 @@ UnalData::Aspirantes |>
     grupo1 = YEAR,
     grupo2 = INS_SEDE_NOMBRE,
     outliers = FALSE)
-
 
 
 # Dispersión Puntajes Promedio Examen Propio UNAL vs Prueba Saber Pro, por Sedes.
@@ -2242,6 +2321,12 @@ Plot.Boxplot(
   
   violin = TRUE,
   libreria = c("plotly"))
+
+
+
+
+
+
 
 ######################################-
 # 23 Solicitud 16-05-2022 -----
@@ -2320,3 +2405,4 @@ DGrafico_Bog <- UnalData::Graduados |>
 
 write_xlsx(DGrafico_Bog, "Datos/Entrega25/DGrafico_Bog.xlsx")
 
+View(UnalData::Graduados)
