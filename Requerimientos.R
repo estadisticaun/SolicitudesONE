@@ -2406,3 +2406,72 @@ DGrafico_Bog <- UnalData::Graduados |>
 write_xlsx(DGrafico_Bog, "Datos/Entrega25/DGrafico_Bog.xlsx")
 
 View(UnalData::Graduados)
+
+
+######################################-
+# 26 Solicitud 15-06-2022 -----
+######################################-
+
+# Demanda: Yuli Stefany Novoa Rodriguez
+
+# Descripción :
+
+# Buenos días,
+# Mediante el presente correo, me permito solicitar a ustedes las estadísticas de alumnos de pregrado para la facultad de enfermería en el periodo 2021-2, discriminado por sexo, edad y demas datos que se visualizan a nivel de sede en la pagina, ya que lo requiero para un proyecto realizado para una de las asignaturas que brinda la facultad.
+# Agradecería profundamente el envío de esta información.
+# Muchas gracias.
+# Feliz Tarde
+
+Enfer_212 <- UnalData::Matriculados |> 
+            filter(YEAR == 2021, SEMESTRE == 2, SNIES_PROGRA == 7) |> 
+            group_by(NACIONALIDAD, CAT_EDAD, SEXO, ESTRATO, TIPO_COL, PBM, MAT_PVEZ, TIPO_ADM, PAES, PEAMA) |> 
+            summarise(Total = n())
+
+# Exportar resultados
+
+write_xlsx(Enfer_212, "Datos/Entrega26/Enfer_212.xlsx")
+
+
+######################################-
+# 27 Solicitud 15-06-2022 -----
+######################################-
+
+# Demanda: Julio David Alvarez Ortiz 
+# Julio David Alvarez Ortiz 
+
+# Descripción :
+
+# Le escribo porque estoy haciendo una investigación acerca de las mujeres en minería y me gustaría conocer la información acerca de las mujeres en los pregrados de ingeniería de minas y metalurgia, 
+# graduadas en dicho pregrado. Además, información de los docentes por sexo del departamento de minerales y materiales de la Sede Medellín.
+# Esta información no fue posible obtenerla en la página de estadísticas de la U.
+
+Gradu_Metalurgia <- UnalData::Graduados |> 
+  filter(SNIES_PROGRA %in% c(118, 126)) |> 
+  group_by(PROGRAMA, YEAR, SEMESTRE, SEXO) |> 
+  summarise(Total = n()) |> 
+  pivot_wider(names_from = SEXO, values_from = Total) |> 
+  arrange(desc(YEAR), desc(SEMESTRE)) |> 
+  mutate(PERIODO = paste0(YEAR, "-", SEMESTRE),
+         `Total Graduados` = Hombres + Mujeres) |> 
+  ungroup() |> 
+  select(-c(YEAR, SEMESTRE)) |> 
+  relocate(PERIODO) 
+
+
+Docen_Metalurgia <- UnalData::Docentes |> 
+  filter(FACULTAD_O == "Minas",
+         UNIDAD == "Departamento de Materiales y Minerales",
+         YEAR >= 2018) |> 
+  group_by(YEAR, SEMESTRE, SEXO) |> 
+  summarise(Total = n()) |> 
+  pivot_wider(names_from = SEXO, values_from = Total) |> 
+  mutate(`Total Docentes` = Hombres + Mujeres,
+         Periodo = paste0(YEAR, "-", SEMESTRE)) |> 
+  relocate(Periodo) |> 
+  ungroup() |> 
+  select(-c(YEAR, SEMESTRE))
+
+write_xlsx(Gradu_Metalurgia, "Datos/Entrega27/Gradu_Metalurgia.xlsx")
+write_xlsx(Docen_Metalurgia, "Datos/Entrega27/Docen_Metalurgia.xlsx")  
+    
+
