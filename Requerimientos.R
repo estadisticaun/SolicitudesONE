@@ -2377,7 +2377,7 @@ View(Saber11_Orinoquia)
 
 # Importar Datos
 
-Saber11_20192 <- read.csv("Datos/Fuentes/Saber_11__2019-2.csv")
+Saber11_20192 <- read.csv("Datos/Fuentes/Saber_11__2019-2.csv", encoding = "UTF-8")
 
 
 ######################################-
