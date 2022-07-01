@@ -2474,4 +2474,163 @@ Docen_Metalurgia <- UnalData::Docentes |>
 write_xlsx(Gradu_Metalurgia, "Datos/Entrega27/Gradu_Metalurgia.xlsx")
 write_xlsx(Docen_Metalurgia, "Datos/Entrega27/Docen_Metalurgia.xlsx")  
     
+######################################-
+# 28 Solicitud 22-06-2022 -----
+######################################-
 
+# Demanda: Maria Claudia Galindo
+# Nueva forma de consolidar la información histórica de programas académicos
+
+# Programa Matriculados
+
+Matricula_Fin <- UnalData::Matriculados %>% 
+                 filter(TIPO_ADM %in% c("Regular", "PAES"))
+
+
+Matricula <- Matricula_Fin %>% 
+             group_by(YEAR, SEMESTRE, TIPO_NIVEL, SEDE_NOMBRE_MAT, 
+                      SNIES_PROGRA, PROGRAMA) %>% 
+             count(name = "Matriculados") %>% 
+             mutate(ID = paste0(YEAR, SEMESTRE, TIPO_NIVEL, SEDE_NOMBRE_MAT, 
+                                SNIES_PROGRA, PROGRAMA)) %>% 
+             relocate(ID) %>% 
+             rename(YEAR_M = YEAR,
+                    SEMESTRE_M = SEMESTRE,
+                    TIPO_NIVEL_M = TIPO_NIVEL,
+                    SEDE_NOMBRE_MAT_M = SEDE_NOMBRE_MAT,
+                    SNIES_PROGRA_M = SNIES_PROGRA,
+                    PROGRAMA_M = PROGRAMA)
+           
+# Programas Graduados
+
+Graduados_Fin <- UnalData::Graduados %>% 
+  filter(TIPO_ADM %in% c("Regular", "PAES"))
+
+
+Graduados <- Graduados_Fin %>% 
+  group_by(YEAR, SEMESTRE, TIPO_NIVEL, SEDE_NOMBRE_MAT, 
+           SNIES_PROGRA, PROGRAMA) %>% 
+  count(name = "Graduados") %>% 
+  mutate(ID = paste0(YEAR, SEMESTRE, TIPO_NIVEL, SEDE_NOMBRE_MAT, 
+                     SNIES_PROGRA, PROGRAMA)) %>% 
+  relocate(ID) %>% 
+  rename(YEAR_G = YEAR,
+         SEMESTRE_G = SEMESTRE,
+         TIPO_NIVEL_G = TIPO_NIVEL,
+         SEDE_NOMBRE_MAT_G = SEDE_NOMBRE_MAT,
+         SNIES_PROGRA_G = SNIES_PROGRA,
+         PROGRAMA_G = PROGRAMA)
+
+
+# Aspirantes Postgrado
+
+Asp_Post <- UnalData::Aspirantes %>% 
+  filter(TIPO_NIVEL == "Postgrado")
+
+
+Aspirantes_Post <- Asp_Post %>% 
+  group_by(YEAR, SEMESTRE, TIPO_NIVEL, INS_SEDE_NOMBRE, 
+           SNIES_PROGRA, PROGRAMA) %>% 
+  count(name = "Aspirantes") %>% 
+  mutate(ID = paste0(YEAR, SEMESTRE, TIPO_NIVEL, INS_SEDE_NOMBRE, 
+                     SNIES_PROGRA, PROGRAMA)) %>% 
+  relocate(ID) 
+
+# Admitidos Pregrado 
+
+Asp_Pre <- UnalData::Aspirantes %>% 
+  filter(TIPO_NIVEL == "Pregrado",
+         ADMITIDO == "Sí") %>% 
+  filter(TIPO_INS %in% c("Regular", "PAES"))
+  
+Aspirantes_Pre <- Asp_Pre %>% 
+  group_by(YEAR, SEMESTRE, TIPO_NIVEL, INS_SEDE_NOMBRE, 
+           SNIES_PROGRA, PROGRAMA) %>% 
+  count(name = "Aspirantes") %>% 
+  mutate(ID = paste0(YEAR, SEMESTRE, TIPO_NIVEL, INS_SEDE_NOMBRE, 
+                     SNIES_PROGRA, PROGRAMA)) %>% 
+  relocate(ID) 
+
+
+# Unir y renombrar base de aspirantes
+
+Aspirantes <-  bind_rows(Aspirantes_Pre, Aspirantes_Post)%>% 
+  rename(YEAR_A = YEAR, 
+         SEMESTRE_A = SEMESTRE, 
+         TIPO_NIVEL_A = TIPO_NIVEL, 
+         INS_SEDE_NOMBRE_A = INS_SEDE_NOMBRE, 
+         SNIES_PROGRAS_A = SNIES_PROGRA, 
+         PROGRAMA_A = PROGRAMA)
+
+
+# Cruzar bases de datos
+
+Programas <- Aspirantes %>% 
+             full_join(Matricula, by = "ID") %>% 
+             full_join(Graduados, by = "ID") %>% 
+             ungroup() %>% 
+             rowwise() %>% 
+             mutate(SNIES = max(SNIES_PROGRAS_A,
+                                SNIES_PROGRA_M,
+                                SNIES_PROGRA_G,
+                                na.rm = TRUE)) %>% 
+             relocate(SNIES, .after = ID) %>% 
+  tibble()
+
+# Exportar resultados a Excel
+
+write_xlsx(Programas, "Datos/Entrega28/Programas.xlsx")
+
+######################################-
+# 29 Solicitud 29-06-2022 -----
+######################################-
+
+# Demanda: Alejandra Montoya
+
+# Buenos días,
+# # 
+# # Mi nombre es Alejandra Montoya y soy candidata a doctorado en la Universidad de Maryland, en Estados Unidos. 
+# Con el propósito de completar información que estoy usando en mi tesis doctoral, 
+# quisiera saber si es posible acceder a los datos del valor de matrícula para Puntaje Básico Matrícula igual a 100 (precio sin subsidio) 
+# en la Universidad Nacional entre los años 2010 y 2020. En el archivo adjunto podrán encontrar una descripción más 
+# detallada de mi solicitud, 
+# la cual espero pueda ser cobijada bajo la Ley 1712 del 6 de marzo de 2014 sobre transparencia y acceso a información pública.
+# 
+# Cordialmente,
+# 
+# Alejandra Montoya
+
+# LA RESPUESTA FUE CONSOLIDAD POR MARIA CLAUDIA GALINDO. LOS ARCHIVOS ENVIADOS
+# SE ENCUENTRAN DISPONIBLES EN LA CARPETA Entrega29
+
+######################################-
+# 30 Solicitud 30-06-2022 -----
+######################################-
+
+# Demanda: PABLO FELIPE MARÍN CARDONA
+# Director Académico sede Manizales
+
+# Amablemente me permito solicitarles su ayuda en la obtención 
+# de la información del indicador número de estudiantes 
+# por docente en la Sede Manizales para los años 2016 a 2021 a nivel de Programa,
+# Unidad Académica Básica, Facultad y Sede.
+
+# Matriculados por programas académicos de la sede
+
+Est_Man_Prog <- UnalData::Matriculados %>% 
+  filter(SNIES_SEDE_MAT == 1103) %>% 
+  group_by(YEAR, SEMESTRE, NIVEL, FACULTAD, SNIES_PROGRA, PROGRAMA) %>% 
+  summarise(`Total Estudiantes` = n()) %>% 
+  arrange(desc(YEAR), desc(SEMESTRE))
+
+write_xlsx(Est_Man_Prog, "Datos/Entrega 30/Est_Man_Prog.xlsx")
+
+# Docentes por unidades académicas
+
+Doc_Man_Unidad <- UnalData::Docentes %>% 
+                          filter(SNIES_SEDE == 1103) %>% 
+                 group_by(YEAR, SEMESTRE, UNIDAD) %>% 
+                 summarise(`Total Docentes` = n()) %>% 
+                 arrange(desc(YEAR), desc(SEMESTRE))
+
+write_xlsx(Doc_Man_Unidad, "Datos/Entrega 30/Doc_Man_Unidad.xlsx")
