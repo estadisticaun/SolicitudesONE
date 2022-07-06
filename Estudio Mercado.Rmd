@@ -23,6 +23,7 @@ library(readxl)
 library(dplyr)
 library(ggplot2)
 library(tidyr)
+library(scales)
 ```
 
 
@@ -67,24 +68,32 @@ ProyectoB %>% pivot_longer(Pregunta1:Pregunta5,
   scale_fill_manual(values = c("#7fc97f", "#beaed4", "#fdc086"))
 ```
 
+## Gráfico Monto Inversión
 
+```{r, echo=FALSE, eval=TRUE}
+GPreg6 <- ProyectoB %>% 
+  group_by(Pregunta6) %>%
+  summarize(Total = n()) %>% 
+  mutate(pct = Total/sum(Total),
+         Porcentaje = scales::percent(pct))
 
-## R Markdown
+# Gráfico de Barras
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>. This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+ggplot(GPreg6, aes(x = Pregunta6, y=pct)) + 
+  geom_bar(stat = 'identity', fill = "#74c476")+
+    scale_y_continuous(limits=c(0, 1), 
+                     breaks = seq(0, 1, .2), 
+                     label = c('0%', '20%', '40%', '60%', '80%', '100%')) +
+ scale_x_discrete(labels = label_wrap(12)) +
+  geom_text(aes(label = Porcentaje), 
+            size = 4, 
+            position = position_stack(vjust = 1.1))+
+    xlab("\n ¿Cuánto estaría dispuesto a invertir?") + 
+  ylab("Porcentaje")
+  # theme_stata() +
+  # theme(
+  #   axis.title.x = element_text(color="black", size=13, face="bold"),
+  #   axis.title.y = element_text(color="black", size=13, face="bold" ),
+  #   legend.title = element_text(colour="blue", size=10, face="bold", vjust = 0.7))
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
