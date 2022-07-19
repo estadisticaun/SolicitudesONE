@@ -1064,7 +1064,7 @@ ggplot(Sisben, aes(x = "" , y = Total, fill = fct_inorder(SISBEN))) +
           subtitle = "Periodo 2021-1")+
   theme(legend.position = c(1,0.1),
         legend.title = element_text(size=13),
-        legend.text = element_text(size=13))
+        legend.text = element_text(size=13))+
   
 # Grupos Sisben
 
@@ -2634,3 +2634,35 @@ Doc_Man_Unidad <- UnalData::Docentes %>%
                  arrange(desc(YEAR), desc(SEMESTRE))
 
 write_xlsx(Doc_Man_Unidad, "Datos/Entrega 30/Doc_Man_Unidad.xlsx")
+
+######################################-
+# 31 Solicitud 19-07-2022 -----
+######################################-
+
+# Demanda: RICARDO PEREZ ALMONACID
+# Profesor Psicología U de Antioquia
+
+# Se requiere el total de docentes de carrera, ocasionales y estudiantes de
+# pregrado matriculados en la carrera de Psicología
+
+# Total Matriculados
+
+Mat_Pre_Psi <- UnalData::Matriculados %>% 
+               filter(NIVEL == "Pregrado", SNIES_PROGRA == 14) %>% 
+               group_by(YEAR, SEMESTRE) %>% 
+               summarise(Total = n())
+
+write_xlsx(Mat_Pre_Psi, "Datos/Entrega31/Mat_Pre_Psi.xlsx")
+
+# Total Docentes
+
+Doc_Psico <- UnalData::Docentes %>%
+             filter(SEDE == "Bogotá", 
+                    UNIDAD %in% c("Departamento de Psicología", "Escuela de Psicoanálisis")) %>% 
+             group_by(YEAR, SEMESTRE, UNIDAD) %>%
+             summarise(Total = n()) %>% 
+             pivot_wider(names_from = UNIDAD,
+                        values_from = Total) %>% 
+             mutate(`Total Docentes Carrera` = `Departamento de Psicología` + `Escuela de Psicoanálisis`)
+
+write_xlsx(Doc_Psico, "Datos/Entrega31/Doc_Psico.xlsx")
