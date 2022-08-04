@@ -13,6 +13,8 @@ library(ggrepel)
 library(skimr)
 library(forcats)
 library(magrittr)
+library(highcharter)
+library(htmlwidgets)
 
 ######################################-
 # 1 Solicitud 14-05-2021 -----
@@ -2666,3 +2668,59 @@ Doc_Psico <- UnalData::Docentes %>%
              mutate(`Total Docentes Carrera` = `Departamento de Psicología` + `Escuela de Psicoanálisis`)
 
 write_xlsx(Doc_Psico, "Datos/Entrega31/Doc_Psico.xlsx")
+
+######################################-
+# 32 Solicitud 04-08-2022 -----
+######################################-
+
+# Demanda: UNIMEDIOS - LINA ROCÍO MARTÍN GUZMÁN
+
+# Generar, en html, la totalidad de gráficos del PGD 2022-2024.
+# Publicación del PGD
+
+# Función Agregar
+
+Agregar <- function(poblacion, var){
+  poblacion %>% group_by(.dots = c("YEAR", "SEMESTRE", var), .drop = FALSE) %>% 
+    summarise(Total = n()) %>% 
+    rename("Clase"=var) %>% 
+    mutate(Variable = var) %>%
+    select(Variable, YEAR, SEMESTRE, Clase, Total) %>%
+    ungroup()
+}
+
+# Función Totales
+
+Totales <- function(poblacion){
+  poblacion %>% group_by(YEAR, SEMESTRE, .drop = FALSE) %>%  summarise(Total = n()) %>% ungroup() %>%
+    mutate(Variable="TOTAL", YEAR=YEAR, SEMESTRE=SEMESTRE, Clase = "Total", Total=Total) %>%
+    select(Variable, YEAR, SEMESTRE, Clase, Total)
+}
+
+# Función Salvar
+
+Salvar <- function(objeto, ruta, nombre){
+  saveWidget(objeto,
+             file = file.path(str_sub(getwd(), 1, str_length(getwd())-0),
+                              ruta,
+                              nombre),
+             selfcontained = F, libdir = "libraryjs")
+  
+}
+
+# Figura 3. Evolución histórica del total de aspirantes a la Universidad
+
+Total_Asp <- Totales(UnalData::Aspirantes) %>% 
+             filter(YEAR <= 2021)
+
+col <-   c("#0071bc") # Azul vivo, Total
+
+Fig3 <- Plot.Series(datos = Total_Asp,
+  categoria    = "TOTAL",
+  freqRelativa = FALSE,
+  colores = col,
+  titulo = "Evolución histórica del total de aspirantes a la Universidad",
+  labelY = "Número de aspirantes (k: miles)")
+
+Salvar(Fig3, "Export/Unimedios", "Fig3.html")
+
