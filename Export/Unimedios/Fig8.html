@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<style>body{background-color:white;}</style>
+<script src="libraryjs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
+<script src="libraryjs/jquery-3.5.1/jquery.min.js"></script>
+<script src="libraryjs/proj4js-2.3.15/proj4.js"></script>
+<link href="libraryjs/highcharts-9.3.1/css/motion.css" rel="stylesheet" />
+<script src="libraryjs/highcharts-9.3.1/highcharts.js"></script>
+<script src="libraryjs/highcharts-9.3.1/highcharts-3d.js"></script>
+<script src="libraryjs/highcharts-9.3.1/highcharts-more.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/stock.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/map.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/data.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/exporting.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/offline-exporting.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/drilldown.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/item-series.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/overlapping-datalabels.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/annotations.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/export-data.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/funnel.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/heatmap.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/treemap.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/sankey.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/dependency-wheel.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/organization.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/solid-gauge.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/streamgraph.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/sunburst.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/vector.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/wordcloud.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/xrange.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/tilemap.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/venn.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/gantt.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/timeline.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/parallel-coordinates.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/bullet.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/coloraxis.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/dumbbell.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/lollipop.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/series-label.js"></script>
+<script src="libraryjs/highcharts-9.3.1/plugins/motion.js"></script>
+<script src="libraryjs/highcharts-9.3.1/custom/reset.js"></script>
+<script src="libraryjs/highcharts-9.3.1/modules/boost.js"></script>
+<script src="libraryjs/highchart-binding-0.9.4/highchart.js"></script>
+  <title>highchart</title>
+</head>
+<body>
+<div id="htmlwidget_container">
+  <div id="htmlwidget-0f8c37642ba8d2d6f838" style="width:100%;height:500px;" class="highchart html-widget"></div>
+</div>
+<script type="application/json" data-for="htmlwidget-0f8c37642ba8d2d6f838">{"x":{"hc_opts":{"chart":{"reflow":true},"title":{"text":"Distribución de estudiantes matriculados por sede, periodo 2021-1","style":{"fontWeight":"bold","fontSize":"22px","color":"#333333","useHTML":true}},"yAxis":{"title":{"text":"Número de estuddiantes (k: miles)","style":{"fontWeight":"bold","color":"black","fontSize":"18px"}},"labels":{"format":"{value}","style":{"fontWeight":"bold","color":"black","fontSize":"18px"}}},"credits":{"enabled":true,"text":"DNPE","href":"http://estadisticas.unal.edu.co/home/"},"exporting":{"enabled":true,"filename":"PlotBarras_SEDE_NOMBRE_MAT"},"boost":{"enabled":false},"plotOptions":{"series":{"label":{"enabled":false},"turboThreshold":0},"treemap":{"layoutAlgorithm":"squarified"},"bar":{"tooltip":{"pointFormat":"<span style=\"color:{series.color}\">● <\/span><b>{series.name}: {point.y}<\/b> ({point.Extra}%)<br/>"},"colorByPoint":true,"colors":["#F46D43","#E6F598","#FFFFBF","#66C2A5","#FEE08B","#3288BD","#ABDDA4","#D53E4F","#FDAE61"],"dataLabels":{"enabled":true,"pointFormat":"{point.y}","style":{"fontWeight":"bold","color":"black","fontSize":"18px"}}},"column":{"tooltip":{"pointFormat":"<span style=\"color:{series.color}\">● <\/span><b>{series.name}: {point.y}<\/b> ({point.Extra}%)<br/>"},"colorByPoint":true,"colors":["#F46D43","#E6F598","#FFFFBF","#66C2A5","#FEE08B","#3288BD","#ABDDA4","#D53E4F","#FDAE61"],"dataLabels":{"enabled":true,"pointFormat":"{point.y}","style":{"fontWeight":"bold","color":"black","fontSize":"18px"}}}},"series":[{"group":"group","data":[{"Clase":"Bogotá","Y":33844,"Extra":57.9,"Colores":"#F46D43","y":33844,"name":"Bogotá"},{"Clase":"Medellín","Y":13940,"Extra":23.9,"Colores":"#E6F598","y":13940,"name":"Medellín"},{"Clase":"Manizales","Y":6007,"Extra":10.3,"Colores":"#FFFFBF","y":6007,"name":"Manizales"},{"Clase":"Palmira","Y":3024,"Extra":5.2,"Colores":"#66C2A5","y":3024,"name":"Palmira"},{"Clase":"De La Paz","Y":739,"Extra":1.3,"Colores":"#FEE08B","y":739,"name":"De La Paz"},{"Clase":"Tumaco","Y":317,"Extra":0.5,"Colores":"#3288BD","y":317,"name":"Tumaco"},{"Clase":"Orinoquía","Y":251,"Extra":0.4,"Colores":"#ABDDA4","y":251,"name":"Orinoquía"},{"Clase":"Amazonía","Y":202,"Extra":0.3,"Colores":"#D53E4F","y":202,"name":"Amazonía"},{"Clase":"Caribe","Y":107,"Extra":0.2,"Colores":"#FDAE61","y":107,"name":"Caribe"}],"type":"bar","name":"Número de estuddiantes (k: miles)","showInLegend":false}],"xAxis":{"categories":["Bogotá","Medellín","Manizales","Palmira","De La Paz","Tumaco","Orinoquía","Amazonía","Caribe"],"labels":{"style":{"fontWeight":"bold","color":"black","fontSize":"18px"}}}},"theme":{"colors":["#f1c40f","#2ecc71","#9b59b6","#e74c3c","#34495e","#3498db","#1abc9c","#f39c12","#d35400"],"chart":{"backgroundColor":"#ECF0F1"},"xAxis":{"gridLineDashStyle":"Dash","gridLineWidth":1,"gridLineColor":"#BDC3C7","lineColor":"#BDC3C7","minorGridLineColor":"#BDC3C7","tickColor":"#BDC3C7","tickWidth":1},"yAxis":{"gridLineDashStyle":"Dash","gridLineColor":"#BDC3C7","lineColor":"#BDC3C7","minorGridLineColor":"#BDC3C7","tickColor":"#BDC3C7","tickWidth":1},"legendBackgroundColor":"rgba(0, 0, 0, 0.5)","background2":"#505053","dataLabelsColor":"#B0B0B3","textColor":"#34495e","contrastTextColor":"#F0F0F3","maskColor":"rgba(255,255,255,0.3)"},"conf_opts":{"global":{"Date":null,"VMLRadialGradientURL":"http =//code.highcharts.com/list(version)/gfx/vml-radial-gradient.png","canvasToolsURL":"http =//code.highcharts.com/list(version)/modules/canvas-tools.js","getTimezoneOffset":null,"timezoneOffset":0,"useUTC":true},"lang":{"contextButtonTitle":"Menú Contextual del Gráfico","decimalPoint":".","downloadCSV":"Descargar CSV","downloadJPEG":"Descargar imagen JPEG","downloadPDF":"Descargar documento PDF","downloadPNG":"Descargar imagen PNG","downloadSVG":"Descargar imagen vectorial SVG","downloadXLS":"Descargar XLS","drillUpText":"<< Volver a {series.name}","exitFullscreen":"Exit from full screen","exportData":{"annotationHeader":"Annotations","categoryDatetimeHeader":"DateTime","categoryHeader":"Category"},"hideData":"Hide data table","invalidDate":null,"loading":"Cargando...","months":["January","February","March","April","May","June","July","August","September","October","November","December"],"noData":"No hay información para mostrar","numericSymbolMagnitude":1000,"numericSymbols":["k","M","G","T","P","E"],"printChart":"Imprimir gráfico","resetZoom":"Reset zoom","resetZoomTitle":"Reset zoom level 1:1","shortMonths":["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],"shortWeekdays":["Sat","Sun","Mon","Tue","Wed","Thu","Fri"],"thousandsSep":" ","viewData":"Ver tabla de datos","viewFullscreen":"Ver en pantalla completa","weekdays":["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]}},"type":"chart","fonts":[],"debug":false},"evals":[],"jsHooks":[]}</script>
+<script type="application/htmlwidget-sizing" data-for="htmlwidget-0f8c37642ba8d2d6f838">{"viewer":{"width":"100%","height":350,"padding":0,"fill":true},"browser":{"width":"100%","height":500,"padding":0,"fill":true}}</script>
+</body>
+</html>

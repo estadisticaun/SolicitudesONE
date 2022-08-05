@@ -13,8 +13,8 @@ library(ggrepel)
 library(skimr)
 library(forcats)
 library(magrittr)
-library(highcharter)
 library(htmlwidgets)
+library(RColorBrewer)
 
 ######################################-
 # 1 Solicitud 14-05-2021 -----
@@ -2708,9 +2708,45 @@ Salvar <- function(objeto, ruta, nombre){
   
 }
 
+# Figura 1. Evolución histórica de los programas académicos
+
+Programas <- read_excel("Datos/Fuentes/Serie_Programas.xlsx") %>% 
+  pivot_longer(cols = Pregrado:Total, names_to = "Clase", values_to = "Total") %>% 
+  arrange(Clase) %>% 
+  mutate(Variable = ifelse(Clase == "Total", "TOTAL", Variable)) %>% 
+  filter(YEAR != 2021)
+
+# Serie General 
+
+Fig1 <- Plot.Series(
+  datos     = Programas,
+  categoria = "TOTAL",
+  colores   = c("#0071bc"),
+  titulo    = "Evolución de programas académicos",
+  labelY    = "N\u00famero de Programas"
+)
+
+Salvar(Fig1, "Export/Unimedios", "Fig1.html")
+
+# Figura 2. Evolución de programas académicos por nivel de formación 
+
+Fig2 <- Plot.Series(
+  datos     = Programas,
+  categoria = "TIPO_NIVEL",
+  colores   = c("#f15a24", "#8cc63f"),
+  titulo    = "Evolución de programas académicos por nivel de formación",
+  labelY    = "N\u00famero de Programas"
+)
+
+Salvar(Fig2, "Export/Unimedios", "Fig2.html")
+
 # Figura 3. Evolución histórica del total de aspirantes a la Universidad
 
-Total_Asp <- Totales(UnalData::Aspirantes) %>% 
+LimpiaAsp <- UnalData::Aspirantes %>% 
+  filter(!is.na(TIPO_INS)) %>% 
+  filter(TIPO_NIVEL == "Pregrado" |	(TIPO_NIVEL == "Postgrado" & MOD_INS == "Regular"))
+
+Total_Asp <- Totales(LimpiaAsp) %>% 
              filter(YEAR <= 2021)
 
 col <-   c("#0071bc") # Azul vivo, Total
@@ -2719,8 +2755,235 @@ Fig3 <- Plot.Series(datos = Total_Asp,
   categoria    = "TOTAL",
   freqRelativa = FALSE,
   colores = col,
+  ylim = c(0, NaN),
   titulo = "Evolución histórica del total de aspirantes a la Universidad",
   labelY = "Número de aspirantes (k: miles)")
 
 Salvar(Fig3, "Export/Unimedios", "Fig3.html")
 
+# Figura 4. Distribución de aspirantes por sede de inscripción, periodo 2021-2
+
+
+Sede_Asp <- Agregar(LimpiaAsp, "INS_SEDE_NOMBRE") %>% 
+  filter(YEAR <= 2021) %>% 
+  mutate(Clase = ifelse(is.na(Clase), "Universidad", Clase))
+
+col <-   c( "#29abe2", # azul claro, Amazonia
+            "#8cc63f", # verde, Bogotá
+            "#c1272d", # Rojo, Caribe
+            "#9e9ac8",  # Morado claro, De la Paz
+            "#0071bc", # azul vivo, Manizales
+            "#f15a24", # naranja, Medellin
+            "#fbb03b", # amarillo, Orinoquia
+            "#93278f", # morado, Palmira
+            "#6d6666", # gris, Tumaco
+            "#2ca25f" # verde esmeralda, Universidad
+) 
+
+Fig4 <- Plot.Barras(datos = Sede_Asp,
+  categoria    = "INS_SEDE_NOMBRE",
+  ano          = 2021,
+  periodo      = 2,
+  freqRelativa = FALSE,
+  vertical     = FALSE,
+  colores = col,
+  addPeriodo = FALSE,
+  titulo = "Distribución de aspirantes por sede de inscripción, periodo 2021-2",
+  labelEje = "Número de aspirantes (k: miles)")
+
+Salvar(Fig4, "Export/Unimedios", "Fig4.html")
+
+# Figura 5. Evolución Histórica del Total de Admitidos a la Universidad
+
+LimpiaAdm <- UnalData::Aspirantes %>% 
+  filter(!is.na(TIPO_INS), ADMITIDO == "Sí") %>% 
+  filter(TIPO_NIVEL == "Pregrado" |	(TIPO_NIVEL == "Postgrado" & MOD_INS == "Regular")) 
+
+Total_Adm <- Totales(LimpiaAdm) %>% 
+  filter(YEAR <= 2021)
+
+
+col <-   c("#0071bc") # Azul vivo, Total
+
+Fig5 <- Plot.Series(datos = Total_Adm,
+                    categoria    = "TOTAL",
+                    freqRelativa = FALSE,
+                    colores = col,
+                    ylim = c(0, NaN),
+                    titulo = "Evolución histórica del total de admitidos a la Universidad",
+                    labelY = "Número de admitidos (k: miles)")
+
+Salvar(Fig5, "Export/Unimedios", "Fig5.html")
+
+# Figura 6. Evolución del Número de Admitidos a Pregrado por Modalidad de Admisión
+
+LimpiaAdmPre <- LimpiaAdm %>% filter(TIPO_NIVEL == "Pregrado")
+  
+TipoAdm_Adm <- Agregar(LimpiaAdmPre, "MOD_INS") %>% 
+  filter(YEAR <= 2021)
+
+col <-   c( "#f15a24", # naranja, Especial
+            "#8cc63f" # verde, Regular
+) 
+
+Fig6 <- Plot.Series(datos = TipoAdm_Adm,
+                    categoria    = "MOD_INS",
+                    freqRelativa = FALSE,
+                    ylim = c(0, NaN),
+                    colores = col,
+                    titulo = "Evolución del número de admitidos a pregrado por modalidad de admisión",
+                    labelY = "Número de admitidos (k: miles)")
+
+Salvar(Fig6, "Export/Unimedios", "Fig6.html")
+
+# Figura 7. Evolución histórica del total de estudiantes matriculados
+
+Total_Mat <- Totales(UnalData::Matriculados) %>% 
+  filter(YEAR <= 2021) %>% 
+  filter(!(YEAR == 2021 & SEMESTRE == 2))
+
+col <-   c("#0071bc") # Azul vivo, Total
+
+Fig7 <- Plot.Series(datos = Total_Mat,
+                    categoria    = "TOTAL",
+                    freqRelativa = FALSE,
+                    colores = col,
+                    ylim = c(0, NaN),
+                    titulo = "Evolución histórica del total de estudiantes matriculados",
+                    labelY = "Número de estudiantes (k: miles)")
+
+Salvar(Fig7, "Export/Unimedios", "Fig7.html")
+
+#Figura 8. Distribución De estudiantes matriculados por sede, periodo 2021 -1
+
+Sede_Mat <- Agregar(UnalData::Matriculados, "SEDE_NOMBRE_MAT") %>% 
+  filter(YEAR <= 2021)
+
+Fig8 <- Plot.Barras(datos = Sede_Mat,
+                    categoria    = "SEDE_NOMBRE_MAT",
+                    ano          = 2021,
+                    periodo      = 1,
+                    freqRelativa = FALSE,
+                    vertical     = FALSE,
+                    colores = RColorBrewer::brewer.pal(9, "Spectral"),
+                    addPeriodo = FALSE,
+                    titulo = "Distribución de estudiantes matriculados por sede, periodo 2021-1",
+                    labelEje = "Número de estuddiantes (k: miles)")
+
+Salvar(Fig8, "Export/Unimedios", "Fig8.html")
+
+# Figura 9. Evolución histórica del total de estudiantes graduados 
+
+Total_Gra <- Totales(UnalData::Graduados) %>% 
+  filter(YEAR <= 2021) %>% 
+  filter(!(YEAR == 2021 & SEMESTRE == 2))
+
+col <-   c("#0071bc") # Azul vivo, Total
+
+Fig9 <- Plot.Series(datos = Total_Gra,
+                    categoria    = "TOTAL",
+                    freqRelativa = FALSE,
+                    colores = col,
+                    ylim = c(0, NaN),
+                    titulo = "Evolución histórica del total de estudiantes graduados",
+                    labelY = "Número de graduados (k: miles)")
+
+Salvar(Fig9, "Export/Unimedios", "Fig9.html")
+
+# Figura 10. Distribución de graduados por sedes de la universidad, periodo 2021-1 
+
+Sede_Gra <- Agregar(UnalData::Graduados, "SEDE_NOMBRE_ADM") %>% 
+  filter(YEAR <= 2021) %>% 
+  add_row(Variable = "SEDE_NOMBRE_ADM",  
+          YEAR= 2021, 
+          SEMESTRE = 1, 
+          Clase = "La Paz", 
+          Total = 0)
+
+
+Fig10 <- Plot.Barras(datos = Sede_Gra,
+                    categoria    = "SEDE_NOMBRE_ADM",
+                    ano          = 2021,
+                    periodo      = 1,
+                    freqRelativa = FALSE,
+                    vertical     = FALSE,
+                    colores = RColorBrewer::brewer.pal(9, "Spectral"),
+                    addPeriodo = FALSE,
+                    titulo = "Distribución de graduados por sedes de la Universidad, periodo 2021-1",
+                    labelEje = "Número de graduados")
+
+Salvar(Fig10, "Export/Unimedios", "Fig10.html")
+
+# Figura 11. Evolución histórica del total de docentes de carrera
+
+Total_Doc <- Totales(UnalData::Docentes) %>% 
+  filter(YEAR <= 2021) %>% 
+  filter(!(YEAR == 2021 & SEMESTRE == 2)) %>% 
+  mutate(SEMESTRE = ifelse(is.na(SEMESTRE), 2, SEMESTRE))
+
+col <-   c("#8cc63f") # Verde, Total
+
+Fig11 <- Plot.Series(datos = Total_Doc,
+                    categoria    = "TOTAL",
+                    freqRelativa = FALSE,
+                    colores = col,
+                    ylim = c(0, NaN),
+                    titulo = "Evolución histórica del total de docentes de carrera",
+                    labelY = "Número de docentes (k: miles)")
+
+Salvar(Fig11, "Export/Unimedios", "Fig11.html")
+
+# Figura 12. Distribución de docentes de carrera según máximo nivel de formación, 2021-1 
+
+Forma_Doc <- Agregar(UnalData::Docentes, "FORMACION") %>% 
+  filter(YEAR <= 2021)
+
+Fig12 <- Plot.Barras(datos = Forma_Doc,
+                     categoria    = "FORMACION",
+                     ano          = 2021,
+                     periodo      = 1,
+                     freqRelativa = FALSE,
+                     colores = RColorBrewer::brewer.pal(5, "Spectral"),
+                     addPeriodo = FALSE,
+                     titulo = "Distribución de docentes de carrera según máximo nivel de formación, periodo 2021-1",
+                     labelEje = "Número de docentes")
+
+Salvar(Fig12, "Export/Unimedios", "Fig12.html")
+
+# Figura 13. Figura 13. Evolución histórica del total de funcionarios administrativos de carrera 
+
+Total_Adm <- Totales(UnalData::Administrativos) %>% 
+  filter(YEAR <= 2021) %>% 
+  filter(!(YEAR == 2021 & SEMESTRE == 2)) %>% 
+  mutate(SEMESTRE = ifelse(is.na(SEMESTRE), 2, SEMESTRE))
+
+col <-   c("#8cc63f") # Verde, Total
+
+Fig13 <- Plot.Series(datos = Total_Adm,
+                     categoria    = "TOTAL",
+                     freqRelativa = FALSE,
+                     colores = col,
+                     ylim = c(0, NaN),
+                     titulo = "Evolución histórica del total de funcionarios administrativos de carrera",
+                     labelY = "Número de funcionarios (k: miles)")
+
+Salvar(Fig13, "Export/Unimedios", "Fig13.html")
+
+# Figura 14. Evolución del número de funcionarios administrativos por sexo 
+
+
+Sexo_Adm <- Agregar(UnalData::Administrativos, "SEXO") %>% 
+  filter(YEAR <= 2021) %>% 
+  filter(!(YEAR == 2021 & SEMESTRE == 2))
+
+col <-   c( "#f15a24", "#8cc63f")
+
+Fig14 <- Plot.Series(datos = Sexo_Adm,
+                     categoria    = "SEXO",
+                     freqRelativa = FALSE,
+                     colores = col,
+                     ylim = c(0, NaN),
+                     titulo = "Evolución histórica del total de funcionarios administrativos por sexo",
+                     labelY = "Número de funcionarios (k: miles)")
+
+Salvar(Fig14, "Export/Unimedios", "Fig14.html")
