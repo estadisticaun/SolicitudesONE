@@ -2987,3 +2987,61 @@ Fig14 <- Plot.Series(datos = Sexo_Adm,
                      labelY = "Número de funcionarios (k: miles)")
 
 Salvar(Fig14, "Export/Unimedios", "Fig14.html")
+
+# Figura 15. Pruebas con mejores resultados de la Universidad en el examen Saber Pro 2020
+
+Saber2020 <- Saber2020 <- UnalData::SaberPro %>%
+               filter(YEAR == 2020) %>% 
+               add_column(TOTAL = "Universidad")
+
+Fig15 <- Plot.Radar(datos = Saber2020,
+  categoria = TOTAL,
+  variables = vars(`Global` = PUNTAJE_GLOBAL,
+                   `Razonamiento cuantitativo` = PUNT_RAZO_CUANT,
+                   `Inglés` = PUNT_INGLES, 
+                   `Lectura crítica` = PUNT_LECT_CRIT,
+                   `Competencias ciudadanas` = PUNT_COMP_CIUD, 
+                   `Comunicación escrita` = PUNT_COMU_ESCR),
+  colores   = c("#2ACE82"),
+  rango     = c(0, 200),
+  estilo    = list(ply.Relleno = "tonext",
+                   ply.LegendPosition = list(x = 0, y = -0.15, orientation = "h"))
+  
+)
+
+Salvar(Fig15, "Export/Unimedios", "Fig15.html")
+
+# Figura 16. Resultados de la UNAL en la Prueba Saber Pro, por sedes.
+
+Fig16 <- Plot.Radar(datos = Saber2020,
+                    categoria = SEDE_NOMBRE_ADM,
+                    variables = vars(`Global` = PUNTAJE_GLOBAL,
+                                     `Razonamiento cuantitativo` = PUNT_RAZO_CUANT,
+                                     `Inglés` = PUNT_INGLES, 
+                                     `Lectura crítica` = PUNT_LECT_CRIT,
+                                     `Competencias ciudadanas` = PUNT_COMP_CIUD, 
+                                     `Comunicación escrita` = PUNT_COMU_ESCR),
+                    colores = RColorBrewer::brewer.pal(8, "Spectral"),
+                    rango     = c(0, 200),
+                    estilo    = list(ply.Relleno = "tonext",
+                                     ply.LegendPosition = list(x = 0, y = -0.15, orientation = "h")))
+Salvar(Fig16, "Export/Unimedios", "Fig16.html")
+
+# Figura 17. Resultados Prueba Saber Pro por modalidad de ingreso
+
+Fig17 <- Plot.Radar(datos = Saber2020,
+                    categoria = TIPO_ADM,
+                    variables = vars(`Global` = PUNTAJE_GLOBAL,
+                                     `Razonamiento cuantitativo` = PUNT_RAZO_CUANT,
+                                     `Inglés` = PUNT_INGLES, 
+                                     `Lectura crítica` = PUNT_LECT_CRIT,
+                                     `Competencias ciudadanas` = PUNT_COMP_CIUD, 
+                                     `Comunicación escrita` = PUNT_COMU_ESCR),
+                    #colores = RColorBrewer::brewer.pal(3, "Spectral"),
+                    rango     = c(0, 200),
+                    estilo    = list(ply.Relleno = "tonext",
+                                     ply.LegendPosition = list(x = 0, y = -0.15, orientation = "h")))
+
+Salvar(Fig17, "Export/Unimedios", "Fig17.html")
+
+
