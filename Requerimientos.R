@@ -15,6 +15,7 @@ library(forcats)
 library(magrittr)
 library(htmlwidgets)
 library(RColorBrewer)
+library(RSocrata)
 
 ######################################-
 # 1 Solicitud 14-05-2021 -----
@@ -3044,4 +3045,51 @@ Fig17 <- Plot.Radar(datos = Saber2020,
 
 Salvar(Fig17, "Export/Unimedios", "Fig17.html")
 
+######################################-
+# 33 Solicitud 08-08-2022 -----
+######################################-
+
+# Demanda: Jisleny - Asesora Planeación Amazonía
+# Nos solicitaron una información que servirá de insumo para una reunión que adelantara la Universidad con parlamentarios y entre la información solicitada nos piden 
+# a las SPN que reportemos el Número de: Bachilleres anuales 2021 (por departamentos área de influencia). Que para nuestro caso son:
+
+# •	Departamentos de Influencia Directa: Amazonas, Caquetá, Guania, Guaviare, Putumayo y Vaupés.
+# •	Departamentos Influencia Indirecta: Cauca, Meta y Vichada 
+
+# Descargar base de datos Saber 11 -20202 del portal de datos abiertos
+
+Saber11_201 <- read.socrata(
+  "https://www.datos.gov.co/resource/a8xr-en99.json",
+  app_token = "WwgZOPb05lIypfR62SfgbeZbK",
+  email     = "albrodriguezr@unal.edu.co",
+  password  = "Socrata2021"
+)
+
+Saber11_202 <- read.socrata(
+  "https://www.datos.gov.co/resource/rnvb-vnyh.json",
+  app_token = "WwgZOPb05lIypfR62SfgbeZbK",
+  email     = "albrodriguezr@unal.edu.co",
+  password  = "Socrata2021"
+)
+
+# Consolidado departamentos de interés 20-2
+Consolidado_202 <- Saber11_202 %>% 
+              filter(estu_cod_reside_depto %in% c(91, 18, 94, 95, 86, 97, 19, 50, 99)) %>% 
+  group_by(estu_cod_reside_depto, estu_depto_reside) %>% 
+  count(name = "Bachilleres 2020-2", sort = TRUE)
+
+# Consolidado departamentos de interés 20-1
+
+Consolidado_201 <- Saber11_201 %>% 
+  filter(estu_cod_reside_depto %in% c(91, 18, 94, 95, 86, 97, 19, 50, 99)) %>% 
+  group_by(estu_cod_reside_depto, estu_depto_reside) %>% 
+  count(name = "Bachilleres 2020-1", sort = TRUE)
+
+# Cruzar bases de datos
+
+Consolidado_2020 <- left_join(Consolidado_202, 
+                              Consolidado_201, 
+                              by = "estu_cod_reside_depto")
+
+write_xlsx(Consolidado_2020, "Datos/Entrega33/Consolidado_2020.xlsx")
 
