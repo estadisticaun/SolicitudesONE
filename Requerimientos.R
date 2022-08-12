@@ -3093,3 +3093,81 @@ Consolidado_2020 <- left_join(Consolidado_202,
 
 write_xlsx(Consolidado_2020, "Datos/Entrega33/Consolidado_2020.xlsx")
 
+######################################-
+# 34 Solicitud 12-08-2022 -----
+######################################-
+
+# Demanda: Daniel Carvalho Mejia 
+# Honorable Representante a la Cámara
+
+# 6.	De existir alguna prueba de admisión, presente la evolución de los 
+# puntajes de admisión durante los últimos 15 años detallados semestre a 
+# semestre por tipo de colegio del que se gradúa (oficial o privado), 
+# por tipo de programa (técnicos, tecnológicos y universitarios), por sexo, 
+# por estrato socioeconómico y por lugar de procedencia (rural/urbano).
+
+# Evolución resultados por sexo
+
+PreSex <- UnalData::Aspirantes %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  filter(TIPO_NIVEL == "Pregrado", YEAR != 2008) %>% 
+  Plot.Boxplot(variable = PTOTAL,
+               grupo1   = Periodo,
+               grupo2   = SEXO,
+               outliers = FALSE,
+               ylim     = c(0, 1000),
+               colores  = c("#00ABFF", "#F3224B"),
+               titulo   = "Evolución Puntaje Examen de Admisión Aspirantes Pregrado UNAL por Sexo",
+               labelY   = "Puntaje Examen de Admisión",
+               libreria = "highcharter",
+               estilo   = list(LegendTitle = "Sexo:", hc.Tema = 6)
+  )
+
+PreSex 
+
+# Evolución resultados por Estrato
+
+PreEst <- UnalData::Aspirantes %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  filter(TIPO_NIVEL == "Pregrado", YEAR != 2008) %>% 
+  Plot.Boxplot(variable = PTOTAL,
+               grupo1   = Periodo,
+               grupo2   = ESTRATO,
+               outliers = FALSE,
+               ylim     = c(0, 1000),
+               colores  = c("#00ABFF", "#F3224B", "#29DF2C", "#FCD116"),
+               titulo   = "Evolución Puntaje Examen de Admisión Aspirantes Pregrado UNAL por Estrato",
+               labelY   = "Puntaje Examen de Admisión",
+               libreria = "highcharter",
+               estilo   = list(LegendTitle = "Estrato:", hc.Tema = 6)
+  )
+
+PreEst
+
+# Mapa resultados promedio municipios y departamentos
+
+df <- UnalData::Aspirantes %>%
+  filter(TIPO_NIVEL == "Pregrado", YEAR == 2022, SEMESTRE == 1) %>%
+  select(Code_Dept = COD_DEP_NAC,
+    Code_Mun = COD_CIU_NAC,
+    Puntaje = PTOTAL)
+
+Plot.Mapa(depto = df$Code_Dept,
+  mpio          = df$Code_Mun,
+  estadistico   = "Promedio",
+  variable      = df$Puntaje,
+  tipo          = "DeptoMpio",
+  titulo        ="Convocatoria 2022-1",
+  naTo0         = FALSE,
+  colNA         = "#FFFFFF",
+  centroideMapa = "ANTIOQUIA",
+  zoomMapa      = 6,
+  cortes        = list(
+    Deptos = c(0, 300, 450, 550, Inf), Mpios = c(0, 300, 450, 550, Inf)
+  ),
+  colores       = list(
+    Deptos = c("#d7191c", "#fdae61", "#a6d96a", "#1a9641"),
+    Mpios  = c("#d7191c", "#fdae61", "#a6d96a", "#1a9641")),
+  showSedes     = FALSE
+)
+
