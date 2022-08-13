@@ -3106,6 +3106,19 @@ write_xlsx(Consolidado_2020, "Datos/Entrega33/Consolidado_2020.xlsx")
 # por tipo de programa (técnicos, tecnológicos y universitarios), por sexo, 
 # por estrato socioeconómico y por lugar de procedencia (rural/urbano).
 
+# Función para exportar resultados en html
+
+# Función Salvar
+
+Salvar <- function(objeto, ruta, nombre){
+  saveWidget(objeto,
+             file = file.path(str_sub(getwd(), 1, str_length(getwd())-0),
+                              ruta,
+                              nombre),
+             selfcontained = F, libdir = "libraryjs")
+  
+}
+
 # Evolución resultados por sexo
 
 PreSex <- UnalData::Aspirantes %>% 
@@ -3124,6 +3137,8 @@ PreSex <- UnalData::Aspirantes %>%
   )
 
 PreSex 
+
+Salvar(PreSex, "Export/Entrega34", "Sexo.html")
 
 # Evolución resultados por Estrato
 
@@ -3144,6 +3159,8 @@ PreEst <- UnalData::Aspirantes %>%
 
 PreEst
 
+Salvar(PreEst, "Export/Entrega34", "Estrato.html")
+
 # Mapa resultados promedio municipios y departamentos
 
 df <- UnalData::Aspirantes %>%
@@ -3152,15 +3169,15 @@ df <- UnalData::Aspirantes %>%
     Code_Mun = COD_CIU_NAC,
     Puntaje = PTOTAL)
 
-Plot.Mapa(depto = df$Code_Dept,
+Mapa <- Plot.Mapa(depto = df$Code_Dept,
   mpio          = df$Code_Mun,
   estadistico   = "Promedio",
   variable      = df$Puntaje,
   tipo          = "DeptoMpio",
-  titulo        ="Convocatoria 2022-1",
+  titulo        ="Puntaje 2022-1",
   naTo0         = FALSE,
   colNA         = "#FFFFFF",
-  centroideMapa = "ANTIOQUIA",
+  #centroideMapa = "BOGOTÁ, D. C.",
   zoomMapa      = 6,
   cortes        = list(
     Deptos = c(0, 300, 450, 550, Inf), Mpios = c(0, 300, 450, 550, Inf)
@@ -3168,6 +3185,9 @@ Plot.Mapa(depto = df$Code_Dept,
   colores       = list(
     Deptos = c("#d7191c", "#fdae61", "#a6d96a", "#1a9641"),
     Mpios  = c("#d7191c", "#fdae61", "#a6d96a", "#1a9641")),
-  showSedes     = FALSE
+  showSedes     = TRUE
 )
+
+Salvar(Mapa, "Export/Entrega34", "Nacimiento.html")
+
 
