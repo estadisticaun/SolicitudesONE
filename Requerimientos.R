@@ -3190,4 +3190,149 @@ Mapa <- Plot.Mapa(depto = df$Code_Dept,
 
 Salvar(Mapa, "Export/Entrega34", "Nacimiento.html")
 
+######################################-
+# 35 Solicitud 17-08-2022 -----
+######################################-
 
+# Demanda: Maria Claudia Galindo Gonzales 
+
+# Cruzar bases de datos de matriculados con graduados 2022-1
+# con el fin de saber quiénes estaban matriculados a través de 
+# convenios
+
+# Importar base de datos de graduados 2022-1
+
+Graduados20221 <- read_excel("Datos/Fuentes/Graduados20221.xlsx")
+
+# Crear llave
+
+Graduados20221 <- Graduados20221 %>% 
+                   mutate(Llave = paste0(ID, SNIES_PROGRA))
+
+
+MatriculaMov <- UnalData::Matriculados %>% 
+           filter(CONVENIO == "Sí") %>% 
+  select(ID, TID, CONVENIO, TIP_CONVENIO, SNIES_PROGRA, NIVEL, 
+         SNIESU_CONVENIO) %>% 
+  mutate(Llave = paste0(ID, SNIES_PROGRA), .before = ID) %>% 
+  rename(IDMat = ID,
+         TIDMat = TID,
+         SNIES_PROGRAMat = SNIES_PROGRA) %>% 
+  group_by(Llave, IDMat, TIDMat, CONVENIO, TIP_CONVENIO, SNIES_PROGRAMat, NIVEL, 
+           SNIESU_CONVENIO) %>% 
+  count() %>% ungroup() %>% select(-n) 
+  
+# Cruzar base de datos
+
+Grad_2022_Mov <- left_join(Graduados20221, MatriculaMov, by = "Llave") 
+
+write_xlsx(Grad_2022_Mov, "Datos/Entrega35/Grad_2022_Mov.xlsx")
+
+######################################-
+# 36 Solicitud 18-08-2022 -----
+######################################-
+
+# Demanda: Carlos Garzón - Exjefe DNPE
+# Promedio SaberPro Gestión Cultural Manizales
+
+# Resultados SaberPro Programa Gestión Cultural
+
+Saber_GC <- UnalData::SaberPro %>% 
+  filter(SNIES_PROGRA == 16914) %>% 
+  group_by(YEAR) %>% 
+  summarise(across(.cols = dplyr::starts_with("PUNT"),
+                .fns = list(Media = ~mean(., na.rm = TRUE),
+                            Evaluados = ~n())))
+
+write_xlsx(Saber_GC, "Datos/Entrega36/Saber_GC.xlsx")
+
+# Resultados SaberPro Facultad de Administración
+
+Saber_Facultad <- UnalData::SaberPro %>% 
+  filter(SEDE_NOMBRE_MAT == "Manizales",
+         FACULTAD == "Administración") %>% 
+  group_by(YEAR) %>% 
+  summarise(across(.cols = dplyr::starts_with("PUNT"),
+                   .fns = list(Media = ~mean(., na.rm = TRUE),
+                               Evaluados = ~n())))
+
+write_xlsx(Saber_Facultad, "Datos/Entrega36/Saber_Facultad.xlsx")
+
+# Resultados SaberPro Facultad de Administración
+
+Saber_Sede <- UnalData::SaberPro %>% 
+  filter(SEDE_NOMBRE_MAT == "Manizales") %>% 
+  group_by(YEAR) %>% 
+  summarise(across(.cols = dplyr::starts_with("PUNT"),
+                   .fns = list(Media = ~mean(., na.rm = TRUE),
+                               Evaluados = ~n())))
+write_xlsx(Saber_Sede, "Datos/Entrega36/Saber_Sede.xlsx")
+
+# Resultados SaberPro Universidad
+
+Saber_Unal <- UnalData::SaberPro %>% 
+  group_by(YEAR) %>% 
+  summarise(across(.cols = dplyr::starts_with("PUNT"),
+                   .fns = list(Media = ~mean(., na.rm = TRUE),
+                               Evaluados = ~n())))
+
+write_xlsx(Saber_Unal, "Datos/Entrega36/Saber_Unal.xlsx")
+
+######################################-
+# 37 Solicitud 30-08-2022 -----
+######################################-
+
+# Demanda: División de Registro Sede Bogotá
+# Respuesta Derecho de Petición Concejal de Bogotá
+# JULIÁN DAVID RODRÍGUEZ SASTOQUE
+
+# 1. Sírvase enviar la relación respecto a los cupos de la Universidad Nacional sede Bogotá en cada semestre, desde el año 2020 a la fecha. Enviar formato en excel con:
+#   
+# a. No. Cupos ofertados por carrera
+# b. No. de personas aspirantes por carrera
+# c. No. Admitidos por carrera
+# d. Porcentaje de demanda sobre oferta de cupos
+# e. Porcentaje de admitidos sobre el total de inscritos
+
+# Importar base de datos de cupos
+
+Cupos <- read_excel("Datos/Fuentes/Histórico_Cupos.xlsx") %>% 
+         mutate(IDP = as.numeric(paste0(PERIODO, CRA_SNIES)), .before = IES) %>% 
+         filter(PERIODO != 20222)
+
+# Crear base de aspirantes por carrera - Solo Post
+
+Aspirantes <- UnalData::Aspirantes %>% 
+              filter(YEAR >= 2020, TIPO_NIVEL == "Postgrado") %>% 
+              mutate(SNIES_PROGRA = ifelse(is.na(SNIES_PROGRA), "", SNIES_PROGRA),
+                     IDP = as.numeric(paste0(YEAR, SEMESTRE, SNIES_PROGRA))) %>% 
+              relocate(IDP, .after = ID) %>% 
+              group_by(IDP) %>% 
+              summarise(Aspirantes = n())
+
+# Crear base de admitidos por carrera
+
+# names(UnalData::Aspirantes)
+# unique(UnalData::Aspirantes$ADMITIDO)
+
+Admitidos <- UnalData::Aspirantes %>% 
+  filter(YEAR >= 2020, ADMITIDO == "Sí") %>% 
+  mutate(SNIES_PROGRA = ifelse(is.na(SNIES_PROGRA), "", SNIES_PROGRA),
+         IDP = as.numeric(paste0(YEAR, SEMESTRE, SNIES_PROGRA))) %>% 
+  relocate(IDP, .after = ID) %>% 
+  group_by(IDP) %>% 
+  summarise(Admitidos = n())
+
+# Base de datos consolidada
+
+Cupos_UNAL <- left_join(Cupos, Aspirantes, by = "IDP") %>% 
+              left_join(Admitidos, by = "IDP") %>%
+              mutate(Aspirantes = ifelse(MODALIDAD == "Postgrado", ifelse(is.na(Aspirantes), 0,  Aspirantes), Aspirantes),
+                     Admitidos = ifelse(is.na(Admitidos), 0, Admitidos),
+                     Demanda = round(Aspirantes / CUPOS, 3),
+                     Cobertura = round(Admitidos / Aspirantes, 3))
+
+
+# Exportar Resultados
+
+write_xlsx(Cupos_UNAL, "Datos/Entrega37/Cupos_UNAL.xlsx")
