@@ -3336,3 +3336,39 @@ Cupos_UNAL <- left_join(Cupos, Aspirantes, by = "IDP") %>%
 # Exportar Resultados
 
 write_xlsx(Cupos_UNAL, "Datos/Entrega37/Cupos_UNAL.xlsx")
+
+
+######################################-
+# 38 Solicitud 12-10-2022 -----
+######################################-
+
+# Demanda: Base de datos histórica de graduados de pregrado.
+# Demandante: Dirección Nacional de Programas de Pregrado.
+
+# Base de datos inicial graduados
+
+GraduadosPreI <- UnalData::Graduados %>% 
+                filter(TIPO_NIVEL == "Pregrado") %>% 
+                select(-contains("_PROC"), -c(CAT_EDAD, ESTRATO, TIPO_COL:TIPO_DISC, 
+                                              MOV_PEAMA:U_CONVENIO, FACULTAD_S, 
+                                              PROGRAMA_S)) %>% 
+                rename(ESTRATO = ESTRATO_ORIG, EDAD = EDAD_MOD) %>% 
+                relocate(YEAR, SEMESTRE, TID) %>% 
+                mutate(SNIES_PROGRA = ifelse(YEAR == 2009 & SNIES_PROGRA == 128 & SEDE_NOMBRE_MAT == "Manizales", 16913, SNIES_PROGRA ))
+
+# Base de datos de programas
+
+Programas <- UnalData::Hprogramas %>% 
+             select(SNIES_PROGRA, COD_PADRE, PROGRAMAF = PROGRAMA)
+
+# Consolidación base de datos histórica de graduados
+
+GraduadosPre <- left_join(GraduadosPreI, Programas, by = "SNIES_PROGRA") %>% 
+                select(-c(PROGRAMA)) %>% 
+                relocate(COD_PADRE, .before = SNIES_PROGRA) %>% 
+                relocate(PROGRAMA = PROGRAMAF, .after = SNIES_PROGRA) %>% 
+                mutate(PROGRAMA = ifelse(SNIES_PROGRA == 26, "Ingeniería de Sistemas y Computación", PROGRAMA),
+                       PROGRAMA = ifelse(SNIES_PROGRA == 22, "Estudios Literarios", PROGRAMA))
+
+write_xlsx(GraduadosPre, "Datos/Entrega38/GraduadosPre.xlsx")
+
