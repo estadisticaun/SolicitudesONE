@@ -1,6 +1,10 @@
-######################################-
-# Librerías ----
-######################################-
+
+##%######################################################%##
+#                                                          #
+####                     Librerías                      ####
+#                                                          #
+##%######################################################%##
+
 library(UnalData)
 library(UnalR)
 library(dplyr)
@@ -3371,4 +3375,164 @@ GraduadosPre <- left_join(GraduadosPreI, Programas, by = "SNIES_PROGRA") %>%
                        PROGRAMA = ifelse(SNIES_PROGRA == 22, "Estudios Literarios", PROGRAMA))
 
 write_xlsx(GraduadosPre, "Datos/Entrega38/GraduadosPre.xlsx")
+
+######################################-
+# 39 Solicitud 14-10-2022 -----
+######################################-
+
+# Demanda: PABLO FELIPE MARÍN CARDONA
+# Director Académico sede Manizales
+
+# Amablemente me permito solicitarles su ayuda en la obtención 
+# de la información del indicador número de estudiantes 
+# por docente en la Sede Manizales para los años 2016 a 2021 a nivel de Programa,
+# Unidad Académica Básica, Facultad y Sede.
+
+
+# NUEVA
+
+# Por lo anterior, muy amablemente le solicitamos nuevamente generar la misma 
+# información pero con los datos de todas las sedes, con el fin de hacer un diagnóstico 
+# comparativo requerido por el programa de Ingeniería Civil sobre el indicador: estudiantes por cada docente. 
+# Esta solicitud se hace en el marco del plan de mejoramiento del programa, el cual 
+# tiene un objetivo para cumplimiento con esta información.
+
+# Ajustar Nombres Facultades matriculados
+
+#Crear base de datos de programas
+Programas <- UnalData::Hprogramas %>% 
+  select(SNIES_PROGRA, COD_PADRE, PROGRAMAF = PROGRAMA)
+
+# Ajustar base de datos de matriculados 
+Matriculados <- UnalData::Matriculados %>% 
+                mutate(FACULTAD = if_else(FACULTAD %in% c("Agronomía", "Ciencias grarias"), "Ciencias agrarias", FACULTAD),
+                       FACULTAD = if_else(FACULTAD %in% c("Ingenieria"), "Ingeniería", FACULTAD),
+                       FACULTAD = if_else(FACULTAD %in% c("Ciencias humanas  y económicas"), "Ciencias humanas y económicas", FACULTAD),
+                       FACULTAD = if_else(FACULTAD %in% c("Ciencias agropecuarias") & SEDE_NOMBRE_MAT == "Medellín" , "Ciencias agrarias", FACULTAD),
+                       FACULTAD = if_else(FACULTAD %in% c("Ingenieria y administración"), "Ingeniería y administración", FACULTAD)) %>% 
+                left_join(Programas, by = c("SNIES_PROGRA")) 
+
+# Matriculados por Facultad
+
+Est_Facu <- Matriculados %>% 
+  filter(SNIES_SEDE_MAT %in% c(1101:1104)) %>% 
+  group_by(YEAR, SEMESTRE, SEDE_NOMBRE_MAT, FACULTAD) %>% 
+  summarise(`Total Estudiantes` = n()) %>% 
+  arrange(desc(YEAR), desc(SEMESTRE)) %>% 
+  rename(SEDE = SEDE_NOMBRE_MAT)
+
+
+# Ajustar Nombres Facultades Docentes
+
+Docentes <- UnalData::Docentes %>% 
+            mutate(FACULTAD_O = if_else(FACULTAD_O == "Medicina veterinaria y zootecnia",
+                                                      "Medicina veterinaria y de zootecnia", FACULTAD_O),
+                   SEMESTRE = if_else(is.na(SEMESTRE), 1, SEMESTRE)) %>% 
+            select(-c(FACULTAD)) %>% 
+  rename(FACULTAD = FACULTAD_O)
+
+# Docentes por facultad
+
+Doc_Facu <- Docentes %>% 
+  filter(SNIES_SEDE %in% c(1101:1104)) %>% 
+  group_by(YEAR, SEMESTRE, SEDE, FACULTAD) %>% 
+  summarise(`Total Docentes` = n()) %>% 
+  arrange(desc(YEAR), desc(SEMESTRE)) 
+
+# Crear base de datos total matriculados y docentes por facultad
+
+Raz_Facu <- left_join(x = Est_Facu, 
+                      y = Doc_Facu, 
+                      by = c("YEAR", "SEMESTRE", "SEDE", "FACULTAD")) %>% 
+            pivot_wider(names_from = c(SEDE, FACULTAD),
+                        values_from = c(`Total Estudiantes`, `Total Docentes`)) 
+
+write_xlsx(Raz_Facu, "Datos/Entrega39/Raz_Facu.xlsx")
+
+
+# Docentes por unidades académicas
+
+Docentes_Unidad <- Docentes %>% 
+  filter(SNIES_SEDE %in% c(1101:1104)) %>% 
+  group_by(YEAR, SEMESTRE, SEDE, FACULTAD, UNIDAD) %>% 
+  summarise(`Total Docentes` = n()) %>% 
+  arrange(desc(YEAR), desc(SEMESTRE))
+
+write_xlsx(Docentes_Unidad, "Datos/Entrega39/Docentes_Unidad.xlsx")
+
+# Matriculados por programas académicos de la sede
+
+Estudiantes_Prog <- Matriculados %>% 
+  filter(SNIES_SEDE_MAT %in% c(1101:1104)) %>% 
+  group_by(YEAR, SEMESTRE, SEDE = SEDE_NOMBRE_MAT, NIVEL, FACULTAD, COD_PADRE, PROGRAMA = PROGRAMAF) %>% 
+  summarise(`Total Estudiantes` = n()) %>% 
+  arrange(desc(YEAR), desc(SEMESTRE)) %>% 
+  rename(COD_SNIES = COD_PADRE)
+
+write_xlsx(Estudiantes_Prog, "Datos/Entrega39/Estudiantes_Prog.xlsx")
+
+
+##%######################################################%##
+#                                                          #
+####              40 Solicitud 21-10-2022               ####
+#                                                          #
+##%######################################################%##
+
+# Demanda: Sergio Alejandro Sanchez Martinez
+# Rol: estudiante UNAL
+
+# A través del presente correo me comento con ustedes que me encuentro realizando 
+# un estudio de evaluación de impacto de la política de admisión por ICFES 
+# implementada por la universidad durante de la pandemia.
+# 
+# Para ello consulto a ustedes la viabilidad de acceso a los datos anonimizados 
+# de los estudiantes de pregrado de la universidad con respecto a su PAPA, 
+# modalidad (ICFES o examen), puntaje de admisión, variables socioeconómicas y 
+# demás variables descriptivas o de interés de los y las estudiantes. 
+# Cuales serían los requerimientos legales o procedimentales para acceder a dichos datos. 
+
+# Crear base de datos 2019-2022 desde scrip datos abiertos
+
+MatriculadosPre <- UnalData::Matriculados %>% 
+  filter(YEAR >= 2019) %>% 
+  select(-c(ID, TID, CAT_EDAD, ESTRATO, PBM, DISCAPACIDAD, 
+            TIPO_DISC, SNIESU_CONVENIO, U_CONVENIO, FACULTAD_S, 
+            PROGRAMA_S)) %>%                 
+  rename(EDAD = EDAD_MOD, ESTRATO = ESTRATO_ORIG, 
+         PBM = PBM_ORIG) %>% 
+  mutate(across(.cols = c(COD_DEP_NAC, COD_CIU_NAC:LAT_CIU_NAC, COD_DEP_PROC, COD_CIU_PROC:LAT_CIU_PROC),
+                .fns = ~ifelse(is.na(.x), -89, .x)),
+         across(.cols = c(DEP_NAC, CIU_NAC, DEP_PROC, CIU_PROC),
+                .fns = ~ifelse(is.na(.x), "Sin información", .x)),
+         CODS_NAC = ifelse(is.na(CODS_NAC), "Sin información", CODS_NAC),
+         CODN_NAC = ifelse(is.na(CODN_NAC), -89, CODN_NAC),
+         NACIONALIDAD = ifelse(is.na(NACIONALIDAD), "Sin información", NACIONALIDAD),
+         EDAD = ifelse(is.na(EDAD), -89, EDAD),
+         ESTRATO = ifelse(is.na(ESTRATO), "ND/NE", ESTRATO),
+         TIPO_COL = ifelse(is.na(TIPO_COL), "Sin información", TIPO_COL),
+         PBM = ifelse(TIPO_NIVEL == "Postgrado", -88, PBM),
+         PBM = ifelse(is.na(PBM), -89, PBM),
+         PAES = ifelse(TIPO_ADM == "PAES" & is.na(PAES), "Sin información", PAES),
+         PAES = ifelse(TIPO_ADM != "PAES", "No aplica", PAES),
+         PEAMA = ifelse(TIPO_ADM == "PEAMA" & is.na(PEAMA), "Sin información", PEAMA),
+         PEAMA = ifelse(TIPO_ADM != "PEAMA", "No aplica", PEAMA),
+         MOV_PEAMA = ifelse(TIPO_ADM == "PEAMA" & is.na(MOV_PEAMA), "Sin información", MOV_PEAMA),
+         MOV_PEAMA = ifelse(TIPO_ADM != "PEAMA", "No aplica", MOV_PEAMA),
+         ADM_PEAMA_ANDINA = ifelse(TIPO_ADM == "PEAMA" & is.na(ADM_PEAMA_ANDINA), "Sin información", ADM_PEAMA_ANDINA),
+         ADM_PEAMA_ANDINA = ifelse(TIPO_ADM != "PEAMA", "No aplica", ADM_PEAMA_ANDINA),
+         CONVENIO = ifelse(TIPO_NIVEL == "Postgrado" & is.na(CONVENIO), "Sin información", CONVENIO),
+         CONVENIO = ifelse(TIPO_NIVEL != "Postgrado", "No aplica", CONVENIO),
+         TIP_CONVENIO = ifelse(CONVENIO == "Sí" & is.na(TIP_CONVENIO), "Sin información", TIP_CONVENIO),
+         TIP_CONVENIO = ifelse(CONVENIO != "Sí", "No aplica", TIP_CONVENIO),
+         FACULTAD = ifelse(is.na(FACULTAD), "Sin información", FACULTAD),
+         SNIES_PROGRA = ifelse(is.na(SNIES_PROGRA), -89, SNIES_PROGRA),
+         PROGRAMA = ifelse(is.na(PROGRAMA), "Sin información", PROGRAMA),
+         AREAC_SNIES = ifelse(is.na(AREAC_SNIES), "Sin información", AREAC_SNIES),
+         CA_CINE = ifelse(is.na(CA_CINE), -89, CA_CINE),
+         CD_CINE = ifelse(is.na(CD_CINE), -89, CD_CINE),
+         AREA_CINE = ifelse(AREA_CINE == "Ingeniería, Industria y Construcción", "Ingeniería, industria y construcción", AREA_CINE),
+         AREA_CINE = ifelse(is.na(AREA_CINE), "Sin información", AREA_CINE)) %>% 
+         filter(TIPO_NIVEL == "Pregrado")
+
+write_xlsx(MatriculadosPre, "Datos/Entrega40/MatriculadosPre.xlsx")
 
