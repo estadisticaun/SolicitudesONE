@@ -3536,3 +3536,52 @@ MatriculadosPre <- UnalData::Matriculados %>%
 
 write_xlsx(MatriculadosPre, "Datos/Entrega40/MatriculadosPre.xlsx")
 
+
+##%######################################################%##
+#                                                          #
+####              41 Solicitud 03-11-2022               ####
+#                                                          #
+##%######################################################%##
+
+
+# Demanda: Maria Claudia Galindo Gonzales
+# Rol: Funcionaria DNPE
+# Solicitud: Construir Box Plot 20192 vs 20202 Puntaje Examen Admisión admitidos
+# a pregrado.
+
+
+# Resúmen estadístico
+
+Asp192_202 <- UnalData::Aspirantes %>% 
+              filter(YEAR == 2019 & SEMESTRE == 2 | YEAR == 2020 & SEMESTRE == 2,
+                     TIPO_NIVEL == "Pregrado",
+                     !is.na(TIPO_INS),
+                     ADMITIDO == "Sí") %>%
+              group_by(YEAR, SEMESTRE) %>% 
+              summarise(across(.cols = PTOTAL, 
+                               .fns = list(Mínimo = ~min(., na.rm = TRUE),
+                                           Media = ~mean(., na.rm = TRUE),
+                                           Máximo = ~max(., na.rm = TRUE),
+                                           Sd = ~sd(., na.rm = TRUE),
+                                           Total = ~n())))
+
+# Exportar estadísticas descriptivas
+
+write_xlsx(Asp192_202, "Datos/Entrega41/EstadisticasAdm.xlsx")
+
+# Gráfico ggplot2
+
+UnalData::Aspirantes %>% 
+  filter(YEAR == 2019 & SEMESTRE == 2 | YEAR == 2020 & SEMESTRE == 2,
+         TIPO_NIVEL == "Pregrado",
+         !is.na(TIPO_INS),
+         ADMITIDO == "Sí") %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>%    
+  ggplot(aes(x = Periodo, y = PTOTAL)) +
+  geom_boxplot()+
+  annotate('text', x = 1, y = 580, label = 'Promedio = 604.9')+
+  annotate('text', x = 2, y = 560, label = 'Promedio = 583.1')+
+  labs(title = 'Distribución  Puntaje Examen de Admisión Aspirantes \nAdmitidos en la UNAL por Periodo', 
+       x = ' \n Periodo de Admisión', y = 'Puntaje Prueba de Admisión')
+              
+
