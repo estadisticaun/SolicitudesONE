@@ -3584,4 +3584,67 @@ UnalData::Aspirantes %>%
   labs(title = 'Distribución  Puntaje Examen de Admisión Aspirantes \nAdmitidos en la UNAL por Periodo', 
        x = ' \n Periodo de Admisión', y = 'Puntaje Prueba de Admisión')
               
+##%######################################################%##
+#                                                          #
+####              42 Solicitud 15-11-2022               ####
+#                                                          #
+##%######################################################%##
 
+# Demanda: David Ortega Patiño
+# Rol: Gestor Sistema de Áreas Curriculares - Fac Minas Medellín
+# Solicitud: 2.    Total, de matriculados y graduados de la maestría.
+# Maestría en Ingeniería - Automatización Industrial
+
+# Total de Matriculados
+
+Mat_IngInd <- UnalData::Matriculados %>% 
+              filter(SNIES_PROGRA == 103553) %>% 
+              mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+              group_by(SNIES_PROGRA, Periodo) %>% 
+              count(name = "Total Matriculados")
+
+# Total de Graduados
+
+Gra_IngInd <- UnalData::Graduados %>% 
+  filter(SNIES_PROGRA == 103553) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  group_by(SNIES_PROGRA, Periodo) %>% 
+  count(name = "Total Graduados")
+
+# Unir bases 
+
+IngInd <- left_join(Mat_IngInd, Gra_IngInd, by = "Periodo") %>% 
+  select(Periodo, `Total Matriculados`, `Total Graduados`)
+
+# Exportar Información
+
+write_xlsx(IngInd, "Datos/Entrega42/IngInd.xlsx")
+
+
+##%######################################################%##
+#                                                          #
+####              43 Solicitud 15-11-2022               ####
+#                                                          #
+##%######################################################%##
+
+# Demanda: Carlos Eduardo Mosquera Noguera
+# Ingeniero Químico - UNAL
+# Solicitud:  información referente a puntajes de admisión para el programa 
+# de admisión especial PAES  
+
+
+PAES <- UnalData::Aspirantes %>% filter(TIPO_INS == "PAES", ADMITIDO == "Sí") %>% 
+        filter(YEAR >= 2009) %>% 
+        mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+        group_by(Periodo, PAES) %>% 
+        summarise(`Total Admitidos` = n(),
+                  Mímino = round(min(PTOTAL, na.rm = TRUE), 2),
+                  Media = round(mean(PTOTAL, na.rm = TRUE), 2),
+                  Mediana = round(median(PTOTAL, na.rm = TRUE), 2),
+                  Varianza = round(var(PTOTAL, na.rm = TRUE), 2),
+                  Máximo = round(max(PTOTAL, na.rm = TRUE), 2)) %>% 
+        arrange(PAES)
+
+# Exportar Información
+
+write_xlsx(PAES, "Datos/Entrega43/PAES.xlsx")
