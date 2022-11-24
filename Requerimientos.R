@@ -3648,3 +3648,44 @@ PAES <- UnalData::Aspirantes %>% filter(TIPO_INS == "PAES", ADMITIDO == "Sí") %
 # Exportar Información
 
 write_xlsx(PAES, "Datos/Entrega43/PAES.xlsx")
+
+
+# Puntajes en el Examen de Admisión por Programas Académicos
+
+Adm_Pregrado <- UnalData::Aspirantes %>% filter(TIPO_NIVEL == "Pregrado", ADMITIDO == "Sí") %>% 
+  filter(YEAR >= 2020) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-"),
+         ADM_SEDE = case_when(ADM_ANDINA_PEAMA == "Bogotá" ~ "Bogotá",
+                                     ADM_ANDINA_PEAMA == "Medellín" ~ "Medellín",
+                                     ADM_ANDINA_PEAMA == "Manizales" ~ "Manizales",
+                                     ADM_ANDINA_PEAMA == "Palmira" ~ "Palmira",
+                                     TRUE  ~ ADM_SEDE_NOMBRE), 
+         .before = ADM_SEDE_NOMBRE) %>% 
+  select(Periodo, ADM_SEDE, ADM_SEDE_NOMBRE, SNIES_PROGRA, PROGRAMA_O = PROGRAMA, 
+         MOD_INS, TIPO_INS, PAES, PEAMA, PTOTAL)
+
+# Extraer base de datos de programas de pregrado
+
+Hist_Programas <- UnalData::Hprogramas %>% 
+                  filter(TIPO_NIVEL == "Pregrado", ESTADO == "Activo") %>% 
+                  select(SNIES_PROGRA, COD_PADRE, PROGRAMA, SEDE_PROG)
+
+# Cruzar  bases de datos con histórico programas 
+
+Puntajes <- left_join(Adm_Pregrado, Hist_Programas, by = "SNIES_PROGRA") %>% 
+  group_by(Periodo, ADM_SEDE, PROGRAMA, TIPO_INS) %>% 
+  summarise(`Total Admitidos` = n(),
+            Mímino = round(min(PTOTAL, na.rm = TRUE), 2),
+            Media = round(mean(PTOTAL, na.rm = TRUE), 2),
+            Mediana = round(median(PTOTAL, na.rm = TRUE), 2),
+            Varianza = round(var(PTOTAL, na.rm = TRUE), 2),
+            Máximo = round(max(PTOTAL, na.rm = TRUE), 2)) %>% 
+  arrange(desc(TIPO_INS)) %>% 
+  pivot_wider(names_from = TIPO_INS, values_from = `Total Admitidos`:Máximo) %>% 
+  arrange(ADM_SEDE, PROGRAMA) %>% 
+  relocate(contains("Regular"), contains("PAES"), contains("PEAMA"), 
+           .after = PROGRAMA)
+
+# Exportar Información General Estadísticas Admitidos
+
+write_xlsx(Puntajes, "Datos/Entrega43/Puntajes.xlsx")
