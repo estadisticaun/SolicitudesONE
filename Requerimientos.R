@@ -3689,3 +3689,118 @@ Puntajes <- left_join(Adm_Pregrado, Hist_Programas, by = "SNIES_PROGRA") %>%
 # Exportar Información General Estadísticas Admitidos
 
 write_xlsx(Puntajes, "Datos/Entrega43/Puntajes.xlsx")
+
+
+##%######################################################%##
+#                                                          #
+####              VIGENCIA 2023                         ####
+#                                                          #
+##%######################################################%##
+
+
+##%######################################################%##
+#                                                          #
+####              44 Solicitud 09-01-2023               ####
+#                                                          #
+##%######################################################%##
+
+# Demanda: Alberto Rodríguez R
+#  Bases de datos para canal de YouTube
+
+Base1 <-  UnalData::SaberPro %>% sample_n(1000) %>% 
+          mutate(ID = 1:1000) %>% 
+          select(ID, YEAR, SEXO, ESTRATO, PUNT_RAZO_CUANT) %>% 
+          rename(Id = ID, Year = YEAR, Sexo = SEXO, 
+                 Csocial = ESTRATO, 
+                 RMatematicas = PUNT_RAZO_CUANT) %>% 
+          mutate(Sexo = case_when(Sexo == 'Mujeres' ~ 1,
+                                  Sexo == 'Hombres' ~ 2),
+                 Csocial = case_when(Csocial == 'Estrato 2 o menos' ~ "Baja",
+                                     Csocial == 'Estrato 3' ~ "Media",
+                                     Csocial == 'Estrato 4 o más' ~ "Alta",
+                                     TRUE ~  as.character(NA)))
+
+# Exportar datos
+
+write_xlsx(Base1, "Datos/Entrega44/Base Importar Datos.xlsx")
+
+                 
+##%######################################################%##
+#                                                          #
+####              45 Solicitud 30-01-2023               ####
+#                                                          #
+##%######################################################%##
+
+# Demanda: Maria Claudia Galindo
+#  Cruzar base de graduados con graduados histórico y
+# matriculados.
+
+options(scipen = 999)
+
+# Importar base de graduados
+
+Grad_2023 <- read_xlsx("Datos/Fuentes/GraduadosRevision2023.xlsx", 
+                        col_types = c("text")) %>% 
+  select(3)
+
+# Base de datos registros duplicados en graduados
+
+Grad_Duplicados <- UnalData::Graduados %>% 
+  mutate(IDSNIES = paste0(ID, SNIES_PROGRA),
+         GRADO_ANTERIOR = 1) %>% 
+  select(ID, IDSNIES, GRADO_ANTERIOR) %>% 
+  group_by(ID, IDSNIES, GRADO_ANTERIOR) %>% 
+  filter(n() > 1) %>% 
+  ungroup() %>% 
+  select(-c(ID, GRADO_ANTERIOR)) %>% 
+  distinct()
+  
+
+Grad_IDSNIES <- UnalData::Graduados %>% 
+  mutate(IDSNIES = paste0(ID, SNIES_PROGRA))
+
+# Obtener base de graduados duplicados en programa
+
+Base_Duplicados <- left_join(Grad_Duplicados, Grad_IDSNIES, by = "IDSNIES")
+
+# Exportar base de datos duplicados en Pregrado
+
+write_xlsx(Base_Duplicados, "Datos/Entrega45/Base_Duplicados.xlsx")
+
+# Crear base de graduados antiguos sin duplicados
+
+Grad_Antiguos <- UnalData::Graduados %>% 
+                 mutate(IDSNIES = paste0(ID, SNIES_PROGRA),
+                        GRADO_ANTERIOR = 1) %>% 
+                 select(IDSNIES, YEAR, SEMESTRE, GRADO_ANTERIOR) %>% 
+  distinct()
+
+
+# Cruzar base de graduados Actual con Graduados Antiguos
+
+Grad_2023 <- left_join(Grad_2023, Grad_Antiguos, by = "IDSNIES")
+
+# Revisar graduado anterior
+Graduados <- UnalData::Graduados %>% 
+  filter(ID == "80241248")
+
+##%######################################################%##
+#                                                          #
+####              46 Solicitud 03-02-2023               ####
+#                                                          #
+##%######################################################%##
+
+# Demanda: Maria Claudia Galindo
+#  Base de datos con documentos duplicados en graduados del 
+# programa de filología e idiomas.
+# SNIES_PROGRA : 23
+
+
+Duplicados_Filo <- UnalData::Graduados %>% filter(SNIES_PROGRA == 23) %>% 
+       group_by(ID) %>% 
+       filter(n()>1)
+
+write_xlsx(Duplicados_Filo, "Datos/Entrega46/Duplicados_Filología.xlsx")
+
+
+
