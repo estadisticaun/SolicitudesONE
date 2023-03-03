@@ -3802,5 +3802,52 @@ Duplicados_Filo <- UnalData::Graduados %>% filter(SNIES_PROGRA == 23) %>%
 
 write_xlsx(Duplicados_Filo, "Datos/Entrega46/Duplicados_Filología.xlsx")
 
+##%######################################################%##
+#                                                          #
+####              48 Solicitud 27-02-2023               ####
+#                                                          #
+##%######################################################%##
 
+# Demanda: Maria Claudia Galindo
+# Tabla acumulada con graduados del programa PEAMA por sedes andinas
+# de la Universidad
+
+Gra_PEAMA <- UnalData::Graduados %>% 
+             filter(TIPO_ADM == "PEAMA") %>% 
+             summarise(Total = n(), .by = c(SEDE_NOMBRE_ADM, ADM_PEAMA_ANDINA)) %>% 
+             pivot_wider(names_from = c(ADM_PEAMA_ANDINA),
+                         values_from = c(Total))
+             
+# Exportar resultados
+write_xlsx(Gra_PEAMA, "Datos/Entrega48/Graduados_PEAMA.xlsx")
+
+##%######################################################%##
+#                                                          #
+####              49 Solicitud 27-02-2023               ####
+#                                                          #
+##%######################################################%##
+
+# Demanda: Khyara Juliana Vasquez Penon <kvasquezp@unal.edu.co>
+# Solicitud: Estudiante de sexto semestre de Nutrición y dietética que requiere 
+# los microdatos de estudiantes, docentes y administrativos para ciertas variables
+
+Estudiantes <- UnalData::Matriculados %>% 
+               filter(YEAR == 2022, SEMESTRE == 1, between(EDAD_MOD, 18, 59)) %>% 
+               select(YEAR, SEMESTRE, SEDE_NOMBRE_MAT, NIVEL, FACULTAD, 
+                      DEP_PROC, CIU_PROC, SEXO, EDAD_MOD, ESTRATO_ORIG)
+
+Docentes <- UnalData::Docentes %>% 
+  filter(YEAR == 2022, SEMESTRE == 2, between(EDAD, 18, 59)) %>% 
+  select(YEAR, SEMESTRE, SEDE, FACULTAD, UNIDAD, SEXO, EDAD, FORMACION)
+
+Funcionarios <- UnalData::Administrativos %>% 
+  filter(YEAR == 2022, SEMESTRE == 2, between(EDAD, 18, 59)) %>% 
+  select(YEAR, SEMESTRE, SEDE, NOMBRE_ZONA, NOMBRE_UNIDAD, SEXO, EDAD, 
+         NIVEL, FORMACION)
+
+# Exportar bases de datos
+
+write_xlsx(Estudiantes, "Datos/Entrega49/Estudiantes.xlsx")
+write_xlsx(Docentes, "Datos/Entrega49/Docentes.xlsx")
+write_xlsx(Funcionarios, "Datos/Entrega49/Funcionarios.xlsx")
 
