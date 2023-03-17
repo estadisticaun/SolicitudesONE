@@ -20,6 +20,7 @@ library(magrittr)
 library(htmlwidgets)
 library(RColorBrewer)
 library(RSocrata)
+library(viridis)
 
 ######################################-
 # 1 Solicitud 14-05-2021 -----
@@ -3812,12 +3813,245 @@ write_xlsx(Duplicados_Filo, "Datos/Entrega46/Duplicados_Filología.xlsx")
 # Tabla acumulada con graduados del programa PEAMA por sedes andinas
 # de la Universidad
 
+# Consolidado Graduados PAES y PEAMA
+
+Gra_Especial <- UnalData::Graduados %>% 
+  filter(TIPO_ADM %in% c("PEAMA")) %>% 
+  summarise(Total = n(), .by = c(SEDE_NOMBRE_ADM)) %>% 
+  pivot_wider(names_from = c(SEDE_NOMBRE_ADM),
+              values_from = c(Total)) %>% 
+  mutate(Total = Caribe + Amazonía + Tumaco + Orinoquía)
+
+# Postgrado
+
+UnalData::Graduados %>% 
+  filter(TIPO_NIVEL == "Postgrado", SEDE_NOMBRE_ADM %in% c("Caribe", "Amazonía", "Orinoquía", "Tumaco")) %>% 
+  summarise(Total = n(), .by = c(SEDE_NOMBRE_ADM))
+
+
+# Total graduados 2009:2022
+
+sum(Gra_Especial$Total)
+
+
+# Consolidado Graduados PEAMA
+
 Gra_PEAMA <- UnalData::Graduados %>% 
              filter(TIPO_ADM == "PEAMA") %>% 
              summarise(Total = n(), .by = c(SEDE_NOMBRE_ADM, ADM_PEAMA_ANDINA)) %>% 
              pivot_wider(names_from = c(ADM_PEAMA_ANDINA),
                          values_from = c(Total))
-             
+
+# Consolidado Graduados PAES
+
+Gra_PAES <- UnalData::Graduados %>% 
+  filter(TIPO_ADM == "PAES") %>% 
+  summarise(Total = n(), .by = c(SEDE_NOMBRE_MAT, PAES)) %>% 
+  pivot_wider(names_from = c(SEDE_NOMBRE_MAT),
+              values_from = c(Total))
+
+# Base Graduados PAES y PEAMA
+
+Trem_PAESyPEAMA <- UnalData::Graduados %>% 
+  filter(TIPO_ADM %in% c("PEAMA", "PAES")) %>% 
+  mutate(TOTAL = "Total")
+
+
+# Serie de Tiempo Total de Graduados
+
+Agregar(TOTAL ~ YEAR, 
+        frecuencia = c(2009:2022),
+        intervalo = c(2009, 2022),
+        datos = Trem_PAESyPEAMA,
+        textNA = "Sin información") %>% 
+  Plot.Series(categoria = "TOTAL", 
+              colores = c("#8cc63f"), # verde, Total 
+              titulo = "Evolución histórica anual total de graduados PAES y PEAMA, Periodo 2009-2022",  
+              labelY = "Número de graduados (PAES y Peama)",
+              ylim = c(0,NaN),
+              labelX    = "Año",
+              libreria = c("highcharter"), 
+              estilo = list(hc.Tema = 1, hc.Slider = FALSE)) 
+
+# Serie de Tiempo Total de Graduados PAES y PEAMA
+
+        Agregar(TIPO_ADM ~ YEAR, 
+        frecuencia = c(2009:2022),
+        intervalo = c(2009, 2022),
+        datos = Trem_PAESyPEAMA,
+        textNA = "Sin información") %>% 
+       mutate(Total = ifelse(Total == 0, NA, Total)) %>% 
+      Plot.Series(categoria = "TIPO_ADM", 
+                      colores = c("#d7191c", "#1a9641"), # verde, Total 
+                      titulo = "Evolución histórica anual total de graduados PAES y PEAMA, Periodo 2009-2022",  
+                      labelY = "Número de graduados",
+                      ylim = c(0,NaN),
+                      labelX    = "Año",
+                      libreria = c("highcharter"), 
+                      estilo = list(hc.Tema = 1, hc.Slider = FALSE)) 
+
+View(UnalData::Graduados %>% 
+          filter(TIPO_ADM %in% c("PEAMA", "PAES")) %>% 
+          summarise(Total = n(), .by = TIPO_ADM))
+
+# Total de Graduados Programas PAES - Modalidades
+
+PAES <- UnalData::Graduados %>% 
+  filter(TIPO_ADM %in% c("PAES")) 
+
+  Agregar(PAES ~ YEAR, 
+        frecuencia = c(2009:2022),
+        intervalo = c(2009, 2022),
+        datos = PAES,
+        textNA = "Sin información") %>% 
+    Plot.Barras(
+     # datos        = ejConsolidadoGrad,
+      categoria    = "PAES",
+      # ano          = 2021,
+      # periodo      = 1,
+      freqRelativa = TRUE,
+      vertical     = FALSE,
+      ordinal      = FALSE,
+      colores      = RColorBrewer::brewer.pal(5, "Spectral"),
+    #  titulo       = "Total de graduados por modalidades del programa PAES, periodo 2009-2022",
+      labelEje     = "Frecuencia Relativa<br>(% de graduados)",
+      # addPeriodo   = TRUE,
+      # textInfo     = "Porcentaje de Graduados",
+      libreria     = "highcharter",
+      estilo       = list(hc.Tema = 2)
+    )
+
+# Total de Graduados Programas PEAMA - Sedes
+
+  PEAMA <- UnalData::Graduados %>% 
+    filter(TIPO_ADM %in% c("PEAMA")) 
+  
+  Agregar(PEAMA ~ YEAR, 
+          frecuencia = c(2013:2022),
+          intervalo = c(2013, 2022),
+          datos = PEAMA,
+          textNA = "Sin información") %>% 
+    Plot.Barras(
+      # datos        = ejConsolidadoGrad,
+      categoria    = "PEAMA",
+      # ano          = 2021,
+      # periodo      = 1,
+      freqRelativa = TRUE,
+      vertical     = FALSE,
+      ordinal      = FALSE,
+      colores      = RColorBrewer::brewer.pal(4, "Spectral"),
+      titulo       = "Total de graduados por sedes de admisión del programa PEAMA, periodo 2009-2022",
+      labelEje     = "Frecuencia Relativa<br>(% de graduados)",
+      # addPeriodo   = TRUE,
+      # textInfo     = "Porcentaje de Graduados",
+      libreria     = "highcharter",
+      estilo       = list(hc.Tema = 2)
+    )
+  
+# Torta Graduados por Estrato
+
+Agregar(ESTRATO ~ YEAR + SEMESTRE, 
+        frecuencia = list(c(2008:2022), c(1:2)),
+        intervalo = list(c(2009, 1), c(2022, 2)),
+        datos = Trem_PAESyPEAMA,
+        textNA = "Sin información") %>% 
+  Plot.Torta(categoria = "ESTRATO",
+    colores   = c("#1a9641", "#abd9e9", "#2c7bb6", "#d7191c"),
+   # titulo    = Txt,
+    # libreria  = "plotly",
+    estilo    = list(
+      ply.Legend = "inside", ply.Credits = list(
+        x = 0.66, y = 1.1)))
+  
+View(UnalData::Graduados %>% 
+       filter(YEAR >= 2009, TIPO_NIVEL == "Pregrado") %>% 
+       summarise(Total = n(), .by = ESTRATO))
+
+# Treemap PAES y PEAMA Programas
+
+Hprogramas <- UnalData::Hprogramas %>% 
+              filter(TIPO_NIVEL == "Pregrado") %>% 
+              select(SNIES_PROGRA, COD_PADRE, PrograH = PROGRAMA) %>% 
+              mutate(PrograH = ifelse(COD_PADRE == 22, "Estudios Literarios", PrograH),
+                     PrograH = ifelse(COD_PADRE == 26, "Ingeniería de Sistemas y Computación", PrograH))
+              
+Trem_PAESyPEAMA <- left_join(Trem_PAESyPEAMA, Hprogramas, by = "SNIES_PROGRA")
+
+
+Plot.Treemap(datos = Trem_PAESyPEAMA,
+  variables   = PrograH,
+  textFreq    = "Tamaño de la Muestra",
+  colores     = turbo(50, direction = -1),
+  titulo      = "Histórico Graduados PAES y PEAMA, Periodo 2009-2022",
+  libreria    = "highcharter",
+  estilo      = list(hc.Tema = 1, hc.borderRadius = 20)
+)
+
+Trem_PAESyPEAMA
+
+View(Trem_PAESyPEAMA %>% 
+  filter(TIPO_ADM %in% c("PEAMA", "PAES")) %>% 
+  summarise(Total = n(), .by = c(PrograH)) %>% 
+  arrange(desc(Total)))
+
+# Treemap PAES y PEAMA Áreas del Conocimiento
+
+Plot.Treemap(datos = Trem_PAESyPEAMA,
+             variables   = AREAC_SNIES,
+             #textFreq    = "Tamaño de la Muestra",
+             colores     = turbo(7, direction = -1),
+             titulo      = "Histórico Graduados PAES y PEAMA POR ÁREAS DEL CONOCIMIENTO, Periodo 2009-2022",
+             libreria    = "highcharter",
+             estilo      = list(hc.Tema = 1, hc.borderRadius = 20)
+)
+
+# Mapa de graduados PAES y PEAMA Histórico 2009-2022 Por Departamentos
+
+Map_PAESyPEAMA <- UnalData::Graduados %>% 
+  filter(TIPO_ADM %in% c("PEAMA", "PAES")) %>% 
+  select(
+    Code_Dept    = COD_DEP_NAC,
+    Code_Mun     = COD_CIU_NAC,
+    Departamento = DEP_NAC,
+    Municipio    = CIU_NAC,
+    Longitud     = LON_CIU_NAC,
+    Latitud      = LAT_CIU_NAC) %$%
+  Plot.Mapa(depto = Code_Dept,
+            mpio  = Code_Mun,
+            tipo  = "SiNoMpios",
+            # cortes = list(Deptos = c(0, 155, 170, 180, 185, Inf)),
+            colores  = c("#FFFFFF", "#10F235"))
+
+Map_PAESyPEAMA
+
+
+Gra_PAESyPEAMA_2 <- UnalData::Graduados %>% 
+  filter(TIPO_ADM %in% c("PEAMA", "PAES")) %>% 
+  select(
+    Code_Dept    = COD_DEP_NAC,
+    Code_Mun     = COD_CIU_NAC,
+    Departamento = DEP_NAC,
+    Municipio    = CIU_NAC,
+    Longitud     = LON_CIU_NAC,
+    Latitud      = LAT_CIU_NAC) %$%
+  Plot.Mapa(depto = Code_Dept,
+            mpio  = Code_Mun,
+            tipo  = "DeptoMpio",
+            titulo  = "Graduados histórico",
+            cortes  = list(
+              Deptos = c(0, 10, 20, 50, 500, Inf),
+              Mpios = c(0, 0.1, 10, 50, Inf)),
+            colores = list(
+              Deptos = c("#6812F2", "#5769F6", "#F6ED0D", "#EE6115", "#EC2525"),
+              Mpios  = c("#FFFFFF", "#99d8c9", "#41ae76", "#005824")
+            ))
+            
+
+Gra_PAESyPEAMA_2
+
+
+
+           
 # Exportar resultados
 write_xlsx(Gra_PEAMA, "Datos/Entrega48/Graduados_PEAMA.xlsx")
 
@@ -3850,4 +4084,118 @@ Funcionarios <- UnalData::Administrativos %>%
 write_xlsx(Estudiantes, "Datos/Entrega49/Estudiantes.xlsx")
 write_xlsx(Docentes, "Datos/Entrega49/Docentes.xlsx")
 write_xlsx(Funcionarios, "Datos/Entrega49/Funcionarios.xlsx")
+
+##%######################################################%##
+#                                                          #
+####              50 Solicitud 16-03-2023               ####
+#                                                          #
+##%######################################################%##
+
+# Solicitamos el favor de la siguiente información,
+# Número de aspirantes y admitidos al programa curricular  Ingeniería Mecatrónica del 2008 a 2023-1S, solo necesitamos cifras no interesan las variables 
+# 
+# Agradecemos su valiosa colaboración
+# 
+# Atentamente,
+# 
+# Hugo Leonel Sierra Maldonado 
+# División de Registro y Matrícula
+# Universidad Nacional de Colombia
+
+
+Mecatronica <- UnalData::Aspirantes %>% 
+               filter(SNIES_PROGRA == e) %>% 
+               mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+               summarise(Total = n(), .by = c(Periodo))
+
+# Exportar resultados
+write_xlsx(Mecatronica, "Datos/Entrega50/Mecatronica.xlsx")
+
+##%######################################################%##
+#                                                          #
+####              51 Solicitud 17-03-2023               ####
+#                                                          #
+##%######################################################%##
+
+# Solicitante: Gabriel Andres Avendano Casadiego
+
+# Cordialmente me gustaría informarme si ustedes cuentan 
+# con gráficas/estadísticas o en el mejor de los casos tablas de la 
+# distribución del P.A.P.A. de los estudiantes de la sede Bogotá. 
+
+# Gabriel Andres Avendaño Casadiego
+# Estudiante de Ingeniería de Sistemas y Computación
+# Universidad Nacional de Colombia Sede Bogotá
+
+# SELECCIONAR BASE DE DATOS CON RESULTADOS PBM SEDE BOGOTÁ
+
+
+PBM_Bog <- UnalData::Matriculados %>% 
+          filter(TIPO_NIVEL == "Pregrado", !is.na(PBM_ORIG), SEDE_NOMBRE_MAT == "Bogotá") %>% 
+          mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-"))
+   
+# Gráf1. Histórico Box PLot
+
+PBM_Bog %>% ggplot(aes(x = Periodo, y = PBM_ORIG)) + geom_boxplot(outlier.size = 0.5 , outlier.color = "green")+
+  labs(title = "Distribución de Puntajes Básicos de Matricula (PBM)",
+       subtitle = "Sede Bogotá, Periodo 2010-2022")+
+  xlab("\nPeriodos Académicos")+
+  ylab("PBM")+
+  theme(axis.text.x = element_text(angle = 90))
+
+# Gráf1.1 Histórico Violin
+
+PBM_Bog %>% ggplot(aes(x = Periodo, y = PBM_ORIG)) + geom_violin(outlier.size = 0.5 , outlier.color = "green", fill = "#a6d96a")+
+  labs(title = "Distribución de Puntajes Básicos de Matricula (PBM)",
+       subtitle = "Sede Bogotá, Periodo 2010-2022")+
+  xlab("\nPeriodos Académicos")+
+  ylab("PBM")+
+  theme(axis.text.x = element_text(angle = 90))
+
+  
+# Gráf2. Actual - 20221- Histograma
+
+PBM_Bog %>% filter(YEAR == 2022, SEMESTRE == 1) %>% 
+  ggplot(aes(PBM_ORIG)) + geom_histogram(fill = "#1a9641", col = "#92c5de")+
+labs(title = "Distribución de Puntajes Básicos de Matricula (PBM)",
+     subtitle = "Sede Bogotá, Periodo 2022-1")+
+  xlab("\nPuntaje Básico de Matrícula (PBM)")+
+  ylab("Número de estudiantes\n")
+
+# Gráf3. Actual - 20221- Densidad
+
+PBM_Bog %>% filter(YEAR == 2022, SEMESTRE == 1) %>% 
+  ggplot(aes(PBM_ORIG)) + geom_density(col = "red", size = 0.8)+
+  labs(title = "Distribución de Densidad Puntajes Básicos de Matricula (PBM)",
+       subtitle = "Sede Bogotá, Periodo 2022-1")+
+  labs(x = "\nPuntaje Básico de Matrícula (PBM)",
+       y = "Densidad\n")
+
+# Tabla estadísticas descriptivas
+
+Estad_PBM_Bog <- PBM_Bog %>% 
+                 summarise(Mínimo = min(PBM_ORIG),
+                           Promedio = mean(PBM_ORIG),
+                           Mediana = median(PBM_ORIG),
+                           Máximo = max(PBM_ORIG),
+                           sd = sd(PBM_ORIG),
+                           Varianza = var(PBM_ORIG),
+                           Percentil_10 = quantile(PBM_ORIG, prob=c(0.1)),
+                           Percentil_20 = quantile(PBM_ORIG, prob=c(0.2)),
+                           Percentil_25 = quantile(PBM_ORIG, prob=c(0.25)),
+                           Percentil_30 = quantile(PBM_ORIG, prob=c(0.3)),
+                           Percentil_40 = quantile(PBM_ORIG, prob=c(0.4)),
+                           Percentil_50 = quantile(PBM_ORIG, prob=c(0.5)),
+                           Percentil_60 = quantile(PBM_ORIG, prob=c(0.6)),
+                           Percentil_70 = quantile(PBM_ORIG, prob=c(0.7)),
+                           Percentil_75 = quantile(PBM_ORIG, prob=c(0.75)),
+                           Percentil_80 = quantile(PBM_ORIG, prob=c(0.8)),
+                           Percentil_90 = quantile(PBM_ORIG, prob=c(0.9)),
+                           Percentil_100 = quantile(PBM_ORIG, prob=c(1)),
+                           `Total Estudiantes` = n(),
+                           .by = Periodo)
+
+# Exportar resultados
+write_xlsx(Estad_PBM_Bog, "Datos/Entrega51/Estad_PBM_Bog.xlsx")
+
 
