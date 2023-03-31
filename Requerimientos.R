@@ -4198,4 +4198,386 @@ Estad_PBM_Bog <- PBM_Bog %>%
 # Exportar resultados
 write_xlsx(Estad_PBM_Bog, "Datos/Entrega51/Estad_PBM_Bog.xlsx")
 
+##%######################################################%##
+#                                                          #
+####              52 Solicitud 21-03-2023               ####
+#                                                          #
+##%######################################################%##
 
+# Resultados Saber Pro por competencias y años
+
+Plot.Radar(
+  datos     = UnalData::SaberPro,
+  categoria = YEAR,
+  variables = vars(
+    PUNTAJE_GLOBAL, PUNT_RAZO_CUANT, PUNT_INGLES,
+    PUNT_LECT_CRIT, PUNT_COMP_CIUD, PUNT_COMU_ESCR
+  ),
+  rango     = c(0, NaN)
+)
+
+# Resultados por Sedes 2020-2021
+
+Saber20_21 <- UnalData::SaberPro %>% 
+             filter(YEAR %in% c(2020, 2021))
+
+Plot.Boxplot(
+  datos    = Saber20_21,
+  variable = PUNTAJE_GLOBAL,
+  grupo1   = YEAR,
+  grupo2   = SEDE_NOMBRE_ADM,
+  outliers = FALSE,
+  ylim     = c(0, 300),
+  colores  = RColorBrewer::brewer.pal(8, "Set1"),
+  titulo   = "Distribución Puntaje Global Saber Pro, por Sedes",
+  labelY   = "Puntaje",
+  labelX = "Año",
+  libreria = "highcharter",
+  estilo   = list(LegendTitle = "Sede:",
+                  hc.Tema = 4)
+)
+
+# Resultados por Sedes 2020 y 2021
+
+Plot.Radar(
+  datos     = Saber20_21,
+  categoria = SEDE_NOMBRE_ADM,
+  variables = vars(
+    PUNTAJE_GLOBAL, PUNT_RAZO_CUANT, PUNT_INGLES,
+    PUNT_LECT_CRIT, PUNT_COMP_CIUD, PUNT_COMU_ESCR
+  ),
+  rango     = c(0, NaN)
+)
+
+
+
+# Resultados por PBM
+
+Plot.Boxplot(
+  datos    = Saber20_21,
+  variable = PUNTAJE_GLOBAL,
+  grupo1   = YEAR,
+  grupo2   = TIPO_ADM,
+  outliers = FALSE,
+  ylim     = c(0, 300),
+  colores  = RColorBrewer::brewer.pal(3, "Set1"),
+  titulo   = "Distribución Puntaje Global Saber Pro, por Modalidad de Admisión",
+  labelY   = "Puntaje",
+  labelX = "Año",
+  libreria = "highcharter",
+  estilo   = list(LegendTitle = "Modalidad de Admisión:",
+                  hc.Tema = 4)
+)
+
+# Resultados por Modalidad de Admisión
+
+Plot.Boxplot(
+  datos    = Saber20_21,
+  variable = PUNTAJE_GLOBAL,
+  grupo1   = YEAR,
+  grupo2   = PBM,
+  outliers = FALSE,
+  ylim     = c(0, 300),
+  colores  = RColorBrewer::brewer.pal(5, "Set1"),
+  titulo   = "Distribución Puntaje Global Saber Pro, por Grupos PBM",
+  labelY   = "Puntaje",
+  labelX = "Año",
+  libreria = "highcharter",
+  estilo   = list(LegendTitle = "Puntaje Básico de Matrícula (PBM):",
+                  hc.Tema = 4)
+)
+
+# Resultados por Modalidades PAES
+
+Saber20_211 <- Saber20_21 %>% filter(!is.na(PAES))
+
+Plot.Boxplot(
+  datos    = Saber20_211,
+  variable = PUNTAJE_GLOBAL,
+  grupo1   = YEAR,
+  grupo2   = PAES,
+  outliers = FALSE,
+  ylim     = c(0, 300),
+  colores  = RColorBrewer::brewer.pal(5, "Set1"),
+  titulo   = "Distribución Puntaje Global Saber Pro, por Modalidades del Programa PAES",
+  labelY   = "Puntaje",
+  labelX = "Año",
+  libreria = "highcharter",
+  estilo   = list(LegendTitle = "Mopdalidad PAES:",
+                  hc.Tema = 4)
+)
+
+# Resultados por Modalidades PEAMA
+
+Saber20_211 <- Saber20_21 %>% filter(!is.na(PEAMA)) %>% filter(PEAMA != "PEAMA - Sede Manizales - Caldas")
+
+Plot.Boxplot(
+  datos    = Saber20_211,
+  variable = PUNTAJE_GLOBAL,
+  grupo1   = YEAR,
+  grupo2   = PEAMA,
+  outliers = FALSE,
+  ylim     = c(0, 300),
+  colores  = RColorBrewer::brewer.pal(4, "Set1"),
+  titulo   = "Distribución Puntaje Global Saber Pro, por Modalidades del Programa PEAMA",
+  labelY   = "Puntaje",
+  labelX = "Año",
+  libreria = "highcharter",
+  estilo   = list(LegendTitle = "Mopdalidad PEAMA:",
+                  hc.Tema = 4)
+)
+
+# Treemap resultados generales programas
+
+Plot.Treemap(
+  datos       = Saber20_21,
+  variables   = SNIES_PROGRA,
+  atributo    = PUNTAJE_GLOBAL,
+  # textFreq    = "Tamaño de la Muestra",
+  estadistico = "Median",
+  colores     = viridis(50),
+  titulo      = "Mediana Puntaje Global Prueba Saber Pro por Programas Académicos, UNAL general",
+  libreria    = "highcharter",
+  estilo      = list(hc.Tema = 7, hc.borderRadius = 20)
+)
+
+
+# Resultados por Sedes 2020-2021 Facultades Bogotá
+
+Saber20_21_Bog <- UnalData::SaberPro %>% 
+  filter(SEDE_NOMBRE_MAT == "Bogotá", YEAR %in% c(2020, 2021)) %>% 
+  mutate(SNIES_PROGRA = as.character(SNIES_PROGRA))
+
+Plot.Boxplot(
+  datos    = Saber20_21_Bog,
+  variable = PUNTAJE_GLOBAL,
+  grupo1   = YEAR,
+  grupo2   = FACULTAD,
+  outliers = FALSE,
+  ylim     = c(0, 300),
+  #colores  = RColorBrewer::brewer.pal(11, "Set1"),
+  titulo   = "Distribución Puntaje Global Saber Pro - Sede Bogotá, por Facultades",
+  labelY   = "Puntaje",
+  labelX = "Año",
+  libreria = "highcharter",
+  estilo   = list(LegendTitle = "Facultad:",
+                  hc.Tema = 4)
+)
+
+# Treemap de programas académicos
+
+Plot.Treemap(
+  datos       = Saber20_21_Bog,
+  variables   = SNIES_PROGRA,
+  atributo    = PUNTAJE_GLOBAL,
+ # textFreq    = "Tamaño de la Muestra",
+  estadistico = "Median",
+  colores     = viridis(50),
+  titulo      = "Mediana Puntaje Global Prueba Saber Pro por Programas Académicos, Sede Bogotá",
+  libreria    = "highcharter",
+  estilo      = list(hc.Tema = 7, hc.borderRadius = 20)
+)
+
+find("viridis")
+
+# Resultados por Sedes 2020-2021 Facultades Medellín
+
+Saber20_21_Med <- UnalData::SaberPro %>% 
+  filter(SEDE_NOMBRE_MAT == "Medellín", YEAR %in% c(2020, 2021))%>% 
+  mutate(SNIES_PROGRA = as.character(SNIES_PROGRA))
+
+Plot.Boxplot(
+  datos    = Saber20_21_Med,
+  variable = PUNTAJE_GLOBAL,
+  grupo1   = YEAR,
+  grupo2   = FACULTAD,
+  outliers = FALSE,
+  ylim     = c(0, 300),
+  #colores  = RColorBrewer::brewer.pal(11, "Set1"),
+  titulo   = "Distribución Puntaje Global Saber Pro - Sede Medellín, por Facultades",
+  labelY   = "Puntaje",
+  labelX = "Año",
+  libreria = "highcharter",
+  estilo   = list(LegendTitle = "Facultad:",
+                  hc.Tema = 4)
+)
+
+
+# Treemap de programas académicos
+
+Plot.Treemap(
+  datos       = Saber20_21_Med,
+  variables   = SNIES_PROGRA,
+  atributo    = PUNTAJE_GLOBAL,
+  # textFreq    = "Tamaño de la Muestra",
+  estadistico = "Median",
+  colores     = viridis(50),
+  titulo      = "Mediana Puntaje Global Prueba Saber Pro por Programas Académicos, Sede Medellín",
+  libreria    = "highcharter",
+  estilo      = list(hc.Tema = 7, hc.borderRadius = 20)
+)
+
+# Resultados por Sedes 2020-2021 Facultades Manizales
+
+Saber20_21_Man <- UnalData::SaberPro %>% 
+  filter(SEDE_NOMBRE_MAT == "Manizales", YEAR %in% c(2020, 2021)) %>% 
+  mutate(SNIES_PROGRA = as.character(SNIES_PROGRA))
+
+Plot.Boxplot(
+  datos    = Saber20_21_Man,
+  variable = PUNTAJE_GLOBAL,
+  grupo1   = YEAR,
+  grupo2   = FACULTAD,
+  outliers = FALSE,
+  ylim     = c(0, 300),
+  #colores  = RColorBrewer::brewer.pal(11, "Set1"),
+  titulo   = "Distribución Puntaje Global Saber Pro - Sede Manizales, por Facultades",
+  labelY   = "Puntaje",
+  labelX = "Año",
+  libreria = "highcharter",
+  estilo   = list(LegendTitle = "Facultad:",
+                  hc.Tema = 4)
+)
+
+# Treemap de programas académicos
+
+Plot.Treemap(
+  datos       = Saber20_21_Man,
+  variables   = SNIES_PROGRA,
+  atributo    = PUNTAJE_GLOBAL,
+  # textFreq    = "Tamaño de la Muestra",
+  estadistico = "Median",
+  colores     = viridis(50),
+  titulo      = "Mediana Puntaje Global Prueba Saber Pro por Programas Académicos, Sede Manizales",
+  libreria    = "highcharter",
+  estilo      = list(hc.Tema = 7, hc.borderRadius = 20)
+)
+
+
+# Resultados por Sedes 2020-2021 Facultades Palmira
+
+Saber20_21_Pal <- UnalData::SaberPro %>% 
+  filter(SEDE_NOMBRE_MAT == "Palmira", YEAR %in% c(2020, 2021)) %>% 
+  mutate(SNIES_PROGRA = as.character(SNIES_PROGRA))
+
+Plot.Boxplot(
+  datos    = Saber20_21_Pal,
+  variable = PUNTAJE_GLOBAL,
+  grupo1   = YEAR,
+  grupo2   = FACULTAD,
+  outliers = FALSE,
+  ylim     = c(0, 300),
+  #colores  = RColorBrewer::brewer.pal(11, "Set1"),
+  titulo   = "Distribución Puntaje Global Saber Pro - Sede Palmira, por Facultades",
+  labelY   = "Puntaje",
+  labelX = "Año",
+  libreria = "highcharter",
+  estilo   = list(LegendTitle = "Facultad:",
+                  hc.Tema = 4)
+)
+
+# Treemap de programas académicos
+
+Plot.Treemap(
+  datos       = Saber20_21_Pal,
+  variables   = SNIES_PROGRA,
+  atributo    = PUNTAJE_GLOBAL,
+  # textFreq    = "Tamaño de la Muestra",
+  estadistico = "Median",
+  colores     = viridis(50),
+  titulo      = "Mediana Puntaje Global Prueba Saber Pro por Programas Académicos, Sede Palmira",
+  libreria    = "highcharter",
+  estilo      = list(hc.Tema = 7, hc.borderRadius = 20)
+)
+
+
+
+##%######################################################%##
+#                                                          #
+####              53 Solicitud 22-03-2023               ####
+#                                                          #
+##%######################################################%##
+# 
+# Buenas Tardes, 
+# 
+# Por el presente amablemente me permito solicitar su colaboración informando las cifras históricas de Egresados de los Programas de Pregrado y Posgrado del  Área Curricular Industrial, Organizaciones y Logística: 
+#   
+#   4024 Ingenieria Industrial 
+# 4349 Especialización en Logística y Cadenas de Abastecimiento
+# 4330 Especialización en Dirección de Producción y Operaciones
+# 4427 Maestria en Ingenieria - Ingenieria Industrial
+# 4501 Doctorado en Ingenieria - Industria y Organizaciones. 
+# 
+# Quedo atento a sus comentarios, 
+# 
+# Saludos cordiales;
+# 
+# 
+# FREDY BECERRA RODRIGUEZ
+# Director Área Curricular Industrial, Organizaciones y Logística
+# 
+
+names(UnalData::Graduados)
+
+Gra_Ing_Man <- UnalData::Graduados %>% 
+              filter(SNIES_PROGRA %in% c(4124, 108412, 51673, 55151, 55184)) %>% 
+              mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+              summarise(Total = n(), .by = c(Periodo, NIVEL, SNIES_PROGRA)) %>% 
+              pivot_wider(names_from = Periodo, values_from = Total, values_fill = 0)
+
+# Exportar resultados
+
+write_xlsx(Gra_Ing_Man, "Datos/Entrega53/Gra_Ing_Man.xlsx")
+
+
+##%######################################################%##
+#                                                          #
+####              54 Solicitud 31-03-2023               ####
+#                                                          #
+##%######################################################%##
+
+# Treepmap programas Pre y Post Bogotá por Facultad
+
+# Librerías requeridas
+
+library(tidyverse)
+library(viridis)
+library(UnalData)
+library(UnalR)
+
+# Programas de Pregrado - Facultad de Ciencias Humanas
+
+Pro_Pre_Bog_CH <- UnalData::Matriculados %>% 
+                  filter(SNIES_SEDE_MAT == 1101, TIPO_NIVEL == "Pregrado", 
+                  YEAR == 2022, SEMESTRE == 2, 
+                  FACULTAD == "Ciencias humanas") 
+
+colores <- length(unique(Pro_Pre_Bog_CH$PROGRAMA))
+
+  Plot.Treemap(
+  datos       = Pro_Pre_Bog_CH,
+  variables   = PROGRAMA,
+  colores     = turbo(colores),
+  titulo      = "Total de matriculados por programas académicos de pregrado",
+  libreria    = "highcharter",
+  estilo      = list(hc.Tema = 7, hc.borderRadius = 25, hc.Credits = "Sede Bogotá, Facultad de Ciencias.")
+)
+
+# Programas de Postgrado - Facultad de Medicina - Especialidades Médicas
+  
+Pro_Pos_Bog_Med_EM <- UnalData::Matriculados %>% 
+    filter(SNIES_SEDE_MAT == 1101, TIPO_NIVEL == "Postgrado", FACULTAD == "Medicina", 
+           NIVEL == "Especialidades médicas",
+           YEAR == 2022, SEMESTRE == 2) 
+
+colores <- length(unique(Pro_Pos_Bog_Med_EM$PROGRAMA))
+
+Plot.Treemap(
+  datos       = Pro_Pos_Bog_Med_EM,
+  variables   = PROGRAMA,
+  colores     = turbo(colores),
+  titulo      = "Total de matriculados por programas académicos de postgrado",
+  libreria    = "highcharter",
+  estilo      = list(hc.Tema = 7, hc.borderRadius = 25, 
+                     hc.Credits = "Sede Bogotá, Facultad de Medicina, Especialidades Médicas.")
+)
