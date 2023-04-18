@@ -4057,6 +4057,7 @@ write_xlsx(Gra_PEAMA, "Datos/Entrega48/Graduados_PEAMA.xlsx")
 
 ##%######################################################%##
 #                                                          #
+
 ####              49 Solicitud 27-02-2023               ####
 #                                                          #
 ##%######################################################%##
@@ -4581,3 +4582,148 @@ Plot.Treemap(
   estilo      = list(hc.Tema = 7, hc.borderRadius = 25, 
                      hc.Credits = "Sede Bogotá, Facultad de Medicina, Especialidades Médicas.")
 )
+
+##%######################################################%##
+#                                                          #
+####              55 Solicitud 11-04-2023               ####
+#                                                          #
+##%######################################################%##
+
+# Tipo: Derecho de Petición
+
+# Asunto: Solicitud de información con fines académicos – investigativos
+# Demandante: Yizeth Andrea Quintero Cardona,
+
+# Mail: https://mail.google.com/mail/u/0/#inbox/FMfcgzGsltShrpgbQZwTfbvSGdlwZRZC
+
+# Base de Datos de Aspirantes y Admitidos
+
+Aspirantes18_23 <- UnalData::Aspirantes %>% 
+                    filter(YEAR >= 2018) %>%
+                    filter(!(TIPO_NIVEL == "Postgrado" & MOD_INS != "Regular")) %>% 
+                    filter(!(TIPO_NIVEL == "Pregrado" & is.na(TIPO_INS))) %>% 
+                    select(AÑO = YEAR, SEMESTRE, TIPO_NIVEL, NIVEL, 
+                           DEP_NAC:LAT_CIU_RES, SEXO, ESTRATO = ESTRATO_ORIG,
+                           EDAD = EDAD_MOD, MOD_INS, TIPO_INS, PAES, PEAMA, 
+                           SNIES_SEDE, INS_SEDE_NOMBRE, PTOTAL, ADMITIDO, 
+                           ADM_SEDE_NOMBRE, ADM_ANDINA_PEAMA, FACULTAD, 
+                           SNIES_PROGRA, PROGRAMA) 
+  
+# Exportar resultados
+
+write_xlsx(Aspirantes18_23, "Datos/Entrega55/Aspirantes18_23.xlsx")
+
+# Base de Datos de Aspirantes y Admitidos
+
+Matriculados18_22 <- UnalData::Matriculados %>% 
+  filter(YEAR >= 2018) %>% 
+  select(AÑO = YEAR, SEMESTRE, TIPO_NIVEL, NIVEL, 
+         DEP_NAC:LAT_CIU_PROC, SEXO, ESTRATO = ESTRATO_ORIG,
+         EDAD = EDAD_MOD, TIPO_COL, SNIES_SEDE_ADM:MOV_PEAMA, 
+         FACULTAD, SNIES_PROGRA, PROGRAMA) 
+
+# Exportar resultados
+
+write_xlsx(Matriculados18_22, "Datos/Entrega55/Matriculados18_22.xlsx")
+
+
+##%######################################################%##
+#                                                          #
+####              56 Solicitud 12-04-2023               ####
+#                                                          #
+##%######################################################%##
+
+# Mi nombre es Manuela Betancur Morales, estudiante de Ciencia Política de la Facultad de Ciencias Humanas y Económicas de la Sede Medellín. 
+
+# 1. Estadísticas Afros Sede Medellín por Sexo
+
+Afros_Med_Sexo <- UnalData::Matriculados %>% 
+  filter(SEDE_NOMBRE_MAT == "Medellín", YEAR == 2022, SEMESTRE == 2, 
+         PAES == "Población afrocolombiana") %>% summarise(Total = n(),
+                                          .by = c(SEXO)) %>% 
+                  pivot_wider(names_from = SEXO, values_from = Total) %>% 
+                  mutate(Total = Mujeres + Hombres)
+
+Afros_Med_Sexo
+
+write_xlsx(Afros_Med_Sexo, "Datos/Entrega56/Afros_Med_Sexo.xlsx")
+
+# 2. Estadísticas Afros Sede Medellín por Sexo -  Facultad de Ciencias Humanas y Económicas
+
+Afros_Med_Fche_Sexo <- UnalData::Matriculados %>% 
+  filter(SEDE_NOMBRE_MAT == "Medellín", YEAR == 2022, SEMESTRE == 2, 
+         PAES == "Población afrocolombiana",
+         FACULTAD == "Ciencias humanas y económicas") %>% summarise(Total = n(),
+                                                           .by = c(SEXO)) %>% 
+  pivot_wider(names_from = SEXO, values_from = Total) %>% 
+  mutate(Total = Mujeres + Hombres)
+
+Afros_Med_Fche_Sexo
+
+write_xlsx(Afros_Med_Fche_Sexo, "Datos/Entrega56/Afros_Med_Fche_Sexo.xlsx")
+
+# 4. Promedio del PBM de estudiantes de pregrado en la Sede Medellín, segmentado por género. 
+
+Med_Sexo_Pbm <- UnalData::Matriculados %>% 
+  filter(SEDE_NOMBRE_MAT == "Medellín", TIPO_NIVEL == "Pregrado", YEAR == 2022, SEMESTRE == 2) %>% 
+  summarise(Media_PBM = mean(PBM_ORIG, na.rm = TRUE),
+            Mediana_PBM = median(PBM_ORIG, na.rm = TRUE),
+            Total = n(),
+            .by = c(SEXO)) 
+
+Med_Sexo_Pbm
+
+write_xlsx(Med_Sexo_Pbm, "Datos/Entrega56/Med_Sexo_Pbm.xlsx")
+
+# 3. Promedio del PBM de estudiantes de pregrado afrodescendientes en la Sede Medellín, segmentado por género. 
+
+Afros_Med_Sexo_Pbm <- UnalData::Matriculados %>% 
+  filter(SEDE_NOMBRE_MAT == "Medellín", YEAR == 2022, SEMESTRE == 2, 
+         PAES == "Población afrocolombiana") %>% 
+  summarise(Media_PBM = mean(PBM_ORIG, na.rm = TRUE),
+            Mediana_PBM = median(PBM_ORIG, na.rm = TRUE),
+            Total = n(),
+            .by = c(SEXO)) 
+
+Afros_Med_Sexo_Pbm
+
+write_xlsx(Afros_Med_Sexo_Pbm, "Datos/Entrega56/Afros_Med_Sexo_Pbm.xlsx")
+
+
+##%######################################################%##
+#                                                          #
+####              57 Solicitud 17-04-2023               ####
+#                                                          #
+##%######################################################%##
+
+# Profesor José Ignacio Maya
+# Aspirantes a pregrado por programas académicos
+
+Aspirantes_Programas <- read_excel("Datos/Fuentes/Aspirantes Programas.xlsx")
+
+Consolidado_Prog <- Aspirantes_Programas %>% 
+                    summarise(Total = n(), .by = c(PERIODO, PROGRAMA_SEDE)) %>% 
+                    pivot_wider(names_from = PERIODO,
+                                values_from = Total) %>% 
+                    arrange(desc(`20191`))
+
+# Exportar resultados
+
+write_xlsx(Consolidado_Prog, "Datos/Entrega57/Aspirantes_Prog.xlsx")
+
+##%######################################################%##
+#                                                          #
+####              58 Solicitud 17-04-2023               ####
+#                                                          #
+##%######################################################%##
+
+# Radar Rendición de Cuentas 2022
+# Maria Claudia Galindo
+
+
+Saber_UNAL_2021 <- UnalData::SaberPro %>% 
+                   filter(YEAR == 2021) %>% 
+                   summarise(across(.cols= starts_with("PUNT"),
+                                    .fns = ~mean(., na.rm = TRUE)))
+
+
