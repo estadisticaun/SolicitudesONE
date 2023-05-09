@@ -4697,7 +4697,7 @@ write_xlsx(Afros_Med_Sexo_Pbm, "Datos/Entrega56/Afros_Med_Sexo_Pbm.xlsx")
 ##%######################################################%##
 
 # Profesor José Ignacio Maya
-# Aspirantes a pregrado por programas académicos
+# Aspirantes a pregrado y postgrado por programas académicos
 
 Aspirantes_Programas <- read_excel("Datos/Fuentes/Aspirantes Programas.xlsx")
 
@@ -4706,6 +4706,28 @@ Consolidado_Prog <- Aspirantes_Programas %>%
                     pivot_wider(names_from = PERIODO,
                                 values_from = Total) %>% 
                     arrange(desc(`20191`))
+
+# Programas de postgrado
+Cons_Prog_Pos <- UnalData::Aspirantes %>% 
+                  filter(YEAR >= 2019 & SEMESTRE == 1 & 
+                         TIPO_NIVEL == "Postgrado" & MOD_INS == "Regular") %>% 
+                  mutate(PERIODO = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+                  summarise(Total = n(), .by = c(PERIODO, NIVEL, INS_SEDE_NOMBRE, FACULTAD, SNIES_PROGRA, PROGRAMA)) %>% 
+                  pivot_wider(names_from = PERIODO, values_from = Total) %>% 
+                  arrange(NIVEL, INS_SEDE_NOMBRE, FACULTAD, SNIES_PROGRA)
+
+# Base de datos de programas activos - actuales
+
+Programas_Activos <- UnalData::Hprogramas %>% filter(ESTADO == "Activo") %>% 
+                     select(COD_PADRE, Programa = PROGRAMA)
+
+Programas <- left_join(UnalData::Hprogramas, Programas_Activos, by = "COD_PADRE") %>% 
+             select(SNIES_PROGRA, COD_PADRE, Programa)
+
+# Cruzar base de datos
+
+Cons_Prog_Pos <- left_join(Cons_Prog_Pos, Programas, by = "SNIES_PROGRA")
+
 
 # Exportar resultados
 
