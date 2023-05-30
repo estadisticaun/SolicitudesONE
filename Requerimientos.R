@@ -4749,3 +4749,521 @@ Saber_UNAL_2021 <- UnalData::SaberPro %>%
                                     .fns = ~mean(., na.rm = TRUE)))
 
 
+##%######################################################%##
+#                                                          #
+####              59 Solicitud 09-05-2023               ####
+#                                                          #
+##%######################################################%##
+
+# Profesor José Ignacio Maya
+# Resultados Nacional SaberPro
+
+SaberPro_Nac_2022 <- read_excel("Datos/Fuentes/2022_SaberPro_Nacional.xlsx", 
+                                      sheet = "2022 País_Saber Pro") %>% 
+                     select(INST_COD_INSTITUCION,
+                            INST_NOMBRE_INSTITUCION,
+                            ESTU_PRGM_ACADEMICO,
+                            ESTU_SNIES_PRGMACADEMICO,
+                            GRUPOREFERENCIA,
+                            ESTU_NIVEL_PRGM_ACADEMICO,
+                            ESTU_NUCLEO_PREGRADO,
+                            MOD_RAZONA_CUANTITAT_PUNT,
+                            MOD_LECTURA_CRITICA_PUNT,
+                            MOD_COMPETEN_CIUDADA_PUNT,
+                            MOD_INGLES_PUNT,
+                            MOD_COMUNI_ESCRITA_PUNT,
+                            PUNT_GLOBAL,
+                            SNIES_SUE:Sigla_G10) %>% 
+                    mutate(G13 =  case_when(.$INST_COD_INSTITUCION == 1101  ~ "UNAL-BOGOTÁ",
+                                     .$INST_COD_INSTITUCION == 1102  ~ "UNAL-MEDELLÍN",
+                                     .$INST_COD_INSTITUCION == 1103  ~ "UNAL-MANIZALES",
+                                     .$INST_COD_INSTITUCION == 1104  ~ "UNAL-PALMIRA",
+                                     TRUE ~ U_SUE))
+
+
+# Población UNAL Saber 2022
+
+SaberPro_UNAL_22 <- SaberPro_Nac_2022 %>% 
+                    filter(INST_COD_INSTITUCION %in% c(1101, 1102, 1103, 1104)) %>% 
+                    rename(SNIES_PROGRA = ESTU_SNIES_PRGMACADEMICO)
+
+# Crear base de programas y Facultades
+
+Prog_Pregrado <- UnalData::Programas %>% 
+  filter(TIPO_NIVEL == "Pregrado") %>% 
+  select(SNIES_PROGRA, PROGRAMA, SEDE_PROG, FACULTAD, AREAC_SNIES)
+
+# Obtener Facultades de la UNAL
+
+SaberPro_UNAL_22 <- left_join(SaberPro_UNAL_22, Prog_Pregrado, 
+                              by = c('SNIES_PROGRA')) %>% 
+                    mutate(Facultad = paste(FACULTAD, SEDE_PROG, sep = "-"),
+                           Programa = paste(PROGRAMA, SEDE_PROG, sep = "-"),
+                           UNAL = "Unal") %>% 
+                    rename(`Razonamiento Cuantitativo` = MOD_RAZONA_CUANTITAT_PUNT,
+                           `Lectura Crítica` = MOD_LECTURA_CRITICA_PUNT,
+                           `Competencias Ciudadanas` = MOD_COMPETEN_CIUDADA_PUNT,
+                           `Inglés` = MOD_INGLES_PUNT,
+                           `Comunicación Escrita` = MOD_COMUNI_ESCRITA_PUNT,
+                           `Puntaje Global` = PUNT_GLOBAL) 
+                
+
+# INICIO DE TABLAS
+
+# Tabla Universidades General
+
+Saber_Universidades <- SaberPro_Nac_2022 %>% 
+  summarise(Media_Global = round(mean(`PUNT_GLOBAL`),2),
+            SD = round(sd(`PUNT_GLOBAL`),2),
+            Total = n(),
+            .by = c(INST_COD_INSTITUCION, INST_NOMBRE_INSTITUCION)) %>% 
+  arrange(desc(Media_Global))
+
+# Exportar resultados
+
+write_xlsx(Saber_Universidades, "Datos/Entrega59/Saber_Universidades.xlsx")
+
+
+# Tabla SUE
+
+SaberPro_Nac_2022_SUE <- SaberPro_Nac_2022 %>% filter(!is.na(SNIES_SUE))
+  
+Saber_SUE <- SaberPro_Nac_2022_SUE %>% 
+  summarise(Media_Global = round(mean(`PUNT_GLOBAL`),2),
+            SD = round(sd(`PUNT_GLOBAL`),2),
+            Total = n(),
+            .by = c(SNIES_SUE, U_SUE)) %>% 
+  arrange(desc(Media_Global))
+
+# Exportar resultados
+
+write_xlsx(Saber_SUE, "Datos/Entrega59/Saber_SUE.xlsx")
+
+
+# Tabla SUE + UNAL
+
+SaberPro_Nac_2022_SUE_UNAL <- SaberPro_Nac_2022 %>% filter(!is.na(G13))
+
+Saber_SUE_UNAL <- SaberPro_Nac_2022_SUE_UNAL %>% 
+  summarise(Media_Global = round(mean(`PUNT_GLOBAL`),2),
+            SD = round(sd(`PUNT_GLOBAL`),2),
+            Total = n(),
+            .by = c(SNIES_SUE, G13)) %>% 
+  arrange(desc(Media_Global))
+
+# Exportar resultados
+
+write_xlsx(Saber_SUE_UNAL, "Datos/Entrega59/Saber_SUE_UNAL.xlsx")
+
+
+# Tabla G10
+
+SaberPro_Nac_2022_G10 <- SaberPro_Nac_2022 %>% filter(!is.na(SNIES_G10))
+
+Saber_G10 <- SaberPro_Nac_2022_G10 %>% 
+  summarise(Media_Global = round(mean(`PUNT_GLOBAL`),2),
+            SD = round(sd(`PUNT_GLOBAL`),2),
+            Total = n(),
+            .by = c(SNIES_G10, U_G10)) %>% 
+  arrange(desc(Media_Global))
+
+# Exportar resultados
+
+write_xlsx(Saber_G10, "Datos/Entrega59/Saber_G10.xlsx")
+
+
+# Tabla programas UNAL
+Saber_Programas <- SaberPro_UNAL_22 %>% 
+                   summarise(Media_Global = round(mean(`Puntaje Global`),2),
+                             SD = round(sd(`Puntaje Global`),2),
+                             Total = n(),
+                             .by = c(SEDE_PROG, FACULTAD, PROGRAMA)) %>% 
+                   arrange(desc(Media_Global))
+
+
+# Exportar resultados
+
+write_xlsx(Saber_Programas, "Datos/Entrega59/Saber_Programas.xlsx")
+
+
+# Tabla programas UNAL - Todas las competencias
+
+Saber_Programas_all <- SaberPro_UNAL_22 %>% 
+  summarise(Media_Global = round(mean(`Puntaje Global`),2),
+            SD = round(sd(`Puntaje Global`),2),
+            Media_Rcuantitativo = round(mean(`Razonamiento Cuantitativo`),2),
+            Media_Lcritica = round(mean(`Lectura Crítica`),2),
+            Media_Cciudadanas = round(mean(`Competencias Ciudadanas`),2),
+            Media_Ingles = round(mean(`Inglés`),2),
+            Media_Cescrita = round(mean(`Comunicación Escrita`),2),
+            Total = n(),
+            .by = c(SEDE_PROG, FACULTAD, PROGRAMA)) %>% 
+  arrange(desc(Media_Global))
+
+# Exportar resultados
+write_xlsx(Saber_Programas_all, "Datos/Entrega59/Saber_Programas_all.xlsx")
+
+# Tabla Sedes UNAL - Todas las competencias
+
+Saber_Sedes_all <- SaberPro_UNAL_22 %>% 
+  summarise(Media_Global = round(mean(`Puntaje Global`),1),
+            SD = round(sd(`Puntaje Global`),1),
+            Media_Rcuantitativo = round(mean(`Razonamiento Cuantitativo`),1),
+            Media_Lcritica = round(mean(`Lectura Crítica`),1),
+            Media_Cciudadanas = round(mean(`Competencias Ciudadanas`),1),
+            Media_Ingles = round(mean(`Inglés`),1),
+            Media_Cescrita = round(mean(`Comunicación Escrita`),1),
+            Total = n(),
+            .by = c(SEDE_PROG)) %>% 
+  arrange(desc(Media_Global))
+
+# Exportar resultados
+write_xlsx(Saber_Sedes_all, "Datos/Entrega59/Saber_Sedes_all.xlsx")
+
+
+# Tabla UNAL por nucleos del conocimiento del Saber Pro
+
+Saber_Greferencia <- SaberPro_UNAL_22 %>% 
+  summarise(Media_Global = round(mean(`Puntaje Global`),1),
+            SD = round(sd(`Puntaje Global`),1),
+            Media_Rcuantitativo = round(mean(`Razonamiento Cuantitativo`),1),
+            Media_Lcritica = round(mean(`Lectura Crítica`),1),
+            Media_Cciudadanas = round(mean(`Competencias Ciudadanas`),1),
+            Media_Ingles = round(mean(`Inglés`),1),
+            Media_Cescrita = round(mean(`Comunicación Escrita`),1),
+            Total = n(),
+            .by = c(GRUPOREFERENCIA)) %>% 
+  arrange(desc(Media_Global))
+
+# Exportar resultados
+write_xlsx(Saber_Greferencia, "Datos/Entrega59/Saber_Greferencia.xlsx")
+
+
+
+# INICIO FASE DE GRÁFICOS
+
+# Resultados Saber Pro - Por áreas del conocimiento SNIES
+
+colores <- length(unique(SaberPro_UNAL_22$AREAC_SNIES))
+
+Plot.Treemap(
+  datos       = SaberPro_UNAL_22,
+  variables   = AREAC_SNIES,
+  atributo    = `Puntaje Global`,
+  colores     = turbo(colores, alpha = 0, begin = 0.3, end = 1, direction = -1),
+  titulo      = "Promedio Puntaje Global Prueba Saber Pro UNAL por Áreas del Conocimiento SNIES, Periodo 2022-2",
+  libreria    = "highcharter",
+  estilo      = list(hc.Tema = 7, hc.borderRadius = 25, hc.Credits = "Resultados Globales UNAL")
+)
+
+# Resultados Saber Pro - Todas las Facultades
+
+colores <- length(unique(SaberPro_UNAL_22$Facultad))
+
+Plot.Treemap(
+  datos       = SaberPro_UNAL_22,
+  variables   = Facultad,
+  atributo    = `Puntaje Global`,
+  colores     = turbo(colores, alpha = 0, begin = 0.3, end = 1, direction = -1),
+  titulo      = "Promedio Puntaje Global Prueba Saber Pro por Facultades UNAL, Periodo 2022-2",
+  libreria    = "highcharter",
+  estilo      = list(hc.Tema = 7, hc.borderRadius = 25, hc.Credits = "Resultados Globales UNAL")
+)
+
+colores <- length(unique(SaberPro_UNAL_22$Facultad))
+
+Plot.Treemap(
+  datos       = SaberPro_UNAL_22,
+  variables   = Facultad,
+  atributo    = `Puntaje Global`,
+  colores     = turbo(colores, alpha = 0, begin = 0.3, end = 1, direction = -1),
+  titulo      = "Promedio Puntaje Global Prueba Saber Pro por Facultades UNAL, Periodo 2022-2",
+  libreria    = "highcharter",
+  estilo      = list(hc.Tema = 7, hc.borderRadius = 25, hc.Credits = "Resultados Globales UNAL")
+)
+
+# Resultados Saber Pro - Todos los programas
+
+colores <- length(unique(SaberPro_UNAL_22$Programa))
+
+Plot.Treemap(
+  datos       = SaberPro_UNAL_22 %>% filter(SNIES_PROGRA != 16911),
+  variables   = Programa,
+  atributo    = `Puntaje Global`,
+  colores     = turbo(colores, alpha = 0, begin = 0.3, end = 1, direction = -1),
+  titulo      = "Promedio Puntaje Global Prueba Saber Pro por Programas Académicos, Periodo 2022-2",
+  libreria    = "highcharter",
+  estilo      = list(hc.Tema = 7, hc.borderRadius = 25, hc.Credits = "Resultados Globales UNAL")
+)
+
+# Resultados Globales Todas las pruebas - gráfico de Radar
+
+# Nacional
+
+Plot.Radar(
+  datos     = SaberPro_UNAL_22,
+  categoria = UNAL,
+  variables = vars(`Razonamiento Cuantitativo`,
+                   `Lectura Crítica`,
+                   `Competencias Ciudadanas`,
+                   `Inglés`,
+                   `Comunicación Escrita`,
+                   `Puntaje Global`),
+  colores   = c("#d7191c"),
+  rango     = c(0, 300),
+  #libreria  = "echarts",
+  estilo      = list(ply.Relleno = "none",
+                     ply.LegendTitle = "Sede:",
+                     ply.Opacidad = 1,
+                     ply.LegendPosition = list(x = 0, y = -0.15, orientation = "h"))
+)
+
+
+# Por Sedes
+
+Plot.Radar(
+  datos     = SaberPro_UNAL_22,
+  categoria = SEDE_PROG,
+  variables = vars(`Razonamiento Cuantitativo`,
+                   `Lectura Crítica`,
+                   `Competencias Ciudadanas`,
+                   `Inglés`,
+                   `Comunicación Escrita`,
+                   `Puntaje Global`),
+  colores   = c("#008837", "#2c7bb6", "#fdb863", "#d7191c"),
+  rango     = c(0, 200),
+  #libreria  = "echarts",
+  estilo      = list(ply.Relleno = "none",
+                     ply.LegendTitle = "Sede:",
+                     ply.Opacidad = 1,
+                     ply.LegendPosition = list(x = 0, y = 0, orientation = "h"))
+  )
+
+# RESULTADOS POR FACULTADES Y PROGRAMAS DENTRO DE SEDES
+
+SaberPro_Bog_22 <- SaberPro_UNAL_22 %>% filter(SEDE_PROG == "Bogotá")
+SaberPro_Med_22 <- SaberPro_UNAL_22 %>% filter(SEDE_PROG == "Medellín")
+SaberPro_Man_22 <- SaberPro_UNAL_22 %>% filter(SEDE_PROG == "Manizales") %>% filter(SNIES_PROGRA != 16911)
+SaberPro_Pal_22 <- SaberPro_UNAL_22 %>% filter(SEDE_PROG == "Palmira")
+
+# Sede Bogotá - Facultades
+
+colores <- length(unique(SaberPro_Bog_22$FACULTAD))
+
+Plot.Treemap(
+  datos       = SaberPro_Bog_22,
+  variables   = FACULTAD,
+  atributo    = `Puntaje Global`,
+  colores     = turbo(colores, alpha = 0, begin = 0.3, end = 1, direction = -1),
+  titulo      = "Promedio Puntaje Global Prueba Saber Pro por Facultades - Sede Bogotá-, Periodo 2022-2",
+  libreria    = "highcharter",
+  estilo      = list(hc.Tema = 7, hc.borderRadius = 25, hc.Credits = "Sede Bogotá")
+)
+
+# Sede Bogotá - Programas
+
+colores <- length(unique(SaberPro_Bog_22$Programa))
+
+Plot.Treemap(
+  datos       = SaberPro_Bog_22,
+  variables   = PROGRAMA,
+  atributo    = `Puntaje Global`,
+  colores     = turbo(colores, alpha = 0, begin = 0.3, end = 1, direction = -1),
+  titulo      = "Promedio Puntaje Global Prueba Saber Pro por Programas Académicos - Sede Bogotá-, Periodo 2022-2",
+  libreria    = "highcharter",
+  estilo      = list(hc.Tema = 7, hc.borderRadius = 25, hc.Credits = "Sede Bogotá")
+)
+
+# Sede Medellín - Facultades
+
+colores <- length(unique(SaberPro_Med_22$FACULTAD))
+
+Plot.Treemap(
+  datos       = SaberPro_Med_22,
+  variables   = FACULTAD,
+  atributo    = `Puntaje Global`,
+  colores     = turbo(colores, alpha = 0, begin = 0.3, end = 1, direction = -1),
+  titulo      = "Promedio Puntaje Global Prueba Saber Pro por Facultades - Sede Medellín-, Periodo 2022-2",
+  libreria    = "highcharter",
+  estilo      = list(hc.Tema = 7, hc.borderRadius = 25, hc.Credits = "Sede Medellín")
+)
+
+# Sede Medellín - Programas
+
+colores <- length(unique(SaberPro_Med_22$Programa))
+
+Plot.Treemap(
+  datos       = SaberPro_Med_22,
+  variables   = PROGRAMA,
+  atributo    = `Puntaje Global`,
+  colores     = turbo(colores, alpha = 0, begin = 0.3, end = 1, direction = -1),
+  titulo      = "Promedio Puntaje Global Prueba Saber Pro por Programas Académicos - Sede Medellín-, Periodo 2022-2",
+  libreria    = "highcharter",
+  estilo      = list(hc.Tema = 7, hc.borderRadius = 25, hc.Credits = "Sede Medellín")
+)
+
+# Sede Manizales - Facultades
+
+colores <- length(unique(SaberPro_Man_22$FACULTAD))
+
+Plot.Treemap(
+  datos       = SaberPro_Man_22,
+  variables   = FACULTAD,
+  atributo    = `Puntaje Global`,
+  colores     = turbo(colores, alpha = 0, begin = 0.3, end = 1, direction = -1),
+  titulo      = "Promedio Puntaje Global Prueba Saber Pro por Facultades - Sede Manizales-, Periodo 2022-2",
+  libreria    = "highcharter",
+  estilo      = list(hc.Tema = 7, hc.borderRadius = 25, hc.Credits = "Sede Manizales")
+)
+
+# Sede Manizales - Programas
+
+colores <- length(unique(SaberPro_Man_22$Programa))
+
+Plot.Treemap(
+  datos       = SaberPro_Man_22,
+  variables   = PROGRAMA,
+  atributo    = `Puntaje Global`,
+  colores     = turbo(colores, alpha = 0, begin = 0.3, end = 1, direction = -1),
+  titulo      = "Promedio Puntaje Global Prueba Saber Pro por Programas Académicos - Sede Manizales-, Periodo 2022-2",
+  libreria    = "highcharter",
+  estilo      = list(hc.Tema = 7, hc.borderRadius = 25, hc.Credits = "Sede Manizales")
+)
+
+# Sede Palmira - Facultades
+
+colores <- length(unique(SaberPro_Pal_22$FACULTAD))
+
+Plot.Treemap(
+  datos       = SaberPro_Pal_22,
+  variables   = FACULTAD,
+  atributo    = `Puntaje Global`,
+  colores     = turbo(colores, alpha = 0, begin = 0.3, end = 1, direction = -1),
+  titulo      = "Promedio Puntaje Global Prueba Saber Pro por Facultades - Sede Palmira-, Periodo 2022-2",
+  libreria    = "highcharter",
+  estilo      = list(hc.Tema = 7, hc.borderRadius = 25, hc.Credits = "Sede Palmira")
+)
+
+# Sede Palmira - Programas
+
+colores <- length(unique(SaberPro_Pal_22$Programa))
+
+Plot.Treemap(
+  datos       = SaberPro_Pal_22,
+  variables   = PROGRAMA,
+  atributo    = `Puntaje Global`,
+  colores     = turbo(colores, alpha = 0, begin = 0.3, end = 1, direction = -1),
+  titulo      = "Promedio Puntaje Global Prueba Saber Pro por Programas Académicos - Sede Palmira-, Periodo 2022-2",
+  libreria    = "highcharter",
+  estilo      = list(hc.Tema = 7, hc.borderRadius = 25, hc.Credits = "Sede Palmira")
+)
+
+# RESULTADOS PROGRAMAS POR FACULTADES
+
+# Sede Bogotá
+
+SaberPro_Bog_22 <- SaberPro_UNAL_22 %>% filter(SEDE_PROG == "Bogotá")
+
+# Facultad de Artes
+
+SaberPro_Fac_22 <- SaberPro_Bog_22 %>% filter(FACULTAD == "Artes")
+
+colores <- length(unique(SaberPro_UNAL_22$Programa))
+
+Plot.Treemap(
+  datos       = SaberPro_Fac_22,
+  variables   = Programa,
+  atributo    = `Puntaje Global`,
+  colores     = turbo(colores, alpha = 0, begin = 0.3, end = 1, direction = -1),
+  titulo      = "Promedio Puntaje Global Prueba Saber Pro por Programas Académicos, Periodo 2022-2",
+  libreria    = "highcharter",
+  estilo      = list(hc.Tema = 7, hc.borderRadius = 25, hc.Credits = "Sede Bogotá - Facultad de Artes")
+)
+
+# Facultad de Ciencias
+
+SaberPro_Fac_22 <- SaberPro_Bog_22 %>% filter(FACULTAD == "Ciencias")
+
+colores <- length(unique(SaberPro_UNAL_22$Programa))
+
+Plot.Treemap(
+  datos       = SaberPro_Fac_22,
+  variables   = Programa,
+  atributo    = PUNT_GLOBAL,
+  colores     = turbo(colores, alpha = 0, begin = 0.3, end = 1, direction = -1),
+  titulo      = "Promedio Puntaje Global Prueba Saber Pro por Programas Académicos, Periodo 2022-2",
+  libreria    = "highcharter",
+  estilo      = list(hc.Tema = 7, hc.borderRadius = 25, hc.Credits = "Sede Bogotá - Facultad de Ciencias")
+)
+
+
+# EXPORTAR FACULTADES ----
+
+SaberPro_Facultades <- read_excel("Datos/Fuentes/2022_SaberPro_Nacional.xlsx", 
+                                sheet = "2022 País_Saber Pro") %>% 
+  select(SNIES_IES = INST_COD_INSTITUCION,
+         IES = INST_NOMBRE_INSTITUCION,
+         SNIES_Programa =ESTU_SNIES_PRGMACADEMICO,
+         Programa = ESTU_PRGM_ACADEMICO,
+         Grupo_Referencia = GRUPOREFERENCIA,
+         Nivel = ESTU_NIVEL_PRGM_ACADEMICO,
+         Nucleo = ESTU_NUCLEO_PREGRADO,
+         Estrato = FAMI_ESTRATOVIVIENDA,
+         Tipo_IES = Institución_origen_trans,
+         Sexo = ESTU_GENERO, 
+         `Razonamiento Cuantitativo` = MOD_RAZONA_CUANTITAT_PUNT,
+         `Lectura Crítica` = MOD_LECTURA_CRITICA_PUNT,
+         `Competencias Ciudadanas` = MOD_COMPETEN_CIUDADA_PUNT,
+         `Inglés` = MOD_INGLES_PUNT,
+         `Comunicación Escrita` = MOD_COMUNI_ESCRITA_PUNT,
+         `Puntaje Global` = PUNT_GLOBAL) 
+                            
+# Crear base de programas y Facultades
+
+Prog_Pregrado <- UnalData::Programas %>% 
+  filter(TIPO_NIVEL == "Pregrado") %>% 
+  select(SNIES_Programa = SNIES_PROGRA, PROGRAMA, SEDE_PROG, FACULTAD, AREAC_SNIES)
+
+# Obtener Facultades de la UNAL
+
+SaberPro_Facultades <- left_join(SaberPro_Facultades, Prog_Pregrado, 
+                              by = c('SNIES_Programa')) 
+  
+
+# Exportar resultados
+
+write_xlsx(SaberPro_Facultades, "Datos/Entrega59/SaberPro_Facultades.xlsx")
+
+##%######################################################%##
+#                                                          #
+####              60 Solicitud 09-05-2023               ####
+#                                                          #
+##%######################################################%##
+
+# Solicitante: Prof. Ruby Esther Leon Diaz
+
+# Quisiera solicitarles la siguiente información:
+# 1) Evolución histórica del total de graduados de pregrado de Trabajo Social (sede Bogotá, Facultad de Ciencias Humanas)
+# 2) Evolución histórica del total de estudiantes matriculados en el pregrado de Trabajo Social (ibid.)
+
+# Evolución matriculados Trabajo Social
+
+Mat_TS <- UnalData::Matriculados %>% 
+  filter(SNIES_PROGRA == 15) %>% 
+  summarise(`Total Matriculados` = n(), .by = c(YEAR, SEMESTRE)) %>% 
+  arrange(YEAR, SEMESTRE) 
+
+# Evolución Graduados Trabajo Social
+
+Gra_TS <- UnalData::Graduados %>% 
+  filter(SNIES_PROGRA == 15) %>% 
+  summarise(`Total Graduados` = n(), .by = c(YEAR, SEMESTRE)) %>% 
+  arrange(YEAR, SEMESTRE)
+
+# Exportar Resultados
+
+
+write_xlsx(Mat_TS, "Datos/Entrega60/Mat_TS.xlsx")
+write_xlsx(Gra_TS, "Datos/Entrega60/Gra_TS.xlsx")
+
+
