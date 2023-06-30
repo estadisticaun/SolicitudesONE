@@ -5267,3 +5267,119 @@ write_xlsx(Mat_TS, "Datos/Entrega60/Mat_TS.xlsx")
 write_xlsx(Gra_TS, "Datos/Entrega60/Gra_TS.xlsx")
 
 
+##%######################################################%##
+#                                                          #
+####              61 Solicitud 01-06-2023               ####
+#                                                          #
+##%######################################################%##
+
+# Caracterización Programas PAES y PEAMA UNAL
+# Solicitante: Rectoría UNAL
+
+Mat_Especial <- UnalData::Matriculados %>% 
+  filter(MOD_ADM %in% c("Especial")) %>% 
+  filter(TIPO_ADM != "PEAA", YEAR >= 2013) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-"))
+
+Mat_PAES <- Mat_Especial %>% filter(TIPO_ADM == "PAES") %>% filter(PAES != "De La Paz")
+Mat_PEAMA <- Mat_Especial %>% filter(TIPO_ADM == "PEAMA")
+
+# ESTADÍSTICAS PAES
+
+# Por Sexo
+
+View(Mat_PAES_Sexo <- Mat_PAES %>%
+                 summarise(Total = n(),
+                           .by = c(Periodo, PAES, SEXO)) %>% 
+                 pivot_wider(names_from = c("PAES", "SEXO"), values_from  = "Total")) 
+
+write_xlsx(Mat_PAES_Sexo, "Datos/Entrega61/Mat_PAES_Sexo.xlsx")
+
+# Por Estrato
+
+View(Mat_PAES_Estrato <- Mat_PAES %>%
+       summarise(Total = n(),
+                 .by = c(Periodo, PAES, ESTRATO)) %>% 
+       pivot_wider(names_from = c("PAES", "ESTRATO"), values_from  = "Total")) 
+
+write_xlsx(Mat_PAES_Estrato, "Datos/Entrega61/Mat_PAES_Estrato.xlsx")
+
+# Por Departamentos de Procedencia
+
+View(Mat_PAES_Dptos <- Mat_PAES %>%
+       summarise(Total = n(),
+                 .by = c(Periodo, PAES, COD_DEP_PROC, DEP_PROC)) %>% 
+       pivot_wider(names_from = c("PAES"), values_from  = "Total", values_fill = 0)) 
+
+write_xlsx(Mat_PAES_Dptos, "Datos/Entrega61/Mat_PAES_Dptos.xlsx")
+
+
+# Por Municipios de procedencia
+
+View(Mat_PAES_Mpos <- Mat_PAES %>%
+       summarise(Total = n(),
+                 .by = c(Periodo, PAES, COD_DEP_PROC, DEP_PROC, COD_CIU_PROC, CIU_PROC)) %>% 
+       pivot_wider(names_from = c("PAES"), values_from  = "Total", values_fill = 0)) 
+
+write_xlsx(Mat_PAES_Mpos, "Datos/Entrega61/Mat_PAES_Mpos.xlsx")
+
+# ESTADÍSTICAS PEAMA
+
+# Por Sexo
+
+View(Mat_PEAMA_Sexo <- Mat_PEAMA %>%
+       summarise(Total = n(),
+                 .by = c(Periodo, PEAMA, SEXO)) %>% 
+       pivot_wider(names_from = c("PEAMA", "SEXO"), values_from  = "Total")) 
+
+write_xlsx(Mat_PEAMA_Sexo, "Datos/Entrega61/Mat_PEAMA_Sexo.xlsx")
+
+
+# Por Estrato
+
+View(Mat_PEAMA_Estrato <- Mat_PEAMA %>%
+       summarise(Total = n(),
+                 .by = c(Periodo, PEAMA, ESTRATO)) %>% 
+       pivot_wider(names_from = c("PEAMA", "ESTRATO"), values_from  = "Total")) 
+
+write_xlsx(Mat_PEAMA_Estrato, "Datos/Entrega61/Mat_PEAMA_Estrato.xlsx")
+
+
+# Por Departamentos de Procedencia
+
+View(Mat_PEAMA_Dptos <- Mat_PEAMA %>%
+       summarise(Total = n(),
+                 .by = c(Periodo, PEAMA, COD_DEP_PROC, DEP_PROC)) %>% 
+       pivot_wider(names_from = c("PEAMA"), values_from  = "Total", values_fill = 0)) 
+
+write_xlsx(Mat_PEAMA_Dptos, "Datos/Entrega61/Mat_PEAMA_Dptos.xlsx")
+
+# Por Municipios de procedencia
+
+View(Mat_PEAMA_Mpos <- Mat_PEAMA %>%
+       summarise(Total = n(),
+                 .by = c(Periodo, PEAMA, COD_DEP_PROC, DEP_PROC, COD_CIU_PROC, CIU_PROC)) %>% 
+       pivot_wider(names_from = c("PEAMA"), values_from  = "Total", values_fill = 0)) 
+
+write_xlsx(Mat_PEAMA_Mpos, "Datos/Entrega61/Mat_PEAMA_Mpos.xlsx")
+
+
+##%######################################################%##
+#                                                          #
+####              62 Solicitud 30-06-2023               ####
+#                                                          #
+##%######################################################%##
+
+# Caracterización Estudiantes Matriculados Química - Bogotá
+
+# David Gustavo Salazar Chávez
+# Estudiante Ingeniería Química y Química
+# Universidad Nacional de Colombia
+# Sede Bogotá
+
+Quimica <- UnalData::Matriculados %>% 
+                    filter(SNIES_SEDE_MAT == 1101, SNIES_PROGRA == 36) %>% 
+                    summarise(Total = n(), .by = c(YEAR, SEMESTRE))
+                    
+# La solicitud se repondió por la aplicación.
+
