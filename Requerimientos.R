@@ -5383,3 +5383,240 @@ Quimica <- UnalData::Matriculados %>%
                     
 # La solicitud se repondió por la aplicación.
 
+##%######################################################%##
+#                                                          #
+####              63 Solicitud 30-06-2023               ####
+#                                                          #
+##%######################################################%##
+
+# Estadísticas de Ingeniería Eléctrica
+
+# Aspirantes
+
+Adm_Ele <- UnalData::Aspirantes %>% 
+       filter(!is.na(SNIES_PROGRA), SNIES_PROGRA == 27) %>% 
+       summarise(Total = n(), .by = c(YEAR, SEMESTRE, ADMITIDO))
+
+# Matriculados
+
+Mat_Ele <- UnalData::Matriculados %>% 
+  filter(!is.na(SNIES_PROGRA), SNIES_PROGRA == 27) %>% 
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE))
+
+# Graduados
+
+Grad_Ele <- UnalData::Graduados %>% 
+  filter(!is.na(SNIES_PROGRA), SNIES_PROGRA == 27) %>% 
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE))
+
+# Exportar bases de datos
+
+write_xlsx(Adm_Ele, "Datos/Entrega63/Adm_Ele.xlsx")
+write_xlsx(Mat_Ele, "Datos/Entrega63/Mat_Ele.xlsx")
+write_xlsx(Grad_Ele, "Datos/Entrega63/Grad_Ele.xlsx")
+
+
+##%######################################################%##
+#                                                          #
+####              64 Solicitud 30-08-2023               ####
+#                                                          #
+##%######################################################%##
+
+# MEN- Municipio de Ipiales
+
+# ¿Cuál de las Sedes de Presencia Nacional (Amazonas o Tumaco) presenta una mayor facilidad de acceso, en términos de distancia y condiciones, para el desplazamiento de los/as jóvenes? 
+# ¿Podrían compartirnos datos sociodemográficos de Jardines de Sucumbios tales como: población total, estratificación, número de jóvenes que se gradúan anualmente? 
+# ¿Tienen una caracterización de la trayectoria de quienes se gradúan? Es decir, cuentan con información sobre la ocupación de los/as jóvenes una vez son egresados/as de la institución educativa. 
+
+# Código Divipola Municipio de Ipiales
+# COD_CIU_RES == 52356
+
+# Aspirantes 
+
+# Por Sedes de Inscripción
+
+Asp_Ipiales_Sedes <- UnalData::Aspirantes %>% 
+               filter(TIPO_NIVEL == "Pregrado", COD_CIU_RES == 52356, YEAR == 2023) %>% 
+               summarise(Total = n(), .by = c(YEAR, SEMESTRE, INS_SEDE_NOMBRE)) %>% 
+               pivot_wider(names_from = INS_SEDE_NOMBRE, values_from = Total, values_fill = 0) %>% 
+               rename(Año = YEAR, Periodo = SEMESTRE)
+View(Asp_Ipiales_Sedes)
+
+write_xlsx(Asp_Ipiales_Sedes, "Datos/Entrega64/Asp_Ipiales_Sedes.xlsx")
+
+# Por Modalidad de Formación
+
+Asp_Ipiales_Programa <- UnalData::Aspirantes %>% 
+  filter(TIPO_NIVEL == "Pregrado", COD_CIU_RES == 52356, YEAR == 2023) %>% 
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE, TIPO_INS)) %>% 
+  pivot_wider(names_from = TIPO_INS, values_from = Total, values_fill = 0) %>% 
+  rename(Año = YEAR, Periodo = SEMESTRE)
+View(Asp_Ipiales_Programa)
+
+write_xlsx(Asp_Ipiales_Programa, "Datos/Entrega64/Asp_Ipiales_Programa.xlsx")
+
+# Programa PAES
+
+Asp_Ipiales_PAES <- UnalData::Aspirantes %>% 
+  filter(TIPO_NIVEL == "Pregrado", COD_CIU_RES == 52356, YEAR == 2023) %>% 
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE, PAES)) %>% 
+  pivot_wider(names_from = PAES, values_from = Total, values_fill = 0) %>% 
+  rename(Año = YEAR, Periodo = SEMESTRE)
+View(Asp_Ipiales_PAES)
+
+write_xlsx(Asp_Ipiales_PAES, "Datos/Entrega64/Asp_Ipiales_PAES.xlsx")
+
+# Por Estrato
+
+Asp_Ipiales_Estrato <- UnalData::Aspirantes %>% 
+  filter(TIPO_NIVEL == "Pregrado", COD_CIU_RES == 52356, YEAR == 2023) %>% 
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE, ESTRATO)) %>% 
+  pivot_wider(names_from = ESTRATO, values_from = Total, values_fill = 0) %>% 
+  rename(Año = YEAR, Periodo = SEMESTRE)
+View(Asp_Ipiales_Estrato)
+
+write_xlsx(Asp_Ipiales_Estrato, "Datos/Entrega64/Asp_Ipiales_Estrato.xlsx")
+
+
+# Admitidos 
+
+# Por Sedes de Inscripción
+
+Adm_Ipiales_Sedes <- UnalData::Aspirantes %>% 
+  filter(TIPO_NIVEL == "Pregrado", ADMITIDO == "Sí", COD_CIU_RES == 52356, YEAR == 2023) %>% 
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE, INS_SEDE_NOMBRE)) %>% 
+  pivot_wider(names_from = INS_SEDE_NOMBRE, values_from = Total, values_fill = 0) %>% 
+  rename(Año = YEAR, Periodo = SEMESTRE)
+View(Adm_Ipiales_Sedes)
+
+write_xlsx(Adm_Ipiales_Sedes, "Datos/Entrega64/Adm_Ipiales_Sedes.xlsx")
+
+# Por Modalidad de Formación
+
+Adm_Ipiales_Programa <- UnalData::Aspirantes %>% 
+  filter(TIPO_NIVEL == "Pregrado", ADMITIDO == "Sí", COD_CIU_RES == 52356, YEAR == 2023) %>% 
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE, TIPO_INS)) %>% 
+  pivot_wider(names_from = TIPO_INS, values_from = Total, values_fill = 0) %>% 
+  rename(Año = YEAR, Periodo = SEMESTRE)
+View(Adm_Ipiales_Programa)
+
+write_xlsx(Adm_Ipiales_Programa, "Datos/Entrega64/Adm_Ipiales_Programa.xlsx")
+
+
+# Programa PAES
+
+Adm_Ipiales_PAES <- UnalData::Aspirantes %>% 
+  filter(TIPO_NIVEL == "Pregrado", ADMITIDO == "Sí", COD_CIU_RES == 52356, YEAR == 2023) %>% 
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE, PAES)) %>% 
+  pivot_wider(names_from = PAES, values_from = Total, values_fill = 0) %>% 
+  rename(Año = YEAR, Periodo = SEMESTRE)
+View(Adm_Ipiales_PAES)
+
+write_xlsx(Adm_Ipiales_PAES, "Datos/Entrega64/Adm_Ipiales_PAES.xlsx")
+
+# Por Estrato
+
+Adm_Ipiales_Estrato <- UnalData::Aspirantes %>% 
+  filter(TIPO_NIVEL == "Pregrado", ADMITIDO == "Sí", COD_CIU_RES == 52356, YEAR == 2023) %>% 
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE, ESTRATO)) %>% 
+  pivot_wider(names_from = ESTRATO, values_from = Total, values_fill = 0) %>% 
+  rename(Año = YEAR, Periodo = SEMESTRE)
+View(Adm_Ipiales_Estrato)
+
+write_xlsx(Adm_Ipiales_Estrato, "Datos/Entrega64/Adm_Ipiales_Estrato.xlsx")
+
+# Matriculados
+
+# Por Sedes de Inscripción
+
+Mat_Ipiales_Sedes <- UnalData::Matriculados %>% 
+  filter(TIPO_NIVEL == "Pregrado", COD_CIU_PROC == 52356, YEAR == 2022, SEMESTRE ==2) %>% 
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE, SEDE_NOMBRE_MAT)) %>% 
+  pivot_wider(names_from = SEDE_NOMBRE_MAT, values_from = Total) %>% 
+  rename(Año = YEAR, Periodo = SEMESTRE)
+View(Mat_Ipiales_Sedes)
+
+write_xlsx(Mat_Ipiales_Sedes, "Datos/Entrega64/Mat_Ipiales_Sedes.xlsx")
+
+# Por Modalidad de Formación
+
+Mat_Ipiales_Programa <- UnalData::Matriculados %>% 
+  filter(TIPO_NIVEL == "Pregrado", COD_CIU_PROC == 52356, YEAR == 2022, SEMESTRE ==2) %>% 
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE, TIPO_ADM)) %>% 
+  pivot_wider(names_from = TIPO_ADM, values_from = Total) %>% 
+  rename(Año = YEAR, Periodo = SEMESTRE)
+View(Mat_Ipiales_Programa)
+
+write_xlsx(Mat_Ipiales_Programa, "Datos/Entrega64/Mat_Ipiales_Programa.xlsx")
+
+# Programa PAES
+
+Mat_Ipiales_PAES <- UnalData::Matriculados %>% 
+  filter(TIPO_NIVEL == "Pregrado", COD_CIU_PROC == 52356, YEAR == 2022, SEMESTRE == 2) %>% 
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE, PAES)) %>% 
+  pivot_wider(names_from = PAES, values_from = Total, values_fill = 0) %>% 
+  rename(Año = YEAR, Periodo = SEMESTRE)
+View(Mat_Ipiales_PAES)
+
+
+write_xlsx(Mat_Ipiales_PAES, "Datos/Entrega64/Mat_Ipiales_PAES.xlsx")
+
+# Por Estrato
+
+Mat_Ipiales_Estrato <- UnalData::Matriculados %>% 
+  filter(TIPO_NIVEL == "Pregrado", COD_CIU_PROC == 52356, YEAR == 2022, SEMESTRE ==2) %>% 
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE, ESTRATO)) %>% 
+  pivot_wider(names_from = ESTRATO, values_from = Total, values_fill = 0) %>% 
+  rename(Año = YEAR, Periodo = SEMESTRE)
+View(Mat_Ipiales_Estrato)
+
+write_xlsx(Mat_Ipiales_Estrato, "Datos/Entrega64/Mat_Ipiales_Estrato.xlsx")
+
+# Graduados
+
+# Por Sedes de Inscripción
+
+Gra_Ipiales_Sedes <- UnalData::Graduados %>% 
+  filter(TIPO_NIVEL == "Pregrado", COD_CIU_NAC == 52356, YEAR == 2022) %>% 
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE, SEDE_NOMBRE_MAT)) %>% 
+  pivot_wider(names_from = SEDE_NOMBRE_MAT, values_from = Total) %>% 
+  rename(Año = YEAR, Periodo = SEMESTRE)
+View(Gra_Ipiales_Sedes)
+
+write_xlsx(Gra_Ipiales_Sedes, "Datos/Entrega64/Gra_Ipiales_Sedes.xlsx")
+
+# Por Modalidad de Formación
+
+Gra_Ipiales_Programa <- UnalData::Graduados %>% 
+  filter(TIPO_NIVEL == "Pregrado", COD_CIU_NAC == 52356, YEAR == 2022) %>% 
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE, TIPO_ADM)) %>% 
+  pivot_wider(names_from = TIPO_ADM, values_from = Total) %>% 
+  rename(Año = YEAR, Periodo = SEMESTRE)
+View(Gra_Ipiales_Programa)
+
+write_xlsx(Gra_Ipiales_Programa, "Datos/Entrega64/Gra_Ipiales_Programa.xlsx")
+
+# Programa PAES
+
+Gra_Ipiales_PAES <- UnalData::Graduados %>% 
+  filter(TIPO_NIVEL == "Pregrado", COD_CIU_NAC == 52356, YEAR == 2022) %>% 
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE, PAES)) %>% 
+  pivot_wider(names_from = PAES, values_from = Total, values_fill = 0) %>% 
+  rename(Año = YEAR, Periodo = SEMESTRE)
+View(Gra_Ipiales_PAES)
+
+write_xlsx(Gra_Ipiales_PAES, "Datos/Entrega64/Gra_Ipiales_PAES.xlsx")
+
+# Por Estrato
+
+Gra_Ipiales_Estrato <- UnalData::Graduados%>% 
+  filter(TIPO_NIVEL == "Pregrado", COD_CIU_NAC == 52356, YEAR == 2022) %>% 
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE, ESTRATO)) %>% 
+  pivot_wider(names_from = ESTRATO, values_from = Total, values_fill = 0) %>% 
+  rename(Año = YEAR, Periodo = SEMESTRE)
+View(Gra_Ipiales_Estrato)
+
+write_xlsx(Gra_Ipiales_Estrato, "Datos/Entrega64/Gra_Ipiales_Estrato.xlsx")
+
+
+
