@@ -5618,5 +5618,5 @@ View(Gra_Ipiales_Estrato)
 
 write_xlsx(Gra_Ipiales_Estrato, "Datos/Entrega64/Gra_Ipiales_Estrato.xlsx")
 
-
+# Línea final
 
