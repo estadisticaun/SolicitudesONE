@@ -10,7 +10,9 @@ library(UnalR)
 library(dplyr)
 library(tidyr)
 library(readxl)
+library(xlsx)
 library(writexl)
+library(openxlsx)
 library(tidyverse)
 library(ggthemes)
 library(ggrepel)
@@ -21,6 +23,7 @@ library(htmlwidgets)
 library(RColorBrewer)
 library(RSocrata)
 library(viridis)
+library(gt)
 
 ######################################-
 # 1 Solicitud 14-05-2021 -----
@@ -5618,5 +5621,265 @@ View(Gra_Ipiales_Estrato)
 
 write_xlsx(Gra_Ipiales_Estrato, "Datos/Entrega64/Gra_Ipiales_Estrato.xlsx")
 
-# Línea final
+##%######################################################%##
+#                                                          #
+####              65 Solicitud 19-09-2023               ####
+#                                                          #
+##%######################################################%##
+
+# Reporte Calificadora de Riesgo UNAL
+
+# a) Estadísticas estudiantiles para los últimos 5 años: 
+# Matriculados, Aspirantes, Admitidos y Matriculados Primera Vez. 
+# Si es posible, entregar la información en un archivo de Excel 
+# donde se pueda detallar por sede, nivel de estudios (pregrado, posgrado) y programa académico.
+# 
+# b) Número de estudiantes según su estrato socioeconómico durante los últimos 5 años.
+
+# Requerimiento a
+
+# Aspirantes
+
+# Aspirantes por sede
+
+Asp_Sede <- UnalData::Aspirantes %>% 
+  filter(YEAR > 2017, 
+        (TIPO_INS == "Regular" & TIPO_NIVEL == "Postgrado")|
+        (TIPO_NIVEL == "Pregrado"  & is.na(MOD_INS) != TRUE & is.na(TIPO_INS) != TRUE)) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>%
+  group_by(Periodo, INS_SEDE_NOMBRE) %>% 
+  summarise(Admitidos = n()) %>%
+  mutate(INS_SEDE_NOMBRE = ifelse(is.na(INS_SEDE_NOMBRE), "Universidad", INS_SEDE_NOMBRE)) %>% 
+  pivot_wider(names_from = INS_SEDE_NOMBRE, values_from = Admitidos, values_fill = 0) %>% 
+  arrange(desc(Periodo)) %>% 
+  as.data.frame()
+
+# Aspirantes por Nivel de Formación
+
+Asp_Nivel <- UnalData::Aspirantes %>%
+  filter(YEAR > 2017, 
+         (TIPO_INS == "Regular" & TIPO_NIVEL == "Postgrado")|
+         (TIPO_NIVEL == "Pregrado"  & is.na(MOD_INS) != TRUE & is.na(TIPO_INS) != TRUE)) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>%
+  group_by(Periodo, TIPO_NIVEL) %>% 
+  summarise(Admitidos = n()) %>% 
+  pivot_wider(names_from = TIPO_NIVEL, values_from = Admitidos) %>% 
+  arrange(desc(Periodo)) %>% 
+  as.data.frame()
+
+# Exportar resultados
+
+Hojas <- list('Sede' = Asp_Sede, 'Nivel' = Asp_Nivel)
+openxlsx::write.xlsx(Hojas, file = 'Datos/Entrega65/Aspirantes.xlsx')
+
+
+# Admitidos
+
+# Admitidos por sede
+
+Adm_Sede <- UnalData::Aspirantes %>% 
+  filter(YEAR > 2017, 
+         (TIPO_INS == "Regular" & TIPO_NIVEL == "Postgrado")|
+         (TIPO_NIVEL == "Pregrado"),
+         ADMITIDO == "Sí") %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>%
+  group_by(Periodo, INS_SEDE_NOMBRE) %>% 
+  summarise(Admitidos = n()) %>% 
+  pivot_wider(names_from = INS_SEDE_NOMBRE, values_from = Admitidos) %>% 
+  arrange(desc(Periodo)) %>% 
+  as.data.frame()
+
+# Admitidos por Nivel de Formación
+
+Adm_Nivel <- UnalData::Aspirantes %>% 
+  filter(YEAR > 2017, 
+         (TIPO_INS == "Regular" & TIPO_NIVEL == "Postgrado")|
+         (TIPO_NIVEL == "Pregrado"),
+         ADMITIDO == "Sí") %>%
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>%
+  group_by(Periodo, TIPO_NIVEL) %>% 
+  summarise(Admitidos = n()) %>% 
+  pivot_wider(names_from = TIPO_NIVEL, values_from = Admitidos) %>% 
+  arrange(desc(Periodo)) %>% 
+  as.data.frame()
+
+# Admitidos por programas académicos
+
+Programas <- UnalData::Hprogramas %>% 
+  select(SNIES_PROGRA:PROGRAMA, SEDE_PROG) %>% 
+  rename(PROGRAMA_FIN = PROGRAMA)
+
+Adm_Programas <- UnalData::Aspirantes %>% 
+  left_join(Programas, by = "SNIES_PROGRA") %>% 
+  filter(YEAR > 2017, 
+         (TIPO_INS == "Regular" & TIPO_NIVEL == "Postgrado")|
+         (TIPO_NIVEL == "Pregrado"),
+         ADMITIDO == "Sí") %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>%
+  group_by(Periodo, SEDE_PROG, SNIES_PROGRA, TIPO_NIVEL, NIVEL, COD_PADRE, PROGRAMA_FIN) %>% 
+  summarise(Matriculados = n()) %>% 
+  pivot_wider(names_from = Periodo, values_from = Matriculados, values_fill = 0) %>% 
+  rename(Sede = SNIES_PROGRA, Nivel = TIPO_NIVEL,  
+         Snies = COD_PADRE, Programa = PROGRAMA_FIN) %>% 
+  as.data.frame()
+
+# Exportar resultados
+
+Hojas <- list('Sede' = Adm_Sede, 'Nivel' = Adm_Nivel, 'Programas' = Adm_Programas)
+openxlsx::write.xlsx(Hojas, file = 'Datos/Entrega65/Admitidos.xlsx')
+
+# Matriculados Primera Vez
+
+# Matriculados primera vez por sede
+
+Mat_Pvez_Sede <- UnalData::Matriculados %>% 
+  filter(YEAR > 2017, MAT_PVEZ == "Sí") %>%
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>%
+  group_by(Periodo, SEDE_NOMBRE_MAT) %>% 
+  summarise(Matriculados = n()) %>% 
+  pivot_wider(names_from = SEDE_NOMBRE_MAT, values_from = Matriculados) %>% 
+  arrange(desc(Periodo)) %>% 
+  as.data.frame()
+
+# Matriculados primera vez por Nivel de Formación
+
+Mat_Pvez_Nivel <- UnalData::Matriculados %>% 
+  filter(YEAR > 2017, MAT_PVEZ == "Sí") %>%
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>%
+  group_by(Periodo, TIPO_NIVEL) %>% 
+  summarise(Matriculados = n()) %>% 
+  pivot_wider(names_from = TIPO_NIVEL, values_from = Matriculados) %>% 
+  arrange(desc(Periodo)) %>% 
+  as.data.frame()
+
+# Matriculados primera vez por programas académicos
+
+Programas <- UnalData::Hprogramas %>% 
+  select(SNIES_PROGRA:PROGRAMA, SEDE_PROG) %>% 
+  rename(PROGRAMA_FIN = PROGRAMA)
+
+Mat_Pvez_Programas <- UnalData::Matriculados %>% 
+  left_join(Programas, by = "SNIES_PROGRA") %>% 
+  filter(YEAR > 2017, MAT_PVEZ == "Sí") %>%
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>%
+  group_by(Periodo, SEDE_PROG, TIPO_NIVEL, NIVEL, COD_PADRE, PROGRAMA_FIN) %>% 
+  summarise(Matriculados = n()) %>% 
+  pivot_wider(names_from = Periodo, values_from = Matriculados, values_fill = 0) %>% 
+  rename(Sede = SEDE_PROG, Nivel = TIPO_NIVEL,  
+         Snies = COD_PADRE, Programa = PROGRAMA_FIN) %>% 
+  as.data.frame()
+
+# Exportar resultados
+
+Hojas <- list('Sede' = Mat_Pvez_Sede, 'Nivel' = Mat_Pvez_Nivel, 'Programas' = Mat_Pvez_Programas)
+openxlsx::write.xlsx(Hojas, file = 'Datos/Entrega65/MatriculadosPvez.xlsx')
+
+
+# Matriculados
+
+# Matriculados por sede
+
+Mat_Sede <- UnalData::Matriculados %>% 
+  filter(YEAR > 2017) %>%
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>%
+  group_by(Periodo, SEDE_NOMBRE_MAT) %>% 
+  summarise(Matriculados = n()) %>% 
+  pivot_wider(names_from = SEDE_NOMBRE_MAT, values_from = Matriculados) %>% 
+  arrange(desc(Periodo)) %>% 
+  as.data.frame()
+
+# Matriculados por Nivel de Formación
+
+Mat_Nivel <- UnalData::Matriculados %>% 
+  filter(YEAR > 2017) %>%
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>%
+  group_by(Periodo, TIPO_NIVEL) %>% 
+  summarise(Matriculados = n()) %>% 
+  pivot_wider(names_from = TIPO_NIVEL, values_from = Matriculados) %>% 
+  arrange(desc(Periodo)) %>% 
+  as.data.frame()
+
+# Matriculados por programas académicos
+
+Programas <- UnalData::Hprogramas %>% 
+             select(SNIES_PROGRA:PROGRAMA, SEDE_PROG) %>% 
+             rename(PROGRAMA_FIN = PROGRAMA)
+
+Mat_Programas <- UnalData::Matriculados %>% 
+  left_join(Programas, by = "SNIES_PROGRA") %>% 
+  filter(YEAR > 2017) %>%
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>%
+  group_by(Periodo, SEDE_PROG, TIPO_NIVEL, NIVEL, COD_PADRE, PROGRAMA_FIN) %>% 
+  summarise(Matriculados = n()) %>% 
+  pivot_wider(names_from = Periodo, values_from = Matriculados) %>% 
+  rename(Sede = SEDE_PROG, Nivel = TIPO_NIVEL,  
+         Snies = COD_PADRE, Programa = PROGRAMA_FIN) %>% 
+  as.data.frame()
+
+# Exportar resultados
+
+Hojas <- list('Sede' = Mat_Sede, 'Nivel' = Mat_Nivel, 'Programas' = Mat_Programas)
+openxlsx::write.xlsx(Hojas, file = 'Datos/Entrega65/Matriculados.xlsx')
+
+
+# Requerimiento b
+
+Mat_Estrato <- UnalData::Matriculados %>% 
+               filter(TIPO_NIVEL == "Pregrado", YEAR > 2017) %>%
+               mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>%
+                      group_by(Periodo, ESTRATO_ORIG) %>% 
+               summarise(`Matriculados en Pregrado` = n()) %>% 
+               pivot_wider(names_from = ESTRATO_ORIG, values_from = `Matriculados en Pregrado`) %>% 
+               arrange(desc(Periodo)) %>% 
+               as.data.frame()
+               
+xlsx::write.xlsx(x = Mat_Estrato, file = "Datos/Entrega65/Mat_Pre_Estrato.xlsx", sheetName="Estrato")
+
+##%######################################################%##
+#                                                          #
+####              66 Solicitud 26-09-2023               ####
+#                                                          #
+##%######################################################%##
+
+# Solicitante: Claudia Joya - Sede Orinoquía
+
+# Cordial saludo
+# 
+# Considerando que el próximo 5 de octubre debe ser presentado
+# por parte de la Dirección de Sede en la sesión del Consejo 
+# Académico de la Universidad, el proyecto académico de 
+# fortalecimiento de la Sede Orinoquia, derivado de los 
+# recursos asignados por el Gobierno Nacional para las Sedes 
+# de Frontera en los próximos 4 años, y por lo tanto debemos 
+# contar con información acerca de la demanda de educación 
+# superior en la región, de manera atenta se solicita su 
+# colaboración en el sentido de apoyarnos con la 
+# actualización de la siguiente información acerca de 
+# los bachilleres graduados de los departamentos que 
+# componen el área de influencia de la Sede Orinoquia.
+
+# Descargar base de datos Saber 11 Histórica
+# Fuente: https://www.datos.gov.co/Educaci-n/Resultados-nicos-Saber-11/kgxf-xxbe 
+
+# Importar Datos
+
+Saber11 <- read.csv("Datos/Fuentes/Resultados_Saber_11.csv")
+
+Saber11_Orinoquia <- Saber11 %>% 
+  filter(PERIODO %in% c(20221, 20224),
+         ESTU_COD_RESIDE_DEPTO %in% c(81, 85, 99, 94, 95)) 
+
+Saber11_Orinoquia_Tabla <- Saber11_Orinoquia %>% 
+                          summarise(Total = n(), .by = c(ESTU_COD_RESIDE_DEPTO, ESTU_DEPTO_RESIDE))
+
+# CONSULTA LENTA - SOLO SIRVE PARA BASES PEQUEÑAS
+# 
+# Saber11_201 <- read.socrata(
+#   "https://www.datos.gov.co/resource/kgxf-xxbe.json",
+#   app_token = "WwgZOPb05lIypfR62SfgbeZbK",
+#   email     = "albrodriguezr@unal.edu.co",
+#   password  = "Socrata2021"
+# )
+
+
 
