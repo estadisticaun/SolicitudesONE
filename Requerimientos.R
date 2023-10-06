@@ -5882,4 +5882,207 @@ Saber11_Orinoquia_Tabla <- Saber11_Orinoquia %>%
 # )
 
 
+##%######################################################%##
+#                                                          #
+####              67 Solicitud 02-10-2023               ####
+#                                                          #
+##%######################################################%##
 
+# Respuesta Derecho de Petición
+# Senadora Paloma Valencia
+
+# Punto 1. Estudiantes Nuevos de Pregrado en la UNAL durante 
+# los últimos 20 años
+
+# Admitidos
+
+Admi_Pre20 <- UnalData::Aspirantes %>% 
+  filter(TIPO_NIVEL == "Pregrado", ADMITIDO == "Sí") %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  summarise(Total = n(), .by = c(Periodo))
+
+xlsx::write.xlsx(x = Admi_Pre20, file = "Datos/Entrega67/Punto1_Adm.xlsx", sheetName="Admitidos")
+
+# Matriculados Primera Vez
+
+Mpvez_Pre20 <- UnalData::Matriculados %>% 
+  filter(TIPO_NIVEL == "Pregrado", MAT_PVEZ == "Sí") %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  summarise(Total = n(), .by = c(Periodo))
+
+xlsx::write.xlsx(x = Mpvez_Pre20, file = "Datos/Entrega67/Punto1_Mpvez.xlsx", sheetName="Mpvez")
+
+# Punto 2. Estudiantes Nuevos de Pregrado en la UNAL durante 
+# los últimos 20 años por tipo de colegio y programa
+
+# Serie Admitidos por Colegio
+
+###### No existe información confiable de aspirantes según el tipo de colegio
+
+# Admitidos por Programas Académicos
+
+# Programas de Pregrado Activos UNAL
+
+Prog_Pregrado <- UnalData::Hprogramas %>% 
+  filter(TIPO_NIVEL == "Pregrado") %>% 
+  select(COD_PADRE, SNIES_PROGRA, Programa = PROGRAMA, Sede = SEDE_PROG, Estado = ESTADO) %>% 
+  mutate(Programa = ifelse(SNIES_PROGRA == 22, "Estudios Literarios", ifelse(SNIES_PROGRA == 26, "Ingeniería de Sistemas y Computación", Programa)))
+
+# Admitidos por Programas Académicos
+
+Adm_Prog_Pre <- UnalData::Aspirantes %>% 
+  filter(TIPO_NIVEL == "Pregrado", ADMITIDO == "Sí") %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  left_join(Prog_Pregrado, by = join_by(SNIES_PROGRA)) %>% 
+  rename(SNIES = COD_PADRE) %>% 
+  summarise(Total = n(), .by = c(Sede, SNIES, Periodo, Programa)) %>% 
+  pivot_wider(names_from = Periodo, values_from = Total) %>% 
+  filter(!is.na(Sede)) %>% 
+  arrange(Sede, SNIES) 
+  
+xlsx::write.xlsx(x = Adm_Prog_Pre, file = "Datos/Entrega67/Punto2_Adm_Prog.xlsx", sheetName="Programas_pre")
+
+
+# Matriculados Primera Vez por Tipo de Colegio
+
+Mpvez_Pre_Col <-UnalData::Matriculados %>% 
+  filter(TIPO_NIVEL == "Pregrado", MAT_PVEZ == "Sí", YEAR >= 2010) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  summarise(Total = n(), .by = c(Periodo, TIPO_COL)) %>% 
+  mutate(TIPO_COL = ifelse(is.na(TIPO_COL), "Sin información", TIPO_COL)) %>% 
+  pivot_wider(names_from = TIPO_COL, values_from = Total, values_fill = 0)
+  
+xlsx::write.xlsx(x = Mpvez_Pre_Col, file = "Datos/Entrega67/Punto2_MpvezCol.xlsx", sheetName="Mpvez_Pre_Col")
+
+# Matriculados Primera Vez por Programas Académicos 
+
+Mpvez_Pre_Prog <-UnalData::Matriculados %>% 
+  filter(TIPO_NIVEL == "Pregrado", MAT_PVEZ == "Sí") %>%  
+  left_join(Prog_Pregrado, by = join_by(SNIES_PROGRA)) %>% 
+  rename(SNIES = COD_PADRE) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  summarise(Total = n(), .by = c(Sede, SNIES, Programa, Periodo)) %>% 
+  pivot_wider(names_from = Periodo, values_from = Total) %>% 
+  filter(!is.na(Sede)) %>% 
+  arrange(Sede, SNIES) 
+
+xlsx::write.xlsx(x = Mpvez_Pre_Prog, file = "Datos/Entrega67/Punto2_Mpvez_Pro.xlsx", sheetName="Mpvez_Pre_Prog")
+
+# Matriculados Primera Vez por Programas Académicos y Colegios
+
+MpvezPre_Prog_Col <-UnalData::Matriculados %>% 
+  filter(TIPO_NIVEL == "Pregrado", MAT_PVEZ == "Sí", YEAR >= 2010) %>%  
+  left_join(Prog_Pregrado, by = join_by(SNIES_PROGRA)) %>% 
+  rename(SNIES = COD_PADRE) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  summarise(Total = n(), .by = c(Sede, SNIES, Programa, Periodo, TIPO_COL)) %>% 
+  mutate(TIPO_COL = ifelse(is.na(TIPO_COL), "Sin información", TIPO_COL)) %>% 
+  pivot_wider(names_from = TIPO_COL, values_from = Total, values_fill = 0) %>% 
+  filter(!is.na(Sede)) %>% 
+  arrange(Sede, SNIES) %>% 
+  relocate(Oficial, Privado, Otros, .after = Periodo)
+
+xlsx::write.xlsx(x = MpvezPre_Prog_Col, file = "Datos/Entrega67/Punto2_Mpvez_Pre_Col.xlsx", sheetName="MpvezPre_Prog_Col")
+
+# Punto 3. Cantidad de aspirantes por tipo de colegio
+
+# La universidad no cuenta con esta información de manera precisa
+
+# Punto 4. Aspirantes por año en pregrado en la UNAL
+           # A cuáles carrera se inscribieron
+
+# Evolución de aspirantes 
+
+Asp_Pre20 <- UnalData::Aspirantes %>% 
+  filter(TIPO_NIVEL == "Pregrado", !is.na(MOD_INS)) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  summarise(Total = n(), .by = c(Periodo))
+
+xlsx::write.xlsx(x = Asp_Pre20, file = "Datos/Entrega67/Punto4_Asp.xlsx", sheetName="AspirantesPre")
+
+
+# No se cuenta con información para aspirantes por programas en pregrado
+# Evolución de aspirantes por sedes
+
+Asp_Pre20_Sedes <- UnalData::Aspirantes %>% 
+  filter(TIPO_NIVEL == "Pregrado", !is.na(MOD_INS), YEAR >= 2015) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  summarise(Total = n(), .by = c(Periodo, INS_SEDE_NOMBRE)) %>% 
+  mutate(INS_SEDE_NOMBRE = ifelse(is.na(INS_SEDE_NOMBRE), "Universidad", INS_SEDE_NOMBRE)) %>% 
+  pivot_wider(names_from = INS_SEDE_NOMBRE, values_from = Total) %>% 
+  relocate(Bogotá, Medellín, Manizales, Palmira, `De La Paz`, Orinoquía, Amazonía, Tumaco, Caribe, Universidad,.after = Periodo)
+
+xlsx::write.xlsx(x = Asp_Pre20_Sedes, file = "Datos/Entrega67/Punto4_AspPre_Sedes.xlsx", sheetName="Asp_Pre_Sedes")
+
+
+
+# Punto 5. Tasa de admisión por carreras.
+
+# No se cuenta con tasa de admisión por carrera
+# Pero sí con tasa de admisión por sedes - desde el 2015.
+
+Adm_Pre20_Sedes <- UnalData::Aspirantes %>% 
+  filter(TIPO_NIVEL == "Pregrado", !is.na(MOD_INS), ADMITIDO == "Sí", YEAR >= 2015) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  summarise(Total = n(), .by = c(Periodo, INS_SEDE_NOMBRE)) %>% 
+  mutate(INS_SEDE_NOMBRE = ifelse(is.na(INS_SEDE_NOMBRE), "Universidad", INS_SEDE_NOMBRE)) %>% 
+  pivot_wider(names_from = INS_SEDE_NOMBRE, values_from = Total) %>% 
+  relocate(Bogotá, Medellín, Manizales, Palmira, `De La Paz`, Orinoquía, Amazonía, Tumaco, Caribe, Universidad,.after = Periodo)
+
+xlsx::write.xlsx(x = Adm_Pre20_Sedes, file = "Datos/Entrega67/Punto5_Adm_Sedes.xlsx", sheetName="Asp_Pre_Sedes")
+
+##%######################################################%##
+#                                                          #
+####              68 Solicitud 04-10-2023               ####
+#                                                          #
+##%######################################################%##
+
+# Solicitante: Profesor Juan Camilo Restrepo
+# Vicerrector Sede Medellín
+# Cifras de matriculados y docentes TCE programas áreas de la 
+# Salud - Sede Bogotá
+
+# # Matriculados Global
+# 
+# Unal_Salud_Gen <- UnalData::Matriculados %>% 
+#                   filter(YEAR %in% c(2021, 2022), 
+#                          SEDE_NOMBRE_MAT == "Bogotá",
+#                          FACULTAD %in%  c("Medicina", "Enfermería")|
+#                          SNIES_PROGRA == 37) %>% 
+#                    mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+#                    summarise(Total = n(), .by = c(Periodo, FACULTAD)) %>% 
+#                    pivot_wider(names_from = Periodo, values_from = Total)
+#   
+
+# Matriculados Pregrado
+
+Unal_Salud_Pre <- UnalData::Matriculados %>% 
+  filter(YEAR %in% c(2021, 2022), 
+         SEDE_NOMBRE_MAT == "Bogotá",
+         TIPO_NIVEL == "Pregrado",
+         FACULTAD %in%  c("Medicina", "Enfermería")|
+         SNIES_PROGRA == 37) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-"),
+         PROGRAMA = ifelse(PROGRAMA == "Nutrición y dietética", "Nutrición y Dietética",
+                           ifelse(PROGRAMA == "Terapia ocupacional", "Terapia Ocupacional", PROGRAMA))) %>% 
+  summarise(Total = n(), .by = c(Periodo, FACULTAD, PROGRAMA)) %>% 
+  pivot_wider(names_from = Periodo, values_from = Total) %>% 
+  rename(Facultad = FACULTAD, Programa = PROGRAMA) %>% 
+  arrange(desc(Facultad))
+       
+xlsx::write.xlsx(x = Unal_Salud_Pre, file = "Datos/Entrega68/Mat_Pre_Salud.xlsx", sheetName="Matriculados")
+
+# # Matriculados Postgrado
+# 
+# Unal_Salud_Pos <- UnalData::Matriculados %>% 
+#   filter(YEAR %in% c(2021, 2022), 
+#          SEDE_NOMBRE_MAT == "Bogotá",
+#          TIPO_NIVEL == "Postgrado",
+#          FACULTAD %in%  c("Medicina", "Enfermería")|
+#            SNIES_PROGRA == 37) %>% 
+#   mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+#   summarise(Total = n(), .by = c(Periodo, FACULTAD, NIVEL, SNIES_PROGRA)) %>% 
+#   pivot_wider(names_from = Periodo, values_from = Total)
+# 
+# 
+# 
