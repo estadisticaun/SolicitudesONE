@@ -6084,5 +6084,59 @@ xlsx::write.xlsx(x = Unal_Salud_Pre, file = "Datos/Entrega68/Mat_Pre_Salud.xlsx"
 #   summarise(Total = n(), .by = c(Periodo, FACULTAD, NIVEL, SNIES_PROGRA)) %>% 
 #   pivot_wider(names_from = Periodo, values_from = Total)
 # 
-# 
-# 
+
+##%######################################################%##
+#                                                          #
+####              70 Solicitud 18-10-2023               ####
+#                                                          #
+##%######################################################%##
+
+# Solicitud Profesor Fernan Director DNINFOA
+
+SaberUNAL <- UnalData::SaberPro
+
+write_xlsx(SaberUNAL, "Datos/Entrega70/Resultados_SaberPro_UNAL.xlsx")
+
+##%######################################################%##
+#                                                          #
+####              71 Solicitud 19-10-2023               ####
+#                                                          #
+##%######################################################%##
+
+# Solicitud de información No. 18331
+# Demandante: Sistema Quejas, Reclamos y Sugerencias Nivel Nacional - UNAL
+
+# Solicitud: Solicito estadísticas de estudiantes de la carrera de Lingüística 
+# en los años 2022 y 2023, incluyendo especialmente la
+# tasa de deserción separados por admisión regular, PAES, PEAMA y especificando
+# de que sede PEAMA son. 
+
+
+# Tendencia General
+
+Total_Mat_Linguistica <- UnalData::Matriculados %>% 
+  filter(SNIES_PROGRA == 16938, YEAR >= 2022) %>% 
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE))
+  
+write_xlsx(Total_Mat_Linguistica, "Datos/Entrega71/Total_Mat_Linguistica.xlsx")
+
+# Principales Estadísticas
+Mat_Linguistica <- UnalData::Matriculados %>% 
+                   filter(SNIES_PROGRA == 16938, YEAR >= 2022) %>% 
+                   Agregar(formula = SEXO + CAT_EDAD + NACIONALIDAD + ESTRATO_ORIG +
+                                     TIPO_COL + PBM + TIPO_ADM  + PAES + PEAMA~ YEAR + SEMESTRE,
+                           frecuencia = list(2022:2023, 1:2)) %>% 
+                   filter(Clase != "Sin Información") %>% 
+                   mutate(Variable = ifelse(Variable == "CAT_EDAD", "EDAD", Variable),
+                          Variable = ifelse(Variable == "ESTRATO_ORIG", "ESTRATO", Variable),
+                          Variable = ifelse(Variable == "TIPO_COL", "COLEGIO", Variable),
+                          Variable = ifelse(Variable == "TIPO_ADM","TIPO DE ADMISIÓN", Variable)) %>% 
+                   rename(Año = YEAR, Periodo = SEMESTRE, Modalidad = Clase)
+
+
+write_xlsx(Mat_Linguistica, "Datos/Entrega71/Mat_Linguistica.xlsx")
+
+
+
+
+
