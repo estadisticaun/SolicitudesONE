@@ -6136,7 +6136,19 @@ Mat_Linguistica <- UnalData::Matriculados %>%
 
 write_xlsx(Mat_Linguistica, "Datos/Entrega71/Mat_Linguistica.xlsx")
 
+##%######################################################%##
+#                                                          #
+####              72 Solicitud 01-11-2023               ####
+#                                                          #
+##%######################################################%##
 
+# Demandante: Dirección Nacional de Programas de Pregrado
+# Requerimiento: Total de docentes por sedes, facultades y unidades académicas básicas
+
+DocentesUAB <- UnalData::Docentes %>% filter(YEAR == 2023, SEMESTRE == 1) %>% 
+       summarise(Total = n(), .by = c(SEDE, FACULTAD, UNIDAD))
+
+write_xlsx(DocentesUAB, "Datos/Entrega72/DocentesUAB.xlsx")
 
 
 
