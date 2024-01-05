@@ -6150,5 +6150,79 @@ DocentesUAB <- UnalData::Docentes %>% filter(YEAR == 2023, SEMESTRE == 1) %>%
 
 write_xlsx(DocentesUAB, "Datos/Entrega72/DocentesUAB.xlsx")
 
+##%######################################################%##
+#                                                          #
+####              73 Solicitud 17-11-2023               ####
+#                                                          #
+##%######################################################%##
 
+# Demandante: Profesor Andrés Felipe - Centro de Pensamiento Educación Superior UNAL
+# Solicitud: Total de matriculados en pregrado por tipo de colegio
+
+Mat_Colegio <- UnalData::Matriculados %>% 
+       filter(TIPO_NIVEL == "Pregrado", YEAR >= 2010) %>%  
+       summarise(Total = n(), .by = c(YEAR, SEMESTRE, TIPO_COL)) %>%
+       mutate(TIPO_COL = ifelse(is.na(TIPO_COL), "Sin información", TIPO_COL)) %>% 
+       pivot_wider(names_from = TIPO_COL , values_from = Total)
+
+write_xlsx(Mat_Colegio, "Datos/Entrega73/Mat_Colegio.xlsx")
+
+
+##%######################################################%##
+#                                                          #
+####              74 Solicitud 07-12-2023               ####
+#                                                          #
+##%######################################################%##
+
+# Demandante: Ministerio de Educación Nacional
+# Solicitud: Respuesta Encuesta Acceso y Permanencia Diferencial
+
+# Importar base de municipios PDET
+
+MunicipiosPDET <- read_excel("Datos/Entrega74/MunicipiosPDET.xlsx")
+
+# Matriculados municipios PDET
+Mat_Pre <- UnalData::Matriculados %>% 
+          filter(TIPO_NIVEL == "Pregrado") %>% 
+          left_join(MunicipiosPDET, by = c("COD_CIU_PROC")) %>% 
+          filter(!is.na(SUBREGION)) %>% 
+          summarise(Total = n(), .by = c(YEAR, SEMESTRE)) %>% 
+          arrange(desc(YEAR), desc(SEMESTRE))
+
+# Matriculados primera vez municipios PDET
+
+Mat_pvez_Pre <- UnalData::Matriculados %>% 
+  filter(TIPO_NIVEL == "Pregrado", MAT_PVEZ == "Sí") %>% 
+  left_join(MunicipiosPDET, by = c("COD_CIU_PROC")) %>% 
+  filter(!is.na(SUBREGION)) %>% 
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE)) %>% 
+  arrange(desc(YEAR), desc(SEMESTRE))
+
+
+# Matriculados primera vez por departamentos PAES
+
+Mat_pvez_Pre_PAES <- UnalData::Matriculados %>% 
+  filter(YEAR >= 2020,
+         TIPO_NIVEL == "Pregrado", 
+         MAT_PVEZ == "Sí", 
+         TIPO_ADM == "PAES",
+         !PAES %in% c("De La Paz")) %>% 
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE, DEP_PROC))
+
+# Matriculados primera vez por departamentos PEAMA
+
+Mat_pvez_Pre_PEAMA <- UnalData::Matriculados %>% 
+  filter(YEAR >= 2020,
+         TIPO_NIVEL == "Pregrado", 
+         MAT_PVEZ == "Sí", 
+         TIPO_ADM == "PEAMA",
+        !PEAMA %in% c("PEAMA - Sede Bogotá - Sumapaz")) %>% 
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE, DEP_PROC))
+
+
+# Exportar Tablas
+write_xlsx(Mat_Pre, "Datos/Entrega74/Mat_PDET.xlsx")
+write_xlsx(Mat_pvez_Pre, "Datos/Entrega74/Mat_pvez_PDET.xlsx")
+write_xlsx(Mat_pvez_Pre_PAES, "Datos/Entrega74/Mat_pvez_Pre_PAES.xlsx")
+write_xlsx(Mat_pvez_Pre_PEAMA, "Datos/Entrega74/Mat_pvez_Pre_PEAMA.xlsx")
 
