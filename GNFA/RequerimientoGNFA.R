@@ -30,7 +30,14 @@ Aspirantes_Pos <- UnalData::Aspirantes %>%
 
 Sprogra <- UnalData::Hprogramas %>% select(SNIES_PROGRA, SEDE_PROG, FACULTAD_PROGRA)
 
-Matriculados <- UnalData::Matriculados %>% 
+#Matricula provisional 2023-2
+Matricula_20232_Prov <- read_excel("Datos/Fuentes/Matricula_20232_Prov.xlsx")
+
+# Adionar a matricula global matriculados proviisonales de 2023-2
+MatriculaG <- bind_rows(UnalData::Matriculados, Matricula_20232_Prov)
+
+# Matricula Global
+Matriculados <- MatriculaG %>% 
                 filter(YEAR == {{Año}}) %>% 
                 mutate(Periodo = paste0(YEAR, "-", SEMESTRE),
                        FACULTAD = ifelse(SEDE_NOMBRE_MAT %in% c("Amazonía", "Caribe", "Orinoquía", "Tumaco"), SEDE_NOMBRE_MAT, FACULTAD)) %>% 
@@ -134,6 +141,5 @@ Mat_Programa <- Matriculados %>%
 
 View(Mat_Programa)
 write_xlsx(Mat_Programa, "GNFA/Entrega/Matriculados/Mat_Programa.xlsx")
-
 
 

@@ -6226,3 +6226,400 @@ write_xlsx(Mat_pvez_Pre, "Datos/Entrega74/Mat_pvez_PDET.xlsx")
 write_xlsx(Mat_pvez_Pre_PAES, "Datos/Entrega74/Mat_pvez_Pre_PAES.xlsx")
 write_xlsx(Mat_pvez_Pre_PEAMA, "Datos/Entrega74/Mat_pvez_Pre_PEAMA.xlsx")
 
+
+##%######################################################%##
+#                                                          #
+####              VIGENCIA 2024                        ####
+#                                                          #
+##%######################################################%##
+
+
+##%######################################################%##
+#                                                          #
+####              75 Solicitud 10-01-2023               ####
+#                                                          #
+##%######################################################%##
+
+# Demandante: Profe José Ignacio Maya
+# Solicitud: Estudio de Contratistas Nivel Nacional 2023 PGD
+
+# Importar base de datos
+
+Contratos <- read_excel("Datos/Fuentes/Contratos.xlsx")
+Proyectos <- read_excel("Datos/Fuentes/Proyectos.xlsx")
+
+# Cruzar bases de datos
+
+Contratos <- Contratos %>% 
+            left_join(Proyectos, by = "ID") %>% 
+            mutate(Unos = 1,
+                   ValorC = case_when(Valor < 10000000 ~ "<10M",
+                                      between(Valor, 10000000, 20000000)~ "Entre 10M y 20M",
+                                      between(Valor, 20000001, 50000000)~ "Entre 20.1M y 50M",
+                                      between(Valor, 50000001, 120000000)~ "Entre 50.1M y 120M",
+                                      .default = ">120M"),
+                   DiasC = case_when(Dias <=30 ~ "< 30 días",
+                                     between(Dias, 31, 90)~ "Entre 31 y 90 días",
+                                     between(Dias, 91, 180)~ "Entre 91 y 180 días",
+                                     .default = "Más de 180 días"
+                                     ),
+                   Ejecucion = case_when(P_Ejecutado == 0 ~ "0% de ejecución",
+                                         between(P_Ejecutado, 0.001, 50)~ "Entre 1% y 50% de ejecución",
+                                         between(P_Ejecutado, 50.001, 99.9999)~ "Entre 51% y 99% de ejecución",
+                                         .default = "100% de ejecución"),
+                   Proyecto = ifelse(is.na(Proyecto), "SIN INFORMACIÓN", Proyecto))
+
+
+# Estadísticas Descriptivas Básicas
+
+Estadisticas <- Contratos %>% summarise(`Total Contratos` = n(),
+                        `Total Contratistas` = n_distinct(Contratista),
+                        `Suma Valor Contratos` = sum(Valor),
+                        `Valor Mínimo` = min(Valor),
+                        `Mediana Valor Contratos` = median(Valor),
+                        `Valor Máximo` = max(Valor),
+                        `Duración Mínima en Días` = min(Dias),
+                        `Mediana Duración Contratos en Días` = median(Dias),
+                        `Duración Máxima en Días` = max(Dias),
+                        `Porcentaje Mínimo Ejecutado` = min(P_Ejecutado),
+                        `Mediana Porcentaje Ejecutado` = median(P_Ejecutado),
+                        `Porcentaje Máximo Ejecutado` = max(P_Ejecutado)) %>% 
+            pivot_longer(`Total Contratos`:`Porcentaje Máximo Ejecutado`, 
+                         names_to = "Aspecto", 
+                         values_to = "Valor") %>% 
+            mutate(Valor = as.numeric(format(Valor, scientific = FALSE)),
+                   Valor = round(Valor, digits = 0))
+ 
+# Exportar a Excel
+
+write_xlsx(Estadisticas, "Datos/Entrega75/Estadisticas.xlsx")
+
+# Tabla(datos = Estadisticas,
+#       estatico = TRUE,
+#       colorHead  = "#99d8c9",
+#       estilo = list(
+#       Tema = 11, Padding = c(0.8, 3))) %>% 
+#       cols_align(align = "left", columns = c(`Aspecto`)) %>% 
+#       fmt_number(decimals = 10) # No funciona
+
+# Variable Empresa
+
+Plot.Barras(
+  datos     = Contratos,
+  categoria = Nom_Empresa,
+  valores = Unos,
+  estatico = TRUE,
+  #vertical = TRUE,
+  #freqRelativa = FALSE,
+  ordinal   = FALSE,
+  ylim = c(0, 350),
+  titulo     = "Total de Contratos por Empresa QUIPU",
+  labelX = "\nEmpresa",
+  labelY = "\nTotal de contratos",
+  estilo    = list(gg.Tema  = 5,
+                   gg.Bar = list(width = 0.6, color = "#000000")))
+
+
+# Mes de Inicio
+
+Plot.Barras(
+  datos     = Contratos,
+  categoria = Mes_Inicio,
+  valores = Unos,
+  estatico = TRUE,
+  vertical = FALSE,
+  freqRelativa = TRUE,
+  ordinal   = FALSE,
+  ylim = c(0, 23),
+  titulo     = "Mes de Inicio de los Contratos",
+  labelX = "\nMes",
+  labelY = "\n% de contratos",
+  estilo    = list(gg.Tema  = 5,
+                   gg.Bar = list(width = 0.6, color = "#000000")))
+
+# Tabla
+
+Contratos %>% 
+  summarise(Total = n(), .by = c(Mes_Inicio)) %>% 
+  mutate(Porcentaje = Total /sum(Total),
+  Porcentaje = scales::percent(Porcentaje)) %>% 
+  rename(`Mes de Inicio` = Mes_Inicio,
+         `Total Contratos` = Total) %>% 
+  arrange(desc(`Total Contratos`)) %>% 
+  Tabla(estatico = TRUE,
+        colorHead   = "#99d8c9",
+        estilo      = list(
+          Tema = 11, Padding = c(0.3, 3))) %>% 
+   cols_align(align = "left", columns = c(`Mes de Inicio`))
+
+# Mes de Finalización de los contratos
+
+Plot.Barras(
+  datos     = Contratos,
+  categoria = Mes_Fin_Year,
+  valores = Unos,
+  estatico = TRUE,
+  vertical = FALSE,
+  freqRelativa = TRUE,
+  ordinal   = FALSE,
+  ylim = c(0, 23),
+  titulo     = "Mes de finalización de los contratos",
+  labelX = "\nMes",
+  labelY = "\n% de contratos",
+  estilo    = list(gg.Tema  = 5,
+                   gg.Bar = list(width = 0.6, color = "#000000")))
+
+# Tabla
+
+Contratos %>% 
+  summarise(Total = n(), .by = c(Mes_Fin_Year)) %>% 
+  mutate(Porcentaje = Total /sum(Total),
+         Porcentaje = scales::percent(Porcentaje)) %>% 
+  rename(`Mes de Finalización` = Mes_Fin_Year,
+         `Total Contratos` = Total) %>% 
+  arrange(desc(`Total Contratos`)) %>% 
+  Tabla(estatico = TRUE,
+        colorHead   = "#99d8c9",
+        estilo      = list(
+          Tema = 11, Padding = c(0.3, 3))) %>% 
+  cols_align(align = "left", columns = c(`Mes de Finalización`))
+
+
+# Valor de los contratos
+
+Plot.Barras(
+  datos     = Contratos,
+  categoria = ValorC,
+  valores = Unos,
+  estatico = TRUE,
+  vertical = TRUE,
+  freqRelativa = TRUE,
+  ordinal   = FALSE,
+  ylim = c(0, 50),
+  titulo     = "Distribución Valor de los Contratos",
+  labelX = "\nValor del Contrato",
+  labelY = "% de contratos\n",
+  estilo    = list(gg.Tema  = 5,
+                   gg.Bar = list(width = 0.6, color = "#000000")))
+
+# Tabla
+
+Contratos %>% 
+  summarise(Total = n(), .by = c(ValorC)) %>% 
+  mutate(Porcentaje = Total /sum(Total),
+         Porcentaje = scales::percent(Porcentaje)) %>% 
+  rename(`Valor del Contrato` = ValorC,
+         `Total Contratos` = Total) %>% 
+  arrange(desc(`Total Contratos`)) %>% 
+  Tabla(estatico = TRUE,
+        colorHead   = "#99d8c9",
+        estilo      = list(
+          Tema = 11, Padding = c(0.3, 3))) %>% 
+  cols_align(align = "left", columns = c(`Valor del Contrato`))
+
+
+# Duración de los contratos
+
+Plot.Barras(
+  datos     = Contratos,
+  categoria = DiasC,
+  valores = Unos,
+  estatico = TRUE,
+  vertical = TRUE,
+  freqRelativa = TRUE,
+  ordinal   = FALSE,
+  ylim = c(0, 50),
+  titulo     = "Duración de los Contratos (en Días)",
+  labelX = "\nDuración del Contrato (en días)",
+  labelY = "% de contratos\n",
+  estilo    = list(gg.Tema  = 5,
+                   gg.Bar = list(width = 0.6, color = "#000000")))
+
+
+# Tabla
+
+Contratos %>% 
+  summarise(Total = n(), .by = c(DiasC)) %>% 
+  mutate(Porcentaje = Total /sum(Total),
+         Porcentaje = scales::percent(Porcentaje)) %>% 
+  rename(`Duración del Contrato` = DiasC,
+         `Total Contratos` = Total) %>% 
+  arrange(desc(`Total Contratos`)) %>% 
+  Tabla(estatico = TRUE,
+        colorHead   = "#99d8c9",
+        estilo      = list(
+          Tema = 11, Padding = c(0.3, 3))) %>% 
+  cols_align(align = "left", columns = c(`Duración del Contrato`))
+
+
+# Porcentaje de ejecución
+
+Plot.Barras(
+  datos     = Contratos,
+  categoria = Ejecucion,
+  valores = Unos,
+  estatico = TRUE,
+  vertical = TRUE,
+  freqRelativa = TRUE,
+  ordinal   = FALSE,
+  ylim = c(0, 50),
+  titulo     = "Porcentaje de Ejecución de los Contratos",
+  labelX = "\nPorcentaje de ejecución",
+  labelY = "% de contratos\n",
+  estilo    = list(gg.Tema  = 5,
+                   gg.Bar = list(width = 0.6, color = "#000000")))
+
+
+Contratos %>% 
+  summarise(Total = n(), .by = c(Ejecucion)) %>% 
+  mutate(Porcentaje = Total /sum(Total),
+         Porcentaje = scales::percent(Porcentaje)) %>% 
+  rename(`% de ejecución` = Ejecucion,
+         `Total Contratos` = Total) %>% 
+  arrange(desc(`Total Contratos`)) %>% 
+  Tabla(estatico = TRUE,
+        colorHead   = "#99d8c9",
+        estilo      = list(
+          Tema = 11, Padding = c(0.3, 3))) %>% 
+  cols_align(align = "left", columns = c(`% de ejecución`))
+
+
+# Contratos por proyectos
+
+Contratos %>% 
+       filter(Proyecto != "SIN INFORMACIÓN") %>% 
+  summarise(Total = n(), .by = c(Proyecto, QUIPU_Proyecto
+,Nom_Empresa)) %>% 
+  mutate(Porcentaje = Total /sum(Total),
+         Porcentaje = scales::percent(Porcentaje)) %>% 
+  arrange(desc(Total)) %>% 
+  rename(`Código QUIPU`= QUIPU_Proyecto,
+         `Empresa QUIPU` = Nom_Empresa) %>% 
+  Tabla(estatico = TRUE,
+        colorHead   = "#99d8c9",
+        estilo      = list(
+          Tema = 11, Padding = c(0.3, 3))) %>% 
+  cols_align(align = "left", columns = c(`Proyecto`))
+
+# Ejes del PGD
+
+Plot.Barras(
+  datos     = Contratos,
+  categoria = Eje,
+  valores = Unos,
+  estatico = TRUE,
+  vertical = FALSE,
+  freqRelativa = TRUE,
+  ordinal   = FALSE,
+  ylim = c(0, 50),
+  titulo     = "Total Contratos por Ejes PGD 2022-2024",
+  labelX = "\nEje",
+  labelY = "% de contratos\n",
+  estilo    = list(gg.Tema  = 5,
+                   gg.Bar = list(width = 0.6, color = "#000000")))
+
+# Tabla
+Contratos %>% 
+  summarise(Total = n(), .by = c(Eje)) %>% 
+  mutate(Porcentaje = Total /sum(Total),
+         Porcentaje = scales::percent(Porcentaje)) %>% 
+  rename(`Eje PGD 2022-2024` = Eje,
+         `Total Contratos` = Total) %>% 
+  arrange(desc(`Total Contratos`)) %>% 
+  Tabla(estatico = TRUE,
+        colorHead   = "#99d8c9",
+        estilo      = list(
+          Tema = 11, Padding = c(0.3, 3))) %>% 
+  cols_align(align = "left", columns = c(`Eje PGD 2022-2024`))
+
+
+# Programas del PGD
+
+Plot.Barras(
+  datos     = Contratos,
+  categoria = Programa,
+  valores = Unos,
+  estatico = TRUE,
+  vertical = FALSE,
+  freqRelativa = TRUE,
+  ordinal   = FALSE,
+  ylim = c(0, 50),
+  titulo     = "Total Contratos por Programas PGD 2022-2024",
+  labelX = "\nEje",
+  labelY = "% de contratos\n",
+  estilo    = list(gg.Tema  = 5,
+                   gg.Bar = list(width = 0.6, color = "#000000")))
+
+# Tabla
+Contratos %>% 
+  summarise(Total = n(), .by = c(Programa)) %>% 
+  mutate(Porcentaje = Total /sum(Total),
+         Porcentaje = scales::percent(Porcentaje)) %>% 
+  rename(`Programa PGD 2022-2024` = Programa,
+         `Total Contratos` = Total) %>% 
+  arrange(desc(`Total Contratos`)) %>% 
+  Tabla(estatico = TRUE,
+        colorHead   = "#99d8c9",
+        estilo      = list(
+          Tema = 11, Padding = c(0.3, 3))) %>% 
+  cols_align(align = "left", columns = c(`Programa PGD 2022-2024`))
+
+##%######################################################%##
+#                                                          #
+####              76 Solicitud 17-01-2023               ####
+#                                                          #
+##%######################################################%##
+
+# Demandante: Asesor Rectoría
+# Solicitud: Solicitud Estadísticas Admitidos 2024-1
+
+# Importar base de datos
+
+# Pregrado
+Adm_Pre_241 <- read_excel("Datos/Fuentes/2024-1 PRE AspAdm Temporal.xlsx") %>% 
+               mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+               filter(ADMITIDO == "Sí")
+
+# Postgrado
+Adm_Pos_241 <- read_excel("Datos/Fuentes/2024-1 POS AspAdm Temporal.xlsx") %>% 
+  filter(TIPO_NIVEL == "Postgrado" & MOD_INS == "Regular") %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  filter(ADMITIDO == "Sí")
+
+
+Adm_241 <- bind_rows(Adm_Pre_241, Adm_Pos_241)
+
+# Extracción de información estadística requerida
+
+# Modalidad de formación
+
+Adm_Mod_Forma <- Adm_241 %>% summarise(Total = n(), .by = c(Periodo, TIPO_NIVEL))
+write_xlsx(Adm_Mod_Forma, "Datos/Entrega76/Adm_Mod_Forma.xlsx")
+
+# Sedes
+
+Adm_Sede <- Adm_241 %>% summarise(Total = n(), .by = c(Periodo, ADM_SEDE_NOMBRE))
+write_xlsx(Adm_Sede, "Datos/Entrega76/Adm_Sede.xlsx")
+
+# Género
+
+Adm_Genero <- Adm_241 %>% summarise(Total = n(), .by = c(Periodo, SEXO))
+write_xlsx(Adm_Genero, "Datos/Entrega76/Adm_Genero.xlsx")
+
+# Modalidad de Acceso
+
+Adm_Mod_Acceso <- Adm_241 %>% summarise(Total = n(), .by = c(Periodo, TIPO_INS))
+write_xlsx(Adm_Mod_Acceso, "Datos/Entrega76/Adm_Mod_Acceso.xlsx")
+
+# PEAMA
+
+Adm_PEAMA <- Adm_Pre_241 %>% filter(TIPO_INS == "PEAMA") %>% 
+  summarise(Total = n(), .by = c(Periodo, PEAMA))
+write_xlsx(Adm_PEAMA, "Datos/Entrega76/Adm_PEAMA.xlsx")
+
+
+# PAES
+
+Adm_PAES <- Adm_Pre_241 %>% filter(TIPO_INS == "PAES") %>% 
+            summarise(Total = n(), .by = c(Periodo, PAES))
+write_xlsx(Adm_PAES, "Datos/Entrega76/Adm_PAES.xlsx")
