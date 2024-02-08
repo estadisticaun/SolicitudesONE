@@ -6623,3 +6623,136 @@ write_xlsx(Adm_PEAMA, "Datos/Entrega76/Adm_PEAMA.xlsx")
 Adm_PAES <- Adm_Pre_241 %>% filter(TIPO_INS == "PAES") %>% 
             summarise(Total = n(), .by = c(Periodo, PAES))
 write_xlsx(Adm_PAES, "Datos/Entrega76/Adm_PAES.xlsx")
+
+
+##%######################################################%##
+#                                                          #
+####              77 Solicitud 19-01-2023               ####
+#                                                          #
+##%######################################################%##
+
+# Demandante: Jorge Córdoba - Candidado Rectoría UNAL
+# Solicitud: Se requiere información estadística oficial
+#             general de la Universidad.
+
+
+# 1. ⁠número inscritos 
+
+Aspirantes <- UnalData::Aspirantes %>% 
+  filter((TIPO_NIVEL == "Pregrado" & !is.na(MOD_INS))|
+           (TIPO_NIVEL == "Postgrado" & MOD_INS == "Regular")) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) |> 
+  group_by(Periodo) %>% 
+  summarise(Total = n())
+
+write_xlsx(Aspirantes, "Datos/Entrega77/Aspirantes.xlsx")
+
+# 2. número de admitidos
+
+Admitidos <- UnalData::Aspirantes %>% 
+  filter((TIPO_NIVEL == "Pregrado" & !is.na(MOD_INS))|
+           (TIPO_NIVEL == "Postgrado" & MOD_INS == "Regular"),
+         ADMITIDO == "Sí") %>% 
+    mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>%  
+  group_by(Periodo) %>% 
+  summarise(Total = n())
+
+write_xlsx(Admitidos, "Datos/Entrega77/Admitidos.xlsx")
+
+# 3. número de matriculados 
+
+Matriculados <- UnalData::Matriculados %>% 
+                mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>%  
+                group_by(Periodo) %>% 
+                summarise(Total = n())
+
+write_xlsx(Matriculados, "Datos/Entrega77/Matriculados.xlsx")
+
+# 7. numéro de graduados 
+
+Graduados <- UnalData::Graduados %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>%  
+  group_by(Periodo) %>% 
+  summarise(Total = n())
+
+write_xlsx(Graduados, "Datos/Entrega77/Graduados.xlsx")
+
+# 8. ⁠número de docentes 
+
+Docentes <- UnalData::Docentes %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>%  
+  group_by(Periodo) %>% 
+  summarise(Total = n())
+
+write_xlsx(Docentes, "Datos/Entrega77/Docentes.xlsx")
+
+
+# 9. ⁠número de administrativos 
+
+Administrativos <- UnalData::Administrativos %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>%  
+  group_by(Periodo) %>% 
+  summarise(Total = n())
+
+write_xlsx(Administrativos, "Datos/Entrega77/Administrativos.xlsx")
+
+# 10. ⁠tasa de deserción 
+# 11. ⁠presupuesto 
+
+
+##%######################################################%##
+#                                                          #
+####              78 Solicitud 05-02-2023               ####
+#                                                          #
+##%######################################################%##
+
+# Demandante: Aminta Mendoza Barón - Delegada profesor Germán Albeiro Castaño (inscrito como aspirante en el proceso de Designación de Rector)
+# Solicitud: 12.  Población estudiantil (por género), y profesoral (por género) por facultades de la universidad, en el trienio 2021-2023
+# Derecho de Petición https://mail.google.com/mail/u/0/#inbox/FMfcgzGxRdsZPDjdxWsJcddQnDWTpbKp
+
+# Sexo Docentes de Carrera por Facultad
+
+Doc_Sexo <- UnalData::Docentes %>% 
+            filter(YEAR >= 2020) %>% 
+            summarise(Total = n(), .by = c(YEAR, SEMESTRE, SEDE, FACULTAD_O, SEXO)) %>% 
+            pivot_wider(names_from = SEXO, values_from = Total, values_fill = 0) %>% 
+            mutate(Total = Hombres + Mujeres,
+                   Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+            rename(Facultad = FACULTAD_O, Sede = SEDE) %>% 
+            select(Periodo, Sede:Total)
+
+# Sexo Estudiantes por Facultad
+
+Est_Sexo <- UnalData::Matriculados %>% 
+  mutate(FACULTAD = ifelse(SEDE_NOMBRE_MAT %in% c("Amazonía", "Caribe", "Orinoquía", "Tumaco"), "Dirección de Sede", FACULTAD),
+         FACULTAD = ifelse(SEDE_NOMBRE_MAT == "De La Paz", "Escuela de pregrado", FACULTAD)) %>% 
+  filter(YEAR >= 2020) %>%
+  group_by(YEAR, SEMESTRE, SEDE_NOMBRE_MAT, FACULTAD, SEXO) %>% 
+  summarise(Total = n()) %>% 
+  pivot_wider(names_from = SEXO, values_from = Total, values_fill = 0) %>% 
+  mutate(Total = Hombres + Mujeres,
+         Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  rename(Sede = SEDE_NOMBRE_MAT, Facultad = FACULTAD) %>% 
+  ungroup() %>% 
+  select(Periodo, Sede:Total)
+
+##%######################################################%##
+#                                                          #
+####              79 Solicitud 08-02-2024              ####
+#                                                          #
+##%######################################################%##
+
+# Jose Ignacio Maya - Información para dar repuesta a Derecho de 
+# Petición de la Senadora Cabal.
+
+Mat14 <- read_excel("Datos/Fuentes/Mat14.xlsx") %>% 
+          mutate(ID = as.character(ID)) %>% 
+          left_join(UnalData::Matriculados %>% filter(YEAR == 2023), by = "ID")
+
+
+write_xlsx(Mat14, "Datos/Entrega79/Mat14.xlsx")
+
+
+
+
+
