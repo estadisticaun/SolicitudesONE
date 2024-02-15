@@ -6721,6 +6721,8 @@ Doc_Sexo <- UnalData::Docentes %>%
             rename(Facultad = FACULTAD_O, Sede = SEDE) %>% 
             select(Periodo, Sede:Total)
 
+write_xlsx(Doc_Sexo, "Datos/Entrega78/Doc_Sexo.xlsx")
+
 # Sexo Estudiantes por Facultad
 
 Est_Sexo <- UnalData::Matriculados %>% 
@@ -6735,6 +6737,8 @@ Est_Sexo <- UnalData::Matriculados %>%
   rename(Sede = SEDE_NOMBRE_MAT, Facultad = FACULTAD) %>% 
   ungroup() %>% 
   select(Periodo, Sede:Total)
+
+write_xlsx(Est_Sexo, "Datos/Entrega78/Est_Sexo.xlsx")
 
 ##%######################################################%##
 #                                                          #

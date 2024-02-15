@@ -7,6 +7,8 @@ library(tidyverse)
 # Calcular total de registros con documentos - sin reperticiones
 
 # Aspirantes
+# Nota: se toma desde 2023 porque desde ese año se cuenta 
+# con documentos y nombres de los aspirantes
 
 Aspirantes <- UnalData::Aspirantes %>%
               filter(YEAR >= 2023) %>% 
