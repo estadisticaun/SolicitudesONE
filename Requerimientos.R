@@ -6757,6 +6757,38 @@ Mat14 <- read_excel("Datos/Fuentes/Mat14.xlsx") %>%
 write_xlsx(Mat14, "Datos/Entrega79/Mat14.xlsx")
 
 
+##%######################################################%##
+#                                                          #
+####              80 Solicitud 12-02-2024              ####
+#                                                          #
+##%######################################################%##
+
+# Respuesta Derecho de Petición Sofia Ariza CC 1032503327
+
+# 3.	Informar por escrito el número de estudiantes admitidos para el 
+# presente calendario académico y discriminar por carreras 
+
+# Programas Académicos
+
+Sprogra <- UnalData::Hprogramas %>% select(SNIES_PROGRA, SEDE_PROG, FACULTAD_PROGRA)
+
+# Admitidos Pregrado y cruzar programas académicos de origen
+
+Admitidos_Pre <- UnalData::Aspirantes %>% 
+  filter(TIPO_NIVEL == "Pregrado" & !is.na(MOD_INS),
+         YEAR == 2023,
+         SEMESTRE == 2,
+         ADMITIDO == "Sí") %>% 
+  left_join(Sprogra, by = "SNIES_PROGRA") %>% 
+  group_by(SEDE_PROG, FACULTAD_PROGRA, SNIES_PROGRA, PROGRAMA) %>% 
+  summarise(`Total Admitidos` = n()) %>% 
+  rename(`Sede del Programa` = SEDE_PROG,
+         `Facultad del Programa`=FACULTAD_PROGRA,
+         `Código SNIES del Programa` = SNIES_PROGRA,
+         `Nombre del Programa` = PROGRAMA) %>% 
+  ungroup()
+
+write_xlsx(Admitidos_Pre, "Datos/Entrega80/Admitidos_Pre.xlsx")
 
 
 
