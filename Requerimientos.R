@@ -6791,4 +6791,28 @@ Admitidos_Pre <- UnalData::Aspirantes %>%
 write_xlsx(Admitidos_Pre, "Datos/Entrega80/Admitidos_Pre.xlsx")
 
 
+##%######################################################%##
+#                                                          #
+####              81  Solicitud 05-03-2024              ####
+#                                                          #
+##%######################################################%##
+
+# Maria Claudia Galindo
+# Consolidación datos telaraña SaberPro - Rendición de Cuentas
+
+RC2023 <- UnalData::SaberPro %>% 
+           filter(YEAR == 2022) %>% 
+           select(TIPO_ADM, starts_with("PUNT")) %>% 
+           pivot_longer(PUNTAJE_GLOBAL:PUNT_RAZO_CUANT, 
+                        names_to = "Prueba", 
+                        values_to = "Puntaje") %>% 
+           summarise(Promedio = round(mean(Puntaje, na.rm = TRUE),1), 
+                     .by = c(TIPO_ADM, Prueba)) %>% 
+           pivot_wider(names_from = TIPO_ADM, values_from = Promedio)
+             
+# Exportar Consolidado
+
+write_xlsx(RC2023, "Datos/Entrega81/RC2023.xlsx")
+
+
 
