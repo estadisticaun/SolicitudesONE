@@ -6815,4 +6815,128 @@ RC2023 <- UnalData::SaberPro %>%
 write_xlsx(RC2023, "Datos/Entrega81/RC2023.xlsx")
 
 
+##%######################################################%##
+#                                                          #
+####              82 Solicitud 12-02-2024              ####
+#                                                          #
+##%######################################################%##
 
+# Respuesta Derecho de Petición Respuesta Vicerrectoría Sede 
+# Bogotá
+
+# Memo 251-24
+# https://mail.google.com/mail/u/0/#search/derecho+de+petici%C3%B3n/FMfcgzGxSbmJsqkqZVgFbMTgvhVFfdvc
+
+# 1. Proporcionar el número total de estudiantes admitidos en cada una de las carreras
+# ofrecidas por la Universidad Nacional de Colombia en la Sede Bogotá, en los últimos 5
+# años, desglosados por género y orientación sexual.
+
+# 2. Indicar el número total de estudiantes con discapacidad admitidos por la UNAL
+# en cada una de las carreras en la Sede Bogotá, durante los últimos 5 años. 
+# Especificar el tipo de discapacidad que presentan (por ejemplo, física, sensorial,
+# intelectual, etc.).
+
+
+# Programas Académicos
+
+Programas <- UnalData::Hprogramas %>% 
+  group_by(COD_PADRE) %>% 
+  filter(SNIES_PROGRA == max(SNIES_PROGRA)) %>% 
+  rename(`Nombre Programa` = PROGRAMA) %>% 
+  select(COD_PADRE, `Nombre Programa`) %>% 
+  ungroup()
+
+Sprogra <- UnalData::Hprogramas %>% 
+           left_join(Programas, by = "COD_PADRE") %>% 
+           select(SNIES_PROGRA, `Nombre Programa`, SEDE_PROG, FACULTAD_PROGRA)
+
+# Admitidos por programas y Sexo
+
+Admitidos_19a23_Sexo <- UnalData::Aspirantes %>% 
+  filter((TIPO_NIVEL == "Pregrado" & !is.na(MOD_INS))|
+           (TIPO_NIVEL == "Postgrado" & MOD_INS == "Regular")) %>% 
+  filter(ADMITIDO == "Sí", YEAR >= 2019, ADM_SEDE_NOMBRE == "Bogotá") %>% 
+ left_join(Sprogra, by = "SNIES_PROGRA") %>% 
+  group_by(SEDE_PROG, TIPO_NIVEL, NIVEL, FACULTAD_PROGRA, SNIES_PROGRA, `Nombre Programa`, YEAR, SEMESTRE, SEXO) %>% 
+  summarise(`Total Admitidos` = n()) %>% 
+  rename(`Sede del Programa` = SEDE_PROG,
+         `Nivel de Formación` = TIPO_NIVEL, 
+         `Modalidad de Formación` = NIVEL,
+         `Facultad del Programa`=FACULTAD_PROGRA,
+         `Código SNIES del Programa` = SNIES_PROGRA,
+         `Año` = YEAR,
+         `Semestre` = SEMESTRE,
+         `Sexo` = SEXO) %>% 
+  arrange(`Sede del Programa`, `Nivel de Formación`, `Modalidad de Formación`, 
+          `Facultad del Programa`, `Código SNIES del Programa`, 
+          `Nombre Programa`, desc(Año), desc(Semestre)) %>% 
+  pivot_wider(names_from = Sexo, values_from = `Total Admitidos`, values_fill = 0) %>% 
+  mutate(`Total Admitidos` = Hombres + Mujeres + Transgénero,
+         Transgénero = ifelse(Año <= 2022, NA, Transgénero)) %>% 
+  ungroup()
+
+write_xlsx(Admitidos_19a23_Sexo, "Datos/Entrega82/Admitidos_19a23_Sexo.xlsx")
+
+# Admitidos por programas, discapacidad y tipo de discapacidad
+
+Admitidos_19a23_Discapacidad <- UnalData::Aspirantes %>% 
+  filter((TIPO_NIVEL == "Pregrado" & !is.na(MOD_INS))|
+           (TIPO_NIVEL == "Postgrado" & MOD_INS == "Regular")) %>% 
+  filter(ADMITIDO == "Sí", YEAR >= 2019, ADM_SEDE_NOMBRE == "Bogotá") %>% 
+  left_join(Sprogra, by = "SNIES_PROGRA") %>% 
+  group_by(SEDE_PROG, TIPO_NIVEL, NIVEL, FACULTAD_PROGRA, SNIES_PROGRA, `Nombre Programa`, YEAR, SEMESTRE, DISCAPACIDAD, TIPO_DISC) %>% 
+  summarise(`Total Admitidos` = n()) %>% 
+  rename(`Sede del Programa` = SEDE_PROG,
+         `Nivel de Formación` = TIPO_NIVEL, 
+         `Modalidad de Formación` = NIVEL,
+         `Facultad del Programa`=FACULTAD_PROGRA,
+         `Código SNIES del Programa` = SNIES_PROGRA,
+         `Año` = YEAR,
+         `Semestre` = SEMESTRE,
+         `Discapacidad` = DISCAPACIDAD,
+         `Tipo Discapacidad` = TIPO_DISC) %>% 
+  arrange(`Sede del Programa`, `Nivel de Formación`, `Modalidad de Formación`, 
+          `Facultad del Programa`, `Código SNIES del Programa`, 
+          `Nombre Programa`, desc(Año), desc(Semestre)) %>% 
+  pivot_wider(names_from = c(`Discapacidad`, `Tipo Discapacidad`), 
+              values_from = `Total Admitidos`, 
+              values_fill = 0) %>% 
+  rename(Visual = Sí_Visual,
+         Auditiva = Sí_Auditiva,
+         Psicosocial = Sí_Psicosocial,
+         Motriz = Sí_Motriz,
+         Otras = Sí_Otras,
+         Cognitiva = Sí_Cognitiva,
+         No = No_NA) %>% 
+  mutate(Sí = Visual+Auditiva+Psicosocial+Motriz+Otras+Cognitiva) %>% 
+  relocate(Sí, .before = Visual) %>% 
+  relocate(Otras, .after = Cognitiva) %>%  
+  ungroup()
+
+write_xlsx(Admitidos_19a23_Discapacidad, "Datos/Entrega82/Admitidos_19a23_Discapacidad.xlsx")
+
+# Matriculados por programas y Sexo
+
+Matriculados_19a23_Sexo <- UnalData::Matriculados %>% 
+                           filter(YEAR >= 2019, SEDE_NOMBRE_MAT == "Bogotá") %>% 
+  left_join(Sprogra, by = "SNIES_PROGRA") %>% 
+  group_by(SEDE_PROG, TIPO_NIVEL, NIVEL, FACULTAD_PROGRA, SNIES_PROGRA, `Nombre Programa`, YEAR, SEMESTRE, SEXO) %>% 
+  summarise(`Total Matriculados` = n()) %>% 
+  rename(`Sede del Programa` = SEDE_PROG,
+         `Nivel de Formación` = TIPO_NIVEL, 
+         `Modalidad de Formación` = NIVEL,
+         `Facultad del Programa`=FACULTAD_PROGRA,
+         `Código SNIES del Programa` = SNIES_PROGRA,
+         `Año` = YEAR,
+         `Semestre` = SEMESTRE,
+         `Sexo` = SEXO) %>% 
+  arrange(`Sede del Programa`, `Nivel de Formación`, `Modalidad de Formación`, 
+          `Facultad del Programa`, `Código SNIES del Programa`, 
+          `Nombre Programa`, desc(Año), desc(Semestre)) %>% 
+  pivot_wider(names_from = Sexo, values_from = `Total Matriculados`, values_fill = 0) %>% 
+  mutate(`Total Matriculados` = Hombres + Mujeres) %>% 
+  ungroup()
+
+write_xlsx(Matriculados_19a23_Sexo, "Datos/Entrega82/Matriculados_19a23_Sexo.xlsx")
+
+View(UnalData::Hprogramas)
