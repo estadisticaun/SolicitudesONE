@@ -6939,4 +6939,890 @@ Matriculados_19a23_Sexo <- UnalData::Matriculados %>%
 
 write_xlsx(Matriculados_19a23_Sexo, "Datos/Entrega82/Matriculados_19a23_Sexo.xlsx")
 
-View(UnalData::Hprogramas)
+##%######################################################%##
+#                                                          #
+####              83 Solicitud 16-04-2024              ####
+#                                                          #
+##%######################################################%##
+
+# Tendencia UNAL Informe de gestión Periodo Rectoral Dolly
+# Solicita: Catalina Vasquez DNPE
+
+# Aspirantes y Admitidos
+
+Aspirantes <- UnalData::Aspirantes %>% 
+  filter((TIPO_NIVEL == "Pregrado" & !is.na(MOD_INS))|
+           (TIPO_NIVEL == "Postgrado" & MOD_INS == "Regular")) %>% 
+  mutate(GLOBAL = "Total")
+
+# Aspirantes general
+
+Asp_Global <- Agregar(datos = Aspirantes,
+  formula    = GLOBAL ~ YEAR + SEMESTRE,
+  frecuencia = list("Year" = 2019:2023, "Period" = 1:2),
+  intervalo  = list(c(2021, 1), c(2023, 2))
+) 
+
+Plot.Series(
+    datos = Asp_Global,
+    categoria    = "GLOBAL",
+    freqRelativa = FALSE,
+    invertir     = FALSE,
+    ylim         = c(0, 100000),
+    colores      = "#525252",
+    titulo       = "Evolución Total de Aspirantes en la UNAL",
+    labelY       = "Número de Aspirantes \n",
+    labelX = "\nPeriodo",
+    estatico     = TRUE,
+    estilo       = list(
+      gg.Tema = list(Tema = "theme_gray"),
+      gg.Legend = list(legend.position = "none"),
+      gg.Linea  = list(linetype = 5, size = 0.5),
+      gg.Repel = list(size = 3.18, color = "red",
+        direction = "both", seed = 42, nudge_y = 0.25,
+        arrow = arrow(length = unit(0.01, "npc")), segment.colour = "#4C716B",
+        box.padding   = 0.3 ,     # Espacio vacío que se debe respetar alrededor de la caja delimitadora
+        min.segment.length = 0.5 # Entre más bajo más flechas, entre más distancia menos flechas
+      ),
+      gg.Texto  = list(subtitle = "Periodo 2021-2023")))+
+  theme(axis.text.x = element_text(face="bold", size=9),
+        axis.line = element_line(colour = "darkblue", size = 0.5, linetype = "solid"))
+
+# Aspirantes Pregrado
+
+Asp_Pre <- Agregar(datos = Aspirantes %>% filter(TIPO_NIVEL == "Pregrado"),
+                      formula    = GLOBAL ~ YEAR + SEMESTRE,
+                      frecuencia = list("Year" = 2019:2023, "Period" = 1:2),
+                      intervalo  = list(c(2021, 1), c(2023, 2))) 
+
+Plot.Series(
+  datos = Asp_Pre,
+  categoria    = "GLOBAL",
+  freqRelativa = FALSE,
+  invertir     = FALSE,
+  ylim         = c(0, 100000),
+  colores      = "#525252",
+  titulo       = "Evolución Total de Aspirantes a Pregrado en la UNAL",
+  labelY       = "Número de Aspirantes \n",
+  estatico     = TRUE,
+  estilo       = list(
+    gg.Tema = list(Tema = "theme_gray"),
+    gg.Legend = list(legend.position = "none"),
+    gg.Linea  = list(linetype = 5, size = 0.5),
+    gg.Repel = list(size = 3.18, color = "red",
+                    direction = "both", seed = 42, nudge_y = 0.25,
+                    arrow = arrow(length = unit(0.01, "npc")), segment.colour = "#4C716B",
+                    box.padding   = 0.3 ,     # Espacio vacío que se debe respetar alrededor de la caja delimitadora
+                    min.segment.length = 0.5 # Entre más bajo más flechas, entre más distancia menos flechas
+    ),
+    gg.Texto  = list(subtitle = "Periodo 2021-2023")))+
+  theme(axis.text.x = element_text(face="bold", size=9),
+        axis.line = element_line(colour = "darkblue", size = 0.5, linetype = "solid"))
+
+# Aspirantes a Postgrado
+
+Asp_Pos <- Agregar(datos = Aspirantes %>% filter(TIPO_NIVEL == "Postgrado"),
+                   formula    = GLOBAL ~ YEAR + SEMESTRE,
+                   frecuencia = list("Year" = 2019:2023, "Period" = 1:2),
+                   intervalo  = list(c(2021, 1), c(2023, 2))) 
+
+Plot.Series(
+  datos = Asp_Pos,
+  categoria    = "GLOBAL",
+  freqRelativa = FALSE,
+  invertir     = FALSE,
+  ylim         = c(0, 10000),
+  colores      = "#525252",
+  titulo       = "Evolución Total de Aspirantes a Postgrado en la UNAL",
+  labelY       = "Número de Aspirantes \n",
+  estatico     = TRUE,
+  estilo       = list(
+    gg.Tema = list(Tema = "theme_gray"),
+    gg.Legend = list(legend.position = "none"),
+    gg.Linea  = list(linetype = 5, size = 0.5),
+    gg.Repel = list(size = 3.18, color = "red",
+                    direction = "both", seed = 42, nudge_y = 0.25,
+                    arrow = arrow(length = unit(0.01, "npc")), segment.colour = "#4C716B",
+                    box.padding   = 0.3 ,     # Espacio vacío que se debe respetar alrededor de la caja delimitadora
+                    min.segment.length = 0.5 # Entre más bajo más flechas, entre más distancia menos flechas
+    ),
+    gg.Texto  = list(subtitle = "Periodo 2021-2023")))+
+  theme(axis.text.x = element_text(face="bold", size=9),
+        axis.line = element_line(colour = "darkblue", size = 0.5, linetype = "solid"))
+
+
+# Admitidos general
+
+Admitidos <- UnalData::Aspirantes %>% 
+  filter((TIPO_NIVEL == "Pregrado" & !is.na(MOD_INS))|
+           (TIPO_NIVEL == "Postgrado" & MOD_INS == "Regular"),
+         ADMITIDO == "Sí") %>% 
+  mutate(GLOBAL = "Total")
+
+
+Adm_Global <- Agregar(datos = Admitidos,
+                      formula    = GLOBAL ~ YEAR + SEMESTRE,
+                      frecuencia = list("Year" = 2019:2023, "Period" = 1:2),
+                      intervalo  = list(c(2021, 1), c(2023, 2))
+) 
+
+Plot.Series(
+  datos = Adm_Global,
+  categoria    = "GLOBAL",
+  freqRelativa = FALSE,
+  invertir     = FALSE,
+  ylim         = c(0, 10000),
+  colores      = "#525252",
+  titulo       = "Evolución Total de Admitidos en la UNAL",
+  labelY       = "Número de Admitidos \n",
+  labelX = "\nPeriodo",
+  estatico     = TRUE,
+  estilo       = list(
+    gg.Tema = list(Tema = "theme_gray"),
+    gg.Legend = list(legend.position = "none"),
+    gg.Linea  = list(linetype = 5, size = 0.5),
+    gg.Repel = list(size = 3.18, color = "red",
+                    direction = "both", seed = 42, nudge_y = 0.25,
+                    arrow = arrow(length = unit(0.01, "npc")), segment.colour = "#4C716B",
+                    box.padding   = 0.3 ,     # Espacio vacío que se debe respetar alrededor de la caja delimitadora
+                    min.segment.length = 0.5 # Entre más bajo más flechas, entre más distancia menos flechas
+    ),
+    gg.Texto  = list(subtitle = "Periodo 2021-2023")))+
+  theme(axis.text.x = element_text(face="bold", size=9),
+        axis.line = element_line(colour = "darkblue", size = 0.5, linetype = "solid"))
+
+# Admitidos a Pregrado
+
+Adm_Pre <- Agregar(datos = Admitidos %>% filter(TIPO_NIVEL == "Pregrado"),
+                   formula    = GLOBAL ~ YEAR + SEMESTRE,
+                   frecuencia = list("Year" = 2019:2023, "Period" = 1:2),
+                   intervalo  = list(c(2021, 1), c(2023, 2))) 
+
+Plot.Series(
+  datos = Adm_Pre,
+  categoria    = "GLOBAL",
+  freqRelativa = FALSE,
+  invertir     = FALSE,
+  ylim         = c(0, 10000),
+  colores      = "#525252",
+  titulo       = "Evolución Total de Admitidos a Pregrado en la UNAL",
+  labelY       = "Número de Admitidos \n",
+  estatico     = TRUE,
+  estilo       = list(
+    gg.Tema = list(Tema = "theme_gray"),
+    gg.Legend = list(legend.position = "none"),
+    gg.Linea  = list(linetype = 5, size = 0.5),
+    gg.Repel = list(size = 3.18, color = "red",
+                    direction = "both", seed = 42, nudge_y = 0.25,
+                    arrow = arrow(length = unit(0.01, "npc")), segment.colour = "#4C716B",
+                    box.padding   = 0.3 ,     # Espacio vacío que se debe respetar alrededor de la caja delimitadora
+                    min.segment.length = 0.5 # Entre más bajo más flechas, entre más distancia menos flechas
+    ),
+    gg.Texto  = list(subtitle = "Periodo 2021-2023")))+
+  theme(axis.text.x = element_text(face="bold", size=9),
+        axis.line = element_line(colour = "darkblue", size = 0.5, linetype = "solid"))
+
+# Admitidos a Postgrado
+
+Adm_Pos <- Agregar(datos = Admitidos %>% filter(TIPO_NIVEL == "Postgrado"),
+                   formula    = GLOBAL ~ YEAR + SEMESTRE,
+                   frecuencia = list("Year" = 2019:2023, "Period" = 1:2),
+                   intervalo  = list(c(2021, 1), c(2023, 2))) 
+
+Plot.Series(
+  datos = Adm_Pos,
+  categoria    = "GLOBAL",
+  freqRelativa = FALSE,
+  invertir     = FALSE,
+  ylim         = c(0, 3000),
+  colores      = "#525252",
+  titulo       = "Evolución Total de Admitidos a Postgrado en la UNAL",
+  labelY       = "Número de Admitidos \n",
+  estatico     = TRUE,
+  estilo       = list(
+    gg.Tema = list(Tema = "theme_gray"),
+    gg.Legend = list(legend.position = "none"),
+    gg.Linea  = list(linetype = 5, size = 0.5),
+    gg.Repel = list(size = 3.18, color = "red",
+                    direction = "both", seed = 42, nudge_y = 0.25,
+                    arrow = arrow(length = unit(0.01, "npc")), segment.colour = "#4C716B",
+                    box.padding   = 0.3 ,     # Espacio vacío que se debe respetar alrededor de la caja delimitadora
+                    min.segment.length = 0.5 # Entre más bajo más flechas, entre más distancia menos flechas
+    ),
+    gg.Texto  = list(subtitle = "Periodo 2021-2023")))+
+  theme(axis.text.x = element_text(face="bold", size=9),
+        axis.line = element_line(colour = "darkblue", size = 0.5, linetype = "solid"))
+
+
+# Matriculados General
+
+Matriculados <- UnalData::Matriculados %>% 
+  mutate(GLOBAL = "Total")
+
+
+Mat_Global <- Agregar(datos = Matriculados,
+                      formula    = GLOBAL ~ YEAR + SEMESTRE,
+                      frecuencia = list("Year" = 2019:2023, "Period" = 1:2),
+                      intervalo  = list(c(2021, 1), c(2023, 2))
+) 
+
+Plot.Series(
+  datos = Mat_Global,
+  categoria    = "GLOBAL",
+  freqRelativa = FALSE,
+  invertir     = FALSE,
+  ylim         = c(0, 70000),
+  colores      = "#525252",
+  titulo       = "Evolución Total de Matriculados en la UNAL",
+  labelY       = "Número de Matriculados \n",
+  estatico     = TRUE,
+  estilo       = list(
+    gg.Tema = list(Tema = "theme_gray"),
+    gg.Legend = list(legend.position = "none"),
+    gg.Linea  = list(linetype = 5, size = 0.5),
+    gg.Repel = list(size = 3.18, color = "red",
+                    direction = "both", seed = 42, nudge_y = 0.25,
+                    arrow = arrow(length = unit(0.01, "npc")), segment.colour = "#4C716B",
+                    box.padding   = 0.3 ,     # Espacio vacío que se debe respetar alrededor de la caja delimitadora
+                    min.segment.length = 0.5 # Entre más bajo más flechas, entre más distancia menos flechas
+    ),
+    gg.Texto  = list(subtitle = "Periodo 2021-2023")))+
+  theme(axis.text.x = element_text(face="bold", size=9),
+        axis.line = element_line(colour = "darkblue", size = 0.5, linetype = "solid"))
+
+# Matriculados en Pregrado
+
+Mat_Pre <- Agregar(datos = Matriculados %>% filter(TIPO_NIVEL == "Pregrado"),
+                      formula    = GLOBAL ~ YEAR + SEMESTRE,
+                      frecuencia = list("Year" = 2019:2023, "Period" = 1:2),
+                      intervalo  = list(c(2021, 1), c(2023, 2))
+) 
+
+Plot.Series(
+  datos = Mat_Pre,
+  categoria    = "GLOBAL",
+  freqRelativa = FALSE,
+  invertir     = FALSE,
+  ylim         = c(0, 60000),
+  colores      = "#525252",
+  titulo       = "Evolución Total de Matriculados en Pregrado en la UNAL",
+  labelY       = "Número de Matriculados \n",
+  estatico     = TRUE,
+  estilo       = list(
+    gg.Tema = list(Tema = "theme_gray"),
+    gg.Legend = list(legend.position = "none"),
+    gg.Linea  = list(linetype = 5, size = 0.5),
+    gg.Repel = list(size = 3.18, color = "red",
+                    direction = "both", seed = 42, nudge_y = 0.25,
+                    arrow = arrow(length = unit(0.01, "npc")), segment.colour = "#4C716B",
+                    box.padding   = 0.3 ,     # Espacio vacío que se debe respetar alrededor de la caja delimitadora
+                    min.segment.length = 0.5 # Entre más bajo más flechas, entre más distancia menos flechas
+    ),
+    gg.Texto  = list(subtitle = "Periodo 2021-2023")))+
+  theme(axis.text.x = element_text(face="bold", size=9))
+
+# Matriculados en Pregrado por Programa de Admisión
+
+Especial <- Matriculados %>% filter(TIPO_NIVEL == "Pregrado") %>% 
+                             mutate(MOD_ADM = ifelse(SEDE_NOMBRE_ADM == "De La Paz" & YEAR <= 2022, "Regular", MOD_ADM),
+                                    TIPO_ADM = ifelse(SEDE_NOMBRE_ADM == "De La Paz" & YEAR <= 2022, "Regular", TIPO_ADM))
+
+
+Mat_Pre_Adm <- Agregar(datos = Especial,
+                   formula    = TIPO_ADM ~ YEAR + SEMESTRE,
+                   frecuencia = list("Year" = 2019:2023, "Period" = 1:2),
+                   intervalo  = list(c(2021, 1), c(2023, 2))) %>% 
+                     filter(Clase != "PEAA")
+
+
+Plot.Series(
+  datos = Mat_Pre_Adm,
+  categoria    = "TIPO_ADM",
+  freqRelativa = FALSE,
+  invertir     = FALSE,
+  ylim         = c(0, 45000),
+  colores      = c("#e66101", "#0571b0", "#d7191c"),
+  titulo       = "Evolución Total de Matriculados en Pregrado Según Modalidad de Admisión",
+  labelY       = "Número de Matriculados \n",
+  estatico     = TRUE,
+  estilo       = list(
+    gg.Tema = list(Tema = "theme_gray"),
+    LegendTitle = "Tipo de Admisión",
+    gg.Linea  = list(linetype = 5, size = 0.5),
+    gg.Repel = list(size = 3.18, color = "black",
+                    direction = "both", seed = 42, nudge_y = 0.25,
+                    arrow = arrow(length = unit(0.01, "npc")), segment.colour = "#4C716B",
+                    box.padding   = 0.3 ,     # Espacio vacío que se debe respetar alrededor de la caja delimitadora
+                    min.segment.length = 0.5 # Entre más bajo más flechas, entre más distancia menos flechas
+    ),
+    gg.Texto  = list(subtitle = "Periodo 2021-2023")))+
+  theme(axis.text.x = element_text(face="bold", size=9))
+
+
+# Matriculados en Pregrado Admisión Especial
+
+Mat_Pre_Esp <- Agregar(datos = Especial %>% filter(MOD_ADM == "Especial"),
+                       formula    = TIPO_ADM ~ YEAR + SEMESTRE,
+                       frecuencia = list("Year" = 2019:2023, "Period" = 1:2),
+                       intervalo  = list(c(2021, 1), c(2023, 2))) %>% 
+  filter(Clase != "PEAA")
+
+
+Plot.Series(
+  datos = Mat_Pre_Esp,
+  categoria    = "TIPO_ADM",
+  freqRelativa = FALSE,
+  invertir     = FALSE,
+  ylim         = c(0, 5000),
+  colores      = c("#0571b0", "#d7191c"),
+  titulo       = "Evolución Total de Matriculados en Pregrado - Programas Admisión Especial",
+  labelY       = "Número de Matriculados \n",
+  estatico     = TRUE,
+  estilo       = list(
+    gg.Tema = list(Tema = "theme_gray"),
+    LegendTitle = "Programa",
+    gg.Linea  = list(linetype = 5, size = 0.5),
+    gg.Repel = list(size = 3.18, color = "black",
+                    direction = "both", seed = 42, nudge_y = 0.25,
+                    arrow = arrow(length = unit(0.01, "npc")), segment.colour = "#4C716B",
+                    box.padding   = 0.3 ,     # Espacio vacío que se debe respetar alrededor de la caja delimitadora
+                    min.segment.length = 0.5 # Entre más bajo más flechas, entre más distancia menos flechas
+    ),
+    gg.Texto  = list(subtitle = "Periodo 2021-2023")))+
+  theme(axis.text.x = element_text(face="bold", size=9))
+
+
+# Matriculados en Postgrado
+
+Mat_Pos <- Agregar(datos = Matriculados %>% filter(TIPO_NIVEL == "Postgrado"),
+                   formula    = GLOBAL ~ YEAR + SEMESTRE,
+                   frecuencia = list("Year" = 2019:2023, "Period" = 1:2),
+                   intervalo  = list(c(2021, 1), c(2023, 2))
+) 
+
+Plot.Series(
+  datos = Mat_Pos,
+  categoria    = "GLOBAL",
+  freqRelativa = FALSE,
+  invertir     = FALSE,
+  ylim         = c(0, 10000),
+  colores      = "#525252",
+  titulo       = "Evolución Total de Matriculados en Postgrado en la UNAL",
+  labelY       = "Número de Matriculados \n",
+  estatico     = TRUE,
+  estilo       = list(
+    gg.Tema = list(Tema = "theme_gray"),
+    gg.Legend = list(legend.position = "none"),
+    gg.Linea  = list(linetype = 5, size = 0.5),
+    gg.Repel = list(size = 3.18, color = "red",
+                    direction = "both", seed = 42, nudge_y = 0.25,
+                    arrow = arrow(length = unit(0.01, "npc")), segment.colour = "#4C716B",
+                    box.padding   = 0.5 ,     # Espacio vacío que se debe respetar alrededor de la caja delimitadora
+                    min.segment.length = 0.5 # Entre más bajo más flechas, entre más distancia menos flechas
+    ),
+    gg.Texto  = list(subtitle = "Periodo 2021-2023")))+
+  theme(axis.text.x = element_text(face="bold", size=9),
+        axis.line = element_line(colour = "darkblue", size = 0.5, linetype = "solid"))
+
+
+# Matriculados por Areas del Conocimiento CINE
+
+Mat_Area_Cine <- Agregar(datos = UnalData::Matriculados %>% 
+                                 mutate(AREA_CINE = ifelse(AREA_CINE == "Ciencias sociales", "Ciencias sociales, periodismo e información", AREA_CINE),
+                                        AREA_CINE = ifelse(AREA_CINE == "Tecnologías de la información y la comunicación", "Tecnologías de la información y la comunicación (TIC)", AREA_CINE),
+                                        AREA_CINE = ifelse(AREA_CINE == "Ingeniería, industria y construcción", "Ingeniería, Industria y Construcción", AREA_CINE)),
+                       formula    = AREA_CINE ~ YEAR + SEMESTRE,
+                       frecuencia = list("Year" = 2019:2023, "Period" = 1:2),
+                       intervalo  = list(c(2021, 1), c(2023, 2))) %>% 
+                       filter(Clase != "Sin Información")
+
+# Serie
+
+Plot.Series(
+  datos = Mat_Area_Cine,
+  categoria    = "AREA_CINE",
+  freqRelativa = FALSE,
+  invertir     = FALSE,
+  ylim         = c(0, 20000),
+  colores      = RColorBrewer::brewer.pal(9, "Spectral"),
+  titulo       = "Evolución Total de Matriculados por CINE",
+  labelY       = "Número de Matriculados \n",
+  estatico     = TRUE,
+  estilo       = list(
+    gg.Tema = list(Tema = "theme_gray"),
+    LegendTitle = "Programa",
+    gg.Linea  = list(linetype = 5, size = 0.5),
+    gg.Repel = list(size = 3.18, color = "black",
+                    direction = "both", seed = 42, nudge_y = 0.25,
+                    arrow = arrow(length = unit(0.01, "npc")), segment.colour = "#4C716B",
+                    box.padding   = 0.3 ,     # Espacio vacío que se debe respetar alrededor de la caja delimitadora
+                    min.segment.length = 0.5 # Entre más bajo más flechas, entre más distancia menos flechas
+    ),
+    gg.Texto  = list(subtitle = "Periodo 2021-2023")))+
+  theme(axis.text.x = element_text(face="bold", size=9))
+
+
+# Estado actual
+
+Mat_Area_Cine %>% 
+  Plot.Barras(categoria = "AREA_CINE",
+              ano = 2023,
+              periodo = 2,
+              estatico = TRUE, 
+              freqRelativa = FALSE,
+              vertical = FALSE,
+              ylim = c(0, 20000),
+              addPeriodo = FALSE,
+              labelY = "\nTotal matriculados (%)",
+              labelX = "\nÁrea CINE",
+              titulo = "Total de Matriculados por Área de Conocimiento CINE",
+              estilo = list(gg.Tema = 5, 
+                            gg.Bar   = list(width = 0.5),
+                            gg.Texto = list(subtitle = "Periodo 2023-2")))
+
+
+
+# Graduados General
+
+Graduados <- UnalData::Graduados %>% 
+  mutate(GLOBAL = "Total")
+
+
+Gra_Global <- Agregar(datos = Graduados,
+                      formula    = GLOBAL ~ YEAR + SEMESTRE,
+                      frecuencia = list("Year" = 2019:2023, "Period" = 1:2),
+                      intervalo  = list(c(2021, 1), c(2023, 2))
+) 
+
+Plot.Series(
+  datos = Gra_Global,
+  categoria    = "GLOBAL",
+  freqRelativa = FALSE,
+  invertir     = FALSE,
+  ylim         = c(0, 6000),
+  colores      = "#525252",
+  titulo       = "Evolución Total de Graduados en la UNAL",
+  labelY       = "Número de Graduados \n",
+  estatico     = TRUE,
+  estilo       = list(
+    gg.Tema = list(Tema = "theme_gray"),
+    gg.Legend = list(legend.position = "none"),
+    gg.Linea  = list(linetype = 5, size = 0.5),
+    gg.Repel = list(size = 3.18, color = "red",
+                    direction = "both", seed = 42, nudge_y = 0.25,
+                    arrow = arrow(length = unit(0.01, "npc")), segment.colour = "#4C716B",
+                    box.padding   = 0.3 ,     # Espacio vacío que se debe respetar alrededor de la caja delimitadora
+                    min.segment.length = 0.5 # Entre más bajo más flechas, entre más distancia menos flechas
+    ),
+    gg.Texto  = list(subtitle = "Periodo 2021-2023")))+
+  theme(axis.text.x = element_text(face="bold", size=9),
+        axis.line = element_line(colour = "darkblue", size = 0.5, linetype = "solid"))
+
+# Graduados en Pregrado
+
+Gra_Pre <- Agregar(datos = Graduados %>% filter(TIPO_NIVEL == "Pregrado"),
+                   formula    = GLOBAL ~ YEAR + SEMESTRE,
+                   frecuencia = list("Year" = 2019:2023, "Period" = 1:2),
+                   intervalo  = list(c(2021, 1), c(2023, 2))
+) 
+
+Plot.Series(
+  datos = Gra_Pre,
+  categoria    = "GLOBAL",
+  freqRelativa = FALSE,
+  invertir     = FALSE,
+  ylim         = c(0, 4000),
+  colores      = "#525252",
+  titulo       = "Evolución Total de Graduados en Pregrado en la UNAL",
+  labelY       = "Número de Graduados \n",
+  estatico     = TRUE,
+  estilo       = list(
+    gg.Tema = list(Tema = "theme_gray"),
+    gg.Legend = list(legend.position = "none"),
+    gg.Linea  = list(linetype = 5, size = 0.5),
+    gg.Repel = list(size = 3.18, color = "red",
+                    direction = "both", seed = 42, nudge_y = 0.25,
+                    arrow = arrow(length = unit(0.01, "npc")), segment.colour = "#4C716B",
+                    box.padding   = 0.3 ,     # Espacio vacío que se debe respetar alrededor de la caja delimitadora
+                    min.segment.length = 0.5 # Entre más bajo más flechas, entre más distancia menos flechas
+    ),
+    gg.Texto  = list(subtitle = "Periodo 2021-2023")))+
+  theme(axis.text.x = element_text(face="bold", size=9),
+        axis.line = element_line(colour = "darkblue", size = 0.5, linetype = "solid"))
+  
+
+# Graduados en Postgrado
+
+Gra_Pos <- Agregar(datos = Graduados %>% filter(TIPO_NIVEL == "Postgrado"),
+                   formula    = GLOBAL ~ YEAR + SEMESTRE,
+                   frecuencia = list("Year" = 2019:2023, "Period" = 1:2),
+                   intervalo  = list(c(2021, 1), c(2023, 2))
+) 
+
+Plot.Series(
+  datos = Gra_Pos,
+  categoria    = "GLOBAL",
+  freqRelativa = FALSE,
+  invertir     = FALSE,
+  ylim         = c(0, 3000),
+  colores      = "#525252",
+  titulo       = "Evolución Total de Graduados en Postgrado en la UNAL",
+  labelY       = "Número de Graduados \n",
+  estatico     = TRUE,
+  estilo       = list(
+    gg.Tema = list(Tema = "theme_gray"),
+    gg.Legend = list(legend.position = "none"),
+    gg.Linea  = list(linetype = 5, size = 0.5),
+    gg.Repel = list(size = 3.18, color = "red",
+                    direction = "both", seed = 42, nudge_y = 0.25,
+                    arrow = arrow(length = unit(0.01, "npc")), segment.colour = "#4C716B",
+                    box.padding   = 0.5 ,     # Espacio vacío que se debe respetar alrededor de la caja delimitadora
+                    min.segment.length = 0.5 # Entre más bajo más flechas, entre más distancia menos flechas
+    ),
+    gg.Texto  = list(subtitle = "Periodo 2021-2023")))+
+  theme(axis.text.x = element_text(face="bold", size=9),
+        axis.line = element_line(colour = "darkblue", size = 0.5, linetype = "solid"))
+
+
+# Docentes de Carrera
+
+Docentes <- UnalData::Docentes %>% 
+  filter(YEAR >= 2019) %>% 
+  mutate(GLOBAL = "Total")
+
+
+Doc_Global <- Agregar(datos = Docentes,
+                      formula    = GLOBAL ~ YEAR + SEMESTRE,
+                      frecuencia = list("Year" = 2019:2023, "Period" = 1:2),
+                      intervalo  = list(c(2021, 1), c(2023, 2))
+) 
+
+Plot.Series(
+  datos = Doc_Global,
+  categoria    = "GLOBAL",
+  freqRelativa = FALSE,
+  invertir     = FALSE,
+  ylim         = c(0, 4000),
+  colores      = "#525252",
+  titulo       = "Evolución Total Docentes de Carrera en la UNAL",
+  labelY       = "Número de Docentes \n",
+  estatico     = TRUE,
+  estilo       = list(
+    gg.Tema = list(Tema = "theme_gray"),
+    gg.Legend = list(legend.position = "none"),
+    gg.Linea  = list(linetype = 5, size = 0.5),
+    gg.Repel = list(size = 3.18, color = "red",
+                    direction = "both", seed = 42, nudge_y = 0.25,
+                    arrow = arrow(length = unit(0.01, "npc")), segment.colour = "#4C716B",
+                    box.padding   = 0.6 ,     # Espacio vacío que se debe respetar alrededor de la caja delimitadora
+                    min.segment.length = 0.5 # Entre más bajo más flechas, entre más distancia menos flechas
+    ),
+    gg.Texto  = list(subtitle = "Periodo 2021-2023")))+
+  theme(axis.text.x = element_text(face="bold", size=9),
+        axis.line = element_line(colour = "darkblue", size = 0.5, linetype = "solid"))
+
+
+# Docentes de carrera por máximo nivel formación
+
+Doc_Formación <- Agregar(datos = Docentes,
+                      formula    = FORMACION ~ YEAR + SEMESTRE,
+                      frecuencia = list("Year" = 2019:2023, "Period" = 1:2),
+                      intervalo  = list(c(2021, 1), c(2023, 2))
+) 
+
+
+Plot.Series(
+  datos = Doc_Formación,
+  categoria    = "FORMACION",
+  freqRelativa = FALSE,
+  invertir     = FALSE,
+  ylim         = c(0, 2200),
+  colores      = c("#d7191c","#7b3294","#feb24c", "#2b83ba", "#008837"),
+  titulo       = "Evolución Total Docentes de Carrera en la UNAL por Máximo Nivel de Formación",
+  labelY       = "Número de Docentes \n",
+  estatico     = TRUE,
+  estilo       = list(
+    LegendTitle = "Nivel de Formación",
+    gg.Tema = list(Tema = "theme_gray"),
+    gg.Linea  = list(linetype = 5, size = 0.5),
+    gg.Repel = list(size = 3.18, color = "black",
+                    direction = "both", seed = 42, nudge_y = 0.25,
+                    arrow = arrow(length = unit(0.01, "npc")), segment.colour = "#4C716B",
+                    box.padding   = 0.6 ,     # Espacio vacío que se debe respetar alrededor de la caja delimitadora
+                    min.segment.length = 0.5 # Entre más bajo más flechas, entre más distancia menos flechas
+    ),
+    gg.Texto  = list(subtitle = "Periodo 2021-2023")))+
+  theme(axis.text.x = element_text(face="bold", size=9),
+        axis.line = element_line(colour = "darkblue", size = 0.5, linetype = "solid"))
+
+# Docentes de Carrera por País Máximo Nivel de Formación
+
+Doc_Pais <- UnalData::Docentes %>% 
+  filter(YEAR == 2023, SEMESTRE == 2) %>% 
+  summarise(Total = n(), .by = c(CODS_PAISU))
+
+Plot.Mundo(
+  datos    = Doc_Pais,
+  paises   = CODS_PAISU,
+  variable = Total,
+  titulo   = "Total Docentes de Carrera por Países Máximo Nivel de Formación",
+  tipo     = "Pais",
+  #titulo   = "País Formación",
+  opacidad = 1,
+  cortes   = c(0, 10, 100, 1000, Inf),
+  colores  = c("#984ea3", "#377eb8", "#4daf4a", "#e41a1c"),
+  colBorde = "white",
+  estatico = TRUE,
+  estilo   = list(
+             Theme = 5,
+             anchoBorde = 0.2,
+             Style = "Intervalo",
+             showISO    = list(color = "#00468A", size = 10, fontface = "bold.italic"),
+             Legend = list(legend.position = "bottom", legend.direction = "horizontal")
+             ))
+
+# Tabla País Máximo Nivel de Formación
+
+Doc_Pais_Tbl <- UnalData::Docentes %>% 
+  filter(YEAR == 2023, SEMESTRE == 2) %>% 
+  mutate(CODS_PAISU = case_when(CODS_PAISU == "COL" ~ "Colombia",
+                                CODS_PAISU == "ESP" ~ "España",
+                                CODS_PAISU == "USA" ~ "Estados Unidos",
+                                CODS_PAISU == "BRA" ~ "Brasil",
+                                CODS_PAISU == "FRA" ~ "Francia",
+                                CODS_PAISU == "DEU" ~ "Alemania",
+                                CODS_PAISU == "MEX" ~ "México",
+                                CODS_PAISU == "GBR" ~ "Reino Unido",
+                                CODS_PAISU == "NLD" ~ "Países Bajos",
+                                CODS_PAISU == "ARG" ~ "Argentina",
+                                .default = "Otros Países")) %>% 
+  summarise(Total = n(), .by = c(CODS_PAISU)) %>% 
+  arrange(desc(Total)) %>% 
+  arrange(CODS_PAISU=="Otros Países") %>% 
+  mutate(Porcentaje = round(Total /sum(Total),3),
+         Porcentaje = scales::percent(Porcentaje)) %>% 
+  rename(País = CODS_PAISU,
+         `# de docentes` = Total) %>% 
+  Tabla(encabezado  = "Instituciones Acreditadas",
+        estatico = TRUE,
+        estilo      = list(
+          Tema = 11, Padding = c(0.3, 3))) %>% 
+  tab_source_note(source_note = "Fuente: Elaboracción propia") %>% 
+  cols_align(align = "center") %>% 
+  tab_header(title = "Países Obtención Máximo Nivel de Formación Docentes de Carrera de la UNAL",
+             subtitle = md("**Periodo 2023-2**")
+  )
+Doc_Pais_Tbl
+
+# Funcionarios Administrativos
+
+Administrativos <- UnalData::Administrativos %>% 
+  filter(YEAR >= 2019) %>% 
+  mutate(GLOBAL = "Total")
+
+
+Adm_Global <- Agregar(datos = Administrativos,
+                      formula    = GLOBAL ~ YEAR + SEMESTRE,
+                      frecuencia = list("Year" = 2019:2023, "Period" = 1:2),
+                      intervalo  = list(c(2021, 1), c(2023, 2))
+) 
+
+Plot.Series(
+  datos = Adm_Global,
+  categoria    = "GLOBAL",
+  freqRelativa = FALSE,
+  invertir     = FALSE,
+  ylim         = c(0, 4000),
+  colores      = "#525252",
+  titulo       = "Evolución Total Administrativos de Carrera en la UNAL",
+  labelY       = "Número de Administrativos \n",
+  estatico     = TRUE,
+  estilo       = list(
+    gg.Tema = list(Tema = "theme_gray"),
+    gg.Legend = list(legend.position = "none"),
+    gg.Linea  = list(linetype = 5, size = 0.5),
+    gg.Repel = list(size = 3.18, color = "red",
+                    direction = "both", seed = 42, nudge_y = 0.25,
+                    arrow = arrow(length = unit(0.01, "npc")), segment.colour = "#4C716B",
+                    box.padding   = 0.6 ,     # Espacio vacío que se debe respetar alrededor de la caja delimitadora
+                    min.segment.length = 0.5 # Entre más bajo más flechas, entre más distancia menos flechas
+    ),
+    gg.Texto  = list(subtitle = "Periodo 2021-2023")))+
+  theme(axis.text.x = element_text(face="bold", size=9),
+        axis.line = element_line(colour = "darkblue", size = 0.5, linetype = "solid"))
+
+# Resultados SaberPro
+
+Plot.Boxplot(
+  datos      = UnalData::SaberPro,
+  variable   = PUNTAJE_GLOBAL,
+  grupo1     = YEAR,
+  jitter     = FALSE,
+  colores    = pals::turbo(7),
+  colOutlier = "#CBB8FF",
+  titulo     = "Distribución Puntaje Global Prueba Saber Pro, estudiantes UNAL.\n",
+  labelY     = "Puntaje Global Prueba Saber Pro\n",
+  labelX     = "\nAño",
+  textBox    = "Score",
+  estatico   = TRUE,
+  estilo     = list(
+    gg.Tema = 5, gg.Legend = list(legend.position = "none"),
+    gg.Texto = list(
+      caption  = "Información Disponible desde 2016"),
+    gg.VarWidth = TRUE, gg.JitWidth = 0.08, gg.JitSize = 0.05
+  )
+)
+
+# Tabla Saber Pro
+
+Saber_mean <- UnalData::SaberPro %>% select(Año = YEAR, `Competencias Ciudadanas` = PUNT_COMP_CIUD,
+                                                        `Comunicación Escrita` = PUNT_COMU_ESCR,
+                                                        `Lectura Crítica` = PUNT_LECT_CRIT,
+                                                        `Inglés` = PUNT_INGLES,
+                                                        `Razonamiento Cuantitativo` = PUNT_RAZO_CUANT,
+                                                        `Puntaje Global` = PUNTAJE_GLOBAL) %>% 
+              pivot_longer(`Competencias Ciudadanas`:`Puntaje Global`, names_to = "Prueba", values_to = "Puntaje") %>% 
+              summarise(Promedio = round(mean(Puntaje, na.rm = TRUE), 2), .by = c(Año, Prueba)) %>% 
+              pivot_wider(names_from = Prueba, values_from = Promedio) %>% 
+              arrange(desc(Año))
+
+
+Tabla(datos = Saber_mean, 
+  encabezado  = "Encabezado",
+      estatico = TRUE,
+      estilo      = list(
+        Tema = 11, Padding = c(0.3, 3))) %>% 
+  tab_source_note(source_note = "Fuente: Elaboracción propia") %>% 
+  cols_align(align = "center") %>% 
+  tab_header(title = "Resultados Promedio Prueba Saber Pro Globales y por Competencias, estudiantes UNAL",
+             subtitle = md("**Periodo 2016-2022**")
+  )
+
+##%######################################################%##
+#                                                          #
+####              84 Solicitud 24-04-2024              ####
+#                                                          #
+##%######################################################%##
+
+# Estadísticas de admisión de los últimos años, etc Programa PAES. 
+# Solicita: Nicolás Villamil Ibáñez - Periodista
+
+PAES <- Matriculados %>% filter(TIPO_NIVEL == "Pregrado") %>% 
+  mutate(MOD_ADM = ifelse(SEDE_NOMBRE_ADM == "De La Paz" & YEAR <= 2022, "Regular", MOD_ADM),
+         TIPO_ADM = ifelse(SEDE_NOMBRE_ADM == "De La Paz" & YEAR <= 2022, "Regular", TIPO_ADM)) %>% 
+  filter(TIPO_ADM == "PAES")
+
+
+Mat_PAES <- Agregar(datos = PAES,
+                         formula    = PAES ~ YEAR + SEMESTRE,
+                         frecuencia = list("Year" = 2010:2023, "Period" = 1:2),
+                         intervalo  = list(c(2010, 1), c(2023, 2))) %>% 
+            filter(Clase != "De La Paz")
+
+
+Plot.Series(
+  datos = Mat_PAES,
+  categoria    = "PAES",
+  freqRelativa = FALSE,
+  invertir     = FALSE,
+  ylim         = c(0, 1500),
+  colores      = c("#d7191c","#7b3294","#feb24c", "#2b83ba", "#008837"),
+  titulo       = "Evolución Total Matriculados PAES",
+  labelY       = "Número de estudiantes \n",
+  estatico     = TRUE,
+  estilo       = list(
+    LegendTitle = "Modalidad PAES",
+    gg.Tema = list(Tema = "theme_gray"),
+    #gg.Legend = list(legend.position = "bottom"),
+    gg.Linea  = list(linetype = 5, size = 0.5),
+    gg.Repel = list(size = 3.18, color = "black",
+                    direction = "both", seed = 42, nudge_y = 0.25,
+                    arrow = arrow(length = unit(0.01, "npc")), segment.colour = "#4C716B",
+                    box.padding   = 0.6 ,     # Espacio vacío que se debe respetar alrededor de la caja delimitadora
+                    min.segment.length = 0.5 # Entre más bajo más flechas, entre más distancia menos flechas
+    ),
+    gg.Texto  = list(subtitle = "Periodo 2010-2023")))+
+  theme(axis.text.x = element_text(face="bold", size=9),
+        axis.line = element_line(colour = "darkblue", size = 0.5, linetype = "solid"))
+
+
+##%######################################################%##
+#                                                          #
+####              85 Solicitud 25-04-2024              ####
+#                                                          #
+##%######################################################%##
+
+# Gráficos Presentación Lanzamiento Libro Filbo 2024
+
+# Mapa Aspirantes
+
+Aspirantes <- UnalData::Aspirantes %>% 
+  filter((TIPO_NIVEL == "Pregrado" & !is.na(MOD_INS))|
+           (TIPO_NIVEL == "Postgrado" & MOD_INS == "Regular")) 
+
+nrow(Aspirantes %>% summarise(Total = n(), .by = c(COD_CIU_NAC)))
+
+Plot.Mapa(
+  datos    = Aspirantes,
+  depto    = COD_DEP_NAC,
+  mpio     = COD_CIU_NAC,
+  tipo     = "SiNoMpios",
+  titulo   = "Aspirantes UNAL 2008-2023",
+  colores  = c("red", "#1AD61A"),
+  colSedes = rep("green", 9),
+  #opacidad = 0.6,
+  #colBorde = "#FF4D00",
+  compacto = FALSE,
+  textSize = 5,
+  limpio   = FALSE
+)
+
+# Mapa Admitidos
+
+Admitidos <- UnalData::Aspirantes %>% 
+  filter((TIPO_NIVEL == "Pregrado" & !is.na(MOD_INS))|
+           (TIPO_NIVEL == "Postgrado" & MOD_INS == "Regular"),
+         ADMITIDO == "Sí") 
+
+nrow(Admitidos %>% summarise(Total = n(), .by = c(COD_CIU_NAC)))
+
+
+Plot.Mapa(
+  datos    = Admitidos,
+  depto    = COD_DEP_NAC,
+  mpio     = COD_CIU_NAC,
+  tipo     = "SiNoMpios",
+  titulo   = "Admitidos UNAL 2008-2023",
+  colores  = c("red", "#1AD61A"),
+  colSedes = rep("green", 9),
+  #opacidad = 0.6,
+  #colBorde = "#FF4D00",
+  compacto = FALSE,
+  textSize = 5,
+  limpio   = FALSE
+)
+
+
+# Mapa Graduados
+
+Graduados <- UnalData::Graduados
+
+nrow(Graduados %>% summarise(Total = n(), .by = c(COD_CIU_NAC)))
+
+
+Plot.Mapa(
+  datos    = Graduados,
+  depto    = COD_DEP_NAC,
+  mpio     = COD_CIU_NAC,
+  tipo     = "SiNoMpios",
+  titulo   = "Graduados UNAL 2009-2023",
+  colores  = c("red", "#1AD61A"),
+  colSedes = rep("green", 9),
+  #opacidad = 0.6,
+  #colBorde = "#FF4D00",
+  compacto = FALSE,
+  textSize = 5,
+  limpio   = FALSE
+)
+
+
