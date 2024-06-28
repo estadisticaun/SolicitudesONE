@@ -7825,4 +7825,508 @@ Plot.Mapa(
   limpio   = FALSE
 )
 
+##%######################################################%##
+#                                                          #
+####              86 Solicitud 15-05-2024              ####
+#                                                          #
+##%######################################################%##
 
+# Tendencias Matriculados
+
+# Pregrado
+
+Agregar(datos = UnalData::Matriculados %>% 
+          filter(TIPO_NIVEL == "Pregrado") %>% 
+          mutate(TOTAL = "TOTAL"),
+        formula    = TOTAL ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2009:2023, "Period" = 1:2),
+        intervalo  = list(c(2009, 1), c(2023, 2))) %>% 
+  Plot.Series(
+    categoria = "TOTAL",
+    ylim      = c(0, NaN),
+    colores   = c("#8cc63f"),
+    titulo    = "Evolución del número de estudiantes matriculados en pregrado",
+    labelX    = "Periodo",
+    labelY    = "Número de matriculados</br>",
+    libreria  = "highcharter",
+    estilo    = list(hc.Tema = 1)
+  )
+
+# Postgrado
+
+Agregar(datos = UnalData::Matriculados %>% 
+          filter(TIPO_NIVEL == "Postgrado") %>% 
+          mutate(TOTAL = "TOTAL"),
+        formula    = TOTAL ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2009:2023, "Period" = 1:2),
+        intervalo  = list(c(2009, 1), c(2023, 2))) %>% 
+  Plot.Series(
+    categoria = "TOTAL",
+    ylim      = c(0, NaN),
+    colores   = c("#8cc63f"),
+    titulo    = "Evolución del número de estudiantes matriculados en postgrado",
+    labelX    = "Periodo",
+    labelY    = "Número de matriculados</br>",
+    libreria  = "highcharter",
+    estilo    = list(hc.Tema = 1)
+  )
+
+
+
+# Tendencias Matricula Primera Vez
+
+# Pregrado
+
+Agregar(datos = UnalData::Matriculados %>% filter(TIPO_NIVEL == "Pregrado"),
+  formula    = MAT_PVEZ ~ YEAR + SEMESTRE,
+  frecuencia = list("Year" = 2009:2023, "Period" = 1:2),
+  intervalo  = list(c(2009, 1), c(2023, 2))) %>% 
+  Plot.Series(
+  categoria = "MAT_PVEZ",
+  ylim      = c(0, NaN),
+  colores   = c("#3182bd", "#8cc63f"),
+  titulo    = "Evolución del número de estudiantes de pregrado matriculados por primera vez",
+  labelX    = "Periodo",
+  labelY    = "Número de matriculados</br>",
+  libreria  = "highcharter",
+  estilo    = list(hc.Tema = 1)
+)
+
+# Postgrado
+
+Agregar(datos = UnalData::Matriculados %>% filter(TIPO_NIVEL == "Postgrado"),
+        formula    = MAT_PVEZ ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2009:2023, "Period" = 1:2),
+        intervalo  = list(c(2009, 1), c(2023, 2))) %>% 
+  Plot.Series(
+    categoria = "MAT_PVEZ",
+    ylim      = c(0, NaN),
+    colores   = c("#3182bd", "#8cc63f"),
+    titulo    = "Evolución del número de estudiantes de postgrado matriculados por primera vez",
+    labelX    = "Periodo",
+    labelY    = "Número de matriculados</br>",
+    libreria  = "highcharter",
+    estilo    = list(hc.Tema = 1))
+
+
+##%######################################################%##
+#                                                          #
+####              87 Solicitud 30-05-2024              ####
+#                                                          #
+##%######################################################%##
+
+# Tendencias Memoria Financiera
+# Solicitante: Gerencia Financiera y Equipo de Estadísticas
+
+####
+# Aspirantes 
+####
+
+# Tendencia 
+
+Agregar(datos = UnalData::Aspirantes %>% 
+        mutate(TOTAL = "TOTAL"),
+        formula    = TOTAL ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2016, 1), c(2021, 2))) %>% 
+        mutate(Clase  = ifelse(Clase == "TOTAL", "Total Aspirantes", Clase)) %>% 
+  Plot.Series(
+    categoria = "TOTAL",
+    ylim      = c(0, NaN),
+    colores   = c("#8cc63f"),
+    titulo    = "Evolución del número de aspirantes en la UNAL",
+    labelX    = "Periodo",
+    labelY    = "Número de aspirantes</br>",
+    libreria  = "highcharter",
+    estilo    = list(hc.Tema = 5)
+  )
+
+# Sedes
+
+Agregar(datos = UnalData::Aspirantes,
+        formula    = INS_SEDE_NOMBRE ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2016, 1), c(2021, 2))) %>%  
+  Plot.Series(
+    categoria = "INS_SEDE_NOMBRE",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de aspirantes en la UNAL por sedes",
+    labelX    = "Periodo",
+    labelY    = "Número de aspirantes</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Sede:", hc.Tema = 5)
+  )
+
+# Nivel de Formación
+
+Agregar(datos = UnalData::Aspirantes,
+        formula    = NIVEL ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2016, 1), c(2021, 2))) %>%  
+  Plot.Series(
+    categoria = "NIVEL",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de aspirantes en la UNAL por nivel de formación",
+    labelX    = "Periodo",
+    labelY    = "Número de aspirantes</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Nivel de formación:", hc.Tema = 5)
+  )
+
+# Sexo
+
+Agregar(datos = UnalData::Aspirantes,
+        formula    = SEXO ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2016, 1), c(2021, 2))) %>%  
+  filter(!Clase %in% c("Transgénero", "No binario")) %>% 
+  Plot.Series(
+    categoria = "SEXO",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de aspirantes en la UNAL por sexo",
+    labelX    = "Periodo",
+    labelY    = "Número de aspirantes</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Sexo:", hc.Tema = 5)
+  )
+
+# Estrato
+
+Agregar(datos = UnalData::Aspirantes,
+        formula    = ESTRATO_ORIG ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2016, 1), c(2021, 2))) %>%  
+  Plot.Series(
+    categoria = "ESTRATO_ORIG",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de aspirantes en la UNAL por estrato",
+    labelX    = "Periodo",
+    labelY    = "Número de aspirantes</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Estrato:", hc.Tema = 5)
+  )
+
+# Inscripción
+
+Agregar(datos = UnalData::Aspirantes %>% filter(NIVEL == "Pregrado"),
+        formula    = TIPO_INS ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2016, 1), c(2021, 2))) %>%  
+        filter(Clase != "PAET") %>% 
+  Plot.Series(
+    categoria = "TIPO_INS",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de aspirantes a pregrado por programas de inscripción",
+    labelX    = "Periodo",
+    labelY    = "Número de aspirantes</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Programa de inscripción:", hc.Tema = 5)
+  )
+
+####
+# Admitidos
+####
+
+# Tendencia 
+
+Agregar(datos = UnalData::Aspirantes %>% filter(ADMITIDO == "Sí") %>% 
+          mutate(TOTAL = "TOTAL"),
+        formula    = TOTAL ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2016, 1), c(2021, 2))) %>% 
+  mutate(Clase  = ifelse(Clase == "TOTAL", "Total Admitidos", Clase)) %>% 
+  Plot.Series(
+    categoria = "TOTAL",
+    ylim      = c(0, NaN),
+    colores   = c("#8cc63f"),
+    titulo    = "Evolución del número de admitidos en la UNAL",
+    labelX    = "Periodo",
+    labelY    = "Número de admitidos</br>",
+    libreria  = "highcharter",
+    estilo    = list(hc.Tema = 5)
+  )
+
+# Sedes
+
+Agregar(datos = UnalData::Aspirantes %>% filter(ADMITIDO == "Sí"),
+        formula    = ADM_SEDE_NOMBRE ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2016, 1), c(2021, 2))) %>%  
+  Plot.Series(
+    categoria = "ADM_SEDE_NOMBRE",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de admitidos en la UNAL por sedes",
+    labelX    = "Periodo",
+    labelY    = "Número de admitidos</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Sede:", hc.Tema = 5)
+  )
+
+# Nivel de Formación
+
+Agregar(datos = UnalData::Aspirantes %>% filter(ADMITIDO == "Sí"),
+        formula    = NIVEL ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2016, 1), c(2021, 2))) %>%  
+  Plot.Series(
+    categoria = "NIVEL",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de aspirantes en la UNAL por nivel de formación",
+    labelX    = "Periodo",
+    labelY    = "Número de aspirantes</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Nivel de formación:", hc.Tema = 5)
+  )
+
+# Sexo
+
+Agregar(datos = UnalData::Aspirantes %>% filter(ADMITIDO == "Sí"),
+        formula    = SEXO ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2016, 1), c(2021, 2))) %>%  
+  filter(!Clase %in% c("Transgénero", "No binario")) %>% 
+  Plot.Series(
+    categoria = "SEXO",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de aspirantes en la UNAL por sexo",
+    labelX    = "Periodo",
+    labelY    = "Número de aspirantes</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Sexo:", hc.Tema = 5)
+  )
+
+# Estrato
+
+Agregar(datos = UnalData::Aspirantes %>% filter(ADMITIDO == "Sí"), 
+        formula    = ESTRATO_ORIG ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2016, 1), c(2021, 2))) %>%  
+  Plot.Series(
+    categoria = "ESTRATO_ORIG",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de admitidos en la UNAL por estrato",
+    labelX    = "Periodo",
+    labelY    = "Número de admitidos</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Estrato:", hc.Tema = 5)
+  )
+
+# Inscripción
+
+Agregar(datos = UnalData::Aspirantes %>% filter(NIVEL == "Pregrado", ADMITIDO == "Sí"),
+        formula    = TIPO_INS ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2016, 1), c(2021, 2))) %>%  
+  filter(Clase != "PAET") %>% 
+  Plot.Series(
+    categoria = "TIPO_INS",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de admitidos a pregrado por programas de inscripción",
+    labelX    = "Periodo",
+    labelY    = "Número de admitidos</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Programa de inscripción:", hc.Tema = 5)
+  )
+
+
+##%######################################################%##
+#                                                          #
+####              88 Solicitud 05-06-2024              ####
+#                                                          #
+##%######################################################%##
+
+# Datos SNIES Universidad 18-21
+# Solicitante: Alberto Rodríguez R
+
+# Importar SNIES Universidad
+
+Snies1821 <- read_excel("Datos/Fuentes/Snies1821.xlsx",
+                        sheet = "General",
+                        guess_max = 600000)
+
+Universidad <- Snies1821 %>% filter(Formacion %in% c("Universitaria", "UNIVERSITARIA"))
+
+# Total Aspirantes
+
+Asp_Total <- Universidad %>% filter(Poblacion == "Inscritos") %>% 
+             summarise(Total = sum(Total), .by = c(Ano)) %>% 
+             pivot_wider(names_from = Ano, values_from = Total) %>% 
+             mutate(Poblacion = "Aspirantes",
+                    Variable = "Total",
+                    Modalidad = "Total") %>% 
+            relocate(Poblacion:Modalidad, .before =  `2018`)
+
+# Aspirantes por Sexo
+
+Asp_Sexo <- Universidad %>% filter(Poblacion == "Inscritos") %>% 
+  summarise(Total = sum(Total), .by = c(Ano, Sexo)) %>% 
+  pivot_wider(names_from = Ano, values_from = Total) %>%
+  rename(Modalidad = Sexo) %>% 
+  mutate(Poblacion = "Aspirantes",
+         Variable = "Sexo",
+         Modalidad = ifelse(Modalidad == "Hombre", "Hombres", "Mujeres")) %>% 
+  relocate(Poblacion:Variable, .before =  Modalidad)
+
+# Aspirantes por Sector
+
+Asp_Sector <- Universidad %>% filter(Poblacion == "Inscritos") %>%  
+  rename(Sector = `Sector IES`) %>% 
+  mutate(Sector = str_to_title(Sector)) %>% 
+  summarise(Total = sum(Total), .by = c(Ano, Sector)) %>%
+  pivot_wider(names_from = Ano, values_from = Total) %>%
+  rename(Modalidad = Sector) %>% 
+  mutate(Modalidad = ifelse(Modalidad == "Privada", "Privado", Modalidad),
+         Poblacion = "Aspirantes",
+         Variable = "Sector") %>% 
+  relocate(Poblacion:Variable, .before =  Modalidad)
+
+# Aspirantes por Metodología
+
+Asp_Metodologia <- Universidad %>% filter(Poblacion == "Inscritos") %>%  
+  mutate(Metodologia = str_to_title(Metodologia)) %>% 
+  summarise(Total = sum(Total), .by = c(Ano, Metodologia)) %>%
+  pivot_wider(names_from = Ano, values_from = Total) %>%
+  rename(Modalidad = Metodologia) %>% 
+  mutate(Poblacion = "Aspirantes",
+         Variable = "Metodologia") %>% 
+  relocate(Poblacion:Variable, .before =  Modalidad)
+
+# Total Admitidos
+
+Adm_Total <- Universidad %>% filter(Poblacion == "Admitidos") %>% 
+  summarise(Total = sum(Total), .by = c(Ano)) %>% 
+  pivot_wider(names_from = Ano, values_from = Total) %>% 
+  mutate(Poblacion = "Admitidos",
+         Variable = "Total",
+         Modalidad = "Total") %>% 
+  relocate(Poblacion:Modalidad, .before =  `2018`)
+
+# Admitidos por Sexo
+
+Adm_Sexo <- Universidad %>% filter(Poblacion == "Admitidos") %>% 
+  mutate(Sexo = str_to_title(Sexo)) %>% 
+  summarise(Total = sum(Total), .by = c(Ano, Sexo)) %>% 
+  pivot_wider(names_from = Ano, values_from = Total) %>%
+  rename(Modalidad = Sexo) %>% 
+  mutate(Poblacion = "Admitidos",
+         Variable = "Sexo",
+         Modalidad = ifelse(Modalidad == "Hombre", "Hombres", 
+                            ifelse(Modalidad == "Mujer", "Mujeres", "Sin información"))) %>% 
+  relocate(Poblacion:Variable, .before =  Modalidad)
+
+# Admitidos por Sector
+
+Adm_Sector <- Universidad %>% filter(Poblacion == "Admitidos") %>%  
+  rename(Sector = `Sector IES`) %>% 
+  mutate(Sector = str_to_title(Sector)) %>% 
+  summarise(Total = sum(Total), .by = c(Ano, Sector)) %>%
+  pivot_wider(names_from = Ano, values_from = Total) %>%
+  rename(Modalidad = Sector) %>% 
+  mutate(Modalidad = ifelse(Modalidad == "Privada", "Privado", Modalidad),
+         Poblacion = "Admitidos",
+         Variable = "Sector") %>% 
+  relocate(Poblacion:Variable, .before =  Modalidad)
+
+# Admitidos por Metodología
+
+Adm_Metodologia <- Universidad %>% filter(Poblacion == "Admitidos") %>%  
+  mutate(Metodologia = str_to_title(Metodologia)) %>% 
+  summarise(Total = sum(Total), .by = c(Ano, Metodologia)) %>%
+  pivot_wider(names_from = Ano, values_from = Total) %>%
+  rename(Modalidad = Metodologia) %>% 
+  mutate(Poblacion = "Admitidos",
+         Variable = "Metodologia") %>% 
+  relocate(Poblacion:Variable, .before =  Modalidad)
+
+# Total Matricula Pvez
+
+Mpvez_Total <- Universidad %>% filter(Poblacion == "Mpvez") %>% 
+  summarise(Total = sum(Total), .by = c(Ano)) %>% 
+  pivot_wider(names_from = Ano, values_from = Total) %>% 
+  mutate(Poblacion = "Mpvez",
+         Variable = "Total",
+         Modalidad = "Total") %>% 
+  relocate(Poblacion:Modalidad, .before =  `2018`)
+
+# Matricula Pvez por Sexo
+
+Mpvez_Sexo <- Universidad %>% filter(Poblacion == "Mpvez") %>% 
+  mutate(Sexo1 = case_when(ID_Sexo == 1 ~ "Hombres",
+                           ID_Sexo == 2 ~ "Mujeres",
+                           ID_Sexo == 0 ~ "Sin Información")) %>% 
+  summarise(Total = sum(Total), .by = c(Ano, Sexo1)) %>% 
+  pivot_wider(names_from = Ano, values_from = Total) %>%
+  rename(Modalidad = Sexo1) %>% 
+  mutate(Poblacion = "Mpvez",
+         Variable = "Sexo") %>% 
+  relocate(Poblacion:Variable, .before =  Modalidad)
+
+# Matricula Pvez por Sector
+
+Mpvez_Sector <- Universidad %>% filter(Poblacion == "Mpvez") %>%  
+  rename(Sector = `Sector IES`) %>% 
+  mutate(Sector = str_to_title(Sector)) %>% 
+  summarise(Total = sum(Total), .by = c(Ano, Sector)) %>%
+  pivot_wider(names_from = Ano, values_from = Total) %>%
+  rename(Modalidad = Sector) %>% 
+  mutate(Modalidad = ifelse(Modalidad == "Privada", "Privado", Modalidad),
+         Poblacion = "Mpvez",
+         Variable = "Sector") %>% 
+  relocate(Poblacion:Variable, .before =  Modalidad)
+
+# Matricula Pvez por Metodología
+
+Mpvez_Metodologia <- Universidad %>% filter(Poblacion == "Mpvez") %>%  
+  mutate(Metodologia = str_to_title(Metodologia)) %>% 
+  summarise(Total = sum(Total), .by = c(Ano, Metodologia)) %>%
+  pivot_wider(names_from = Ano, values_from = Total) %>%
+  rename(Modalidad = Metodologia) %>% 
+  mutate(Poblacion = "Mpvez",
+         Variable = "Metodologia") %>% 
+  relocate(Poblacion:Variable, .before =  Modalidad)
+
+
+
+
+# Base Global
+
+Global <- bind_rows(Asp_Total, Asp_Sexo, Asp_Sector, Asp_Metodologia,
+                    Adm_Total, Adm_Sexo, Adm_Sector, Adm_Metodologia,
+                    Mpvez_Total, Mpvez_Sexo, Mpvez_Sector, Mpvez_Metodologia)
+
+# Exportar base a Excel
+
+write_xlsx(Global, "Datos/Entrega88/Universidad.xlsx")
+  
+
+##%######################################################%##
+#                                                          #
+####              89 Solicitud 28-06-2024              ####
+#                                                          #
+##%######################################################%##
+
+# La distribución por  departamento (lugar) de procedencia 
+# de los estudiantes del Programa Curricular de Medicina de 2014-2023 
+# por periodo académico.
+
+# Solicitante: 
+
+# BEATRIZ MENA BEJARANO
+# Directora de Bienestar
+# Facultad de Medicina
+# Universidad Nacional de Colombia
+# Carrera 30 No. 45-03, Edificio 471, oficina 226
+# 3165411 / 3165000 Ext 15132
+
+# Consulta
+
+Medicina_Proc <- UnalData::Matriculados %>% 
+                 filter(SNIES_PROGRA == 9, 
+                        YEAR %in% c(2016:2023), 
+                        SEDE_NOMBRE_MAT == "Bogotá") %>% 
+                 mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+                 summarise(Total = n(), .by = c(Periodo, DEP_PROC)) %>% 
+                 pivot_wider(names_from = Periodo, values_from = Total, values_fill = 0)
+                                                                    
+write_xlsx(Medicina_Proc, "Datos/Entrega89/Medicina_Procedencia.xlsx")        
+                
