@@ -8071,9 +8071,9 @@ Agregar(datos = UnalData::Aspirantes %>% filter(ADMITIDO == "Sí"),
   Plot.Series(
     categoria = "NIVEL",
     ylim      = c(0, NaN),
-    titulo    = "Evolución del número de aspirantes en la UNAL por nivel de formación",
+    titulo    = "Evolución del número de admitidos en la UNAL por nivel de formación",
     labelX    = "Periodo",
-    labelY    = "Número de aspirantes</br>",
+    labelY    = "Número de admitidos</br>",
     libreria  = "highcharter",
     estilo    = list(LegendTitle = "Nivel de formación:", hc.Tema = 5)
   )
@@ -8088,9 +8088,9 @@ Agregar(datos = UnalData::Aspirantes %>% filter(ADMITIDO == "Sí"),
   Plot.Series(
     categoria = "SEXO",
     ylim      = c(0, NaN),
-    titulo    = "Evolución del número de aspirantes en la UNAL por sexo",
+    titulo    = "Evolución del número de admitidos en la UNAL por sexo",
     labelX    = "Periodo",
-    labelY    = "Número de aspirantes</br>",
+    labelY    = "Número de admitidos</br>",
     libreria  = "highcharter",
     estilo    = list(LegendTitle = "Sexo:", hc.Tema = 5)
   )
@@ -8126,6 +8126,586 @@ Agregar(datos = UnalData::Aspirantes %>% filter(NIVEL == "Pregrado", ADMITIDO ==
     labelY    = "Número de admitidos</br>",
     libreria  = "highcharter",
     estilo    = list(LegendTitle = "Programa de inscripción:", hc.Tema = 5)
+  )
+
+
+####
+# Matriculados
+####
+
+# Tendencia 
+
+Agregar(datos = UnalData::Matriculados %>% 
+          mutate(TOTAL = "TOTAL"),
+        formula    = TOTAL ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2016, 1), c(2021, 2))) %>% 
+  mutate(Clase  = ifelse(Clase == "TOTAL", "Total Matriculados", Clase)) %>% 
+  Plot.Series(
+    categoria = "TOTAL",
+    ylim      = c(0, NaN),
+    colores   = c("#8cc63f"),
+    titulo    = "Evolución del número de matriculados en la UNAL",
+    labelX    = "Periodo",
+    labelY    = "Número de matriculados</br>",
+    libreria  = "highcharter",
+    estilo    = list(hc.Tema = 5)
+  )
+
+# Sedes
+
+Agregar(datos = UnalData::Matriculados,
+        formula    = SEDE_NOMBRE_MAT ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2016, 1), c(2021, 2))) %>%  
+  Plot.Series(
+    categoria = "SEDE_NOMBRE_MAT",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de matriculados en la UNAL por sedes",
+    labelX    = "Periodo",
+    labelY    = "Número de matriculados</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Sede:", hc.Tema = 5)
+  )
+
+# Nivel de Formación
+
+Agregar(datos = UnalData::Matriculados,
+        formula    = NIVEL ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2016, 1), c(2021, 2))) %>%  
+  Plot.Series(
+    categoria = "NIVEL",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de matriculados en la UNAL por nivel de formación",
+    labelX    = "Periodo",
+    labelY    = "Número de matriculados</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Nivel de formación:", hc.Tema = 5)
+  )
+
+# Sexo
+
+Agregar(datos = UnalData::Matriculados,
+        formula    = SEXO ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2016, 1), c(2021, 2))) %>%  
+  filter(!Clase %in% c("Transgénero", "No binario")) %>% 
+  Plot.Series(
+    categoria = "SEXO",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de matriculados en la UNAL por sexo",
+    labelX    = "Periodo",
+    labelY    = "Número de matriculados</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Sexo:", hc.Tema = 5)
+  )
+
+# Estrato
+
+Agregar(datos = UnalData::Matriculados,
+        formula    = ESTRATO_ORIG ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2019:2021, "Period" = 1:2),
+        intervalo  = list(c(2019, 2), c(2021, 2))) %>%  
+  Plot.Series(
+    categoria = "ESTRATO_ORIG",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de matriculados en la UNAL por estrato",
+    labelX    = "Periodo",
+    labelY    = "Número de matriculados</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Estrato:", hc.Tema = 5)
+  )
+
+# Inscripción
+
+Agregar(datos = UnalData::Matriculados %>% filter(NIVEL == "Pregrado"),
+        formula    = TIPO_ADM ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2016, 1), c(2021, 2))) %>%  
+  filter(!Clase %in% c("PEAA", "PAET")) %>% 
+  Plot.Series(
+    categoria = "TIPO_ADM",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de matriculados en pregrado por programas de inscripción",
+    labelX    = "Periodo",
+    labelY    = "Número de matriculados</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Programa de inscripción:", hc.Tema = 5)
+  )
+
+# PAES
+
+Agregar(datos = UnalData::Matriculados %>% filter(NIVEL == "Pregrado", TIPO_ADM == "PAES"),
+        formula    = PAES ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2016, 1), c(2021, 2))) %>%  
+  filter(!Clase %in% c("PEAA", "PAET")) %>% 
+  Plot.Series(
+    categoria = "PAES",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de matriculados en pregrado por modalidades del programa PAES",
+    labelX    = "Periodo",
+    labelY    = "Número de matriculados</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Modalidad PAES:", hc.Tema = 5)
+  )
+
+# PEAMA
+
+Agregar(datos = UnalData::Matriculados %>% filter(NIVEL == "Pregrado", TIPO_ADM == "PEAMA"),
+        formula    = PEAMA ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2016, 1), c(2021, 2))) %>%  
+  filter(!Clase %in% c("PEAA", "PAET")) %>% 
+  Plot.Series(
+    categoria = "PEAMA",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de matriculados en pregrado por modalidades del programa PEAMA",
+    labelX    = "Periodo",
+    labelY    = "Número de matriculados</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Programa PEAMA:", hc.Tema = 5)
+  )
+
+####
+# Graduados
+####
+
+# Tendencia 
+
+Agregar(datos = UnalData::Graduados %>% 
+          mutate(TOTAL = "TOTAL"),
+        formula    = TOTAL ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2016, 1), c(2021, 2))) %>% 
+  mutate(Clase  = ifelse(Clase == "TOTAL", "Total Graduados", Clase)) %>% 
+  Plot.Series(
+    categoria = "TOTAL",
+    ylim      = c(0, NaN),
+    colores   = c("#8cc63f"),
+    titulo    = "Evolución del número de graduados en la UNAL",
+    labelX    = "Periodo",
+    labelY    = "Número de graduados</br>",
+    libreria  = "highcharter",
+    estilo    = list(hc.Tema = 5)
+  )
+
+# Sedes
+
+Agregar(datos = UnalData::Graduados,
+        formula    = SEDE_NOMBRE_ADM ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2016, 1), c(2021, 2))) %>%  
+  Plot.Series(
+    categoria = "SEDE_NOMBRE_ADM",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de graduados en la UNAL por sedes",
+    labelX    = "Periodo",
+    labelY    = "Número de graduados</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Sede:", hc.Tema = 5)
+  )
+
+# Nivel de Formación
+
+Agregar(datos = UnalData::Graduados,
+        formula    = NIVEL ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2016, 1), c(2021, 2))) %>%  
+  Plot.Series(
+    categoria = "NIVEL",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de graduados en la UNAL por nivel de formación",
+    labelX    = "Periodo",
+    labelY    = "Número de graduados</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Nivel de formación:", hc.Tema = 5)
+  )
+
+# Sexo
+
+Agregar(datos = UnalData::Graduados,
+        formula    = SEXO ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2016, 1), c(2021, 2))) %>%  
+  filter(!Clase %in% c("Transgénero", "No binario")) %>% 
+  Plot.Series(
+    categoria = "SEXO",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de graduados en la UNAL por sexo",
+    labelX    = "Periodo",
+    labelY    = "Número de graduados</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Sexo:", hc.Tema = 5)
+  )
+
+# Estrato
+
+Agregar(datos = UnalData::Graduados,
+        formula    = ESTRATO_ORIG ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2019:2021, "Period" = 1:2),
+        intervalo  = list(c(2019, 2), c(2021, 2))) %>%  
+  Plot.Series(
+    categoria = "ESTRATO_ORIG",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de graduados en la UNAL por estrato",
+    labelX    = "Periodo",
+    labelY    = "Número de graduados</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Estrato:", hc.Tema = 5)
+  )
+
+# Inscripción
+
+Agregar(datos = UnalData::Graduados %>% filter(NIVEL == "Pregrado"),
+        formula    = TIPO_ADM ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2016, 1), c(2021, 2))) %>%  
+  filter(!Clase %in% c("PEAA", "PAET")) %>% 
+  Plot.Series(
+    categoria = "TIPO_ADM",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de graduados en pregrado por programas de inscripción",
+    labelX    = "Periodo",
+    labelY    = "Número de graduados</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Programa de inscripción:", hc.Tema = 5)
+  )
+
+# PAES
+
+Agregar(datos = UnalData::Graduados %>% filter(NIVEL == "Pregrado", TIPO_ADM == "PAES"),
+        formula    = PAES ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2016, 1), c(2021, 2))) %>%  
+   Plot.Series(
+    categoria = "PAES",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de graduados en pregrado por modalidades del programa PAES",
+    labelX    = "Periodo",
+    labelY    = "Número de graduados</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Modalidad PAES:", hc.Tema = 5)
+  )
+
+# PEAMA
+
+Agregar(datos = UnalData::Graduados %>% filter(NIVEL == "Pregrado", TIPO_ADM == "PEAMA"),
+        formula    = PEAMA ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2016, 1), c(2021, 2))) %>%  
+  Plot.Series(
+    categoria = "PEAMA",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de graduados en pregrado por modalidades del programa PEAMA",
+    labelX    = "Periodo",
+    labelY    = "Número de graduados</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Programa PEAMA:", hc.Tema = 5)
+  )
+
+
+####
+# Resultados Saber Pro
+####
+
+# Tendencia 
+
+Plot.Boxplot(
+  datos       = UnalData::SaberPro %>% filter(between(YEAR, 2016, 2021)),
+  variable    = PUNTAJE_GLOBAL,
+  grupo1      = YEAR,
+  outliers    = FALSE,
+  ylim        = c(0, 300),
+  colores     = pals::jet(6),
+  titulo      = "Evolución Distribución Puntajes Promedios Globales de la UNAL en la Prueba Saber Pro",
+  labelY      = "Puntaje Promedio Global",
+  textBox     = "Puntaje Global",
+  libreria    = "highcharter",
+  estilo      = list(hc.Tema = 2)
+)
+
+# Sedes
+
+Plot.Boxplot(
+  datos       = UnalData::SaberPro %>% filter(between(YEAR, 2016, 2021)),
+  variable    = PUNTAJE_GLOBAL,
+  grupo1      = YEAR,
+  grupo2   = SEDE_NOMBRE_ADM,
+  outliers    = FALSE,
+  ylim        = c(0, 300),
+  colores     = pals::jet(8),
+  titulo      = "Evolución Distribución Puntajes Promedios Globales por Sedes de la UNAL en la Prueba Saber Pro",
+  labelY      = "Puntaje Promedio Global",
+  textBox     = "Puntaje Global",
+  libreria    = "highcharter",
+  estilo      = list(hc.Tema = 2)
+)
+
+
+# Sexo
+
+Plot.Boxplot(
+  datos       = UnalData::SaberPro %>% filter(between(YEAR, 2016, 2021)),
+  variable    = PUNTAJE_GLOBAL,
+  grupo1      = YEAR,
+  grupo2   = SEXO,
+  outliers    = FALSE,
+  ylim        = c(0, 300),
+  colores     =  c("#00ABFF", "#F3224B"),
+  titulo      = "Evolución Distribución Puntajes Promedios Globales por Sexo de los Estudiantes de la UNAL en la Prueba Saber Pro",
+  labelY      = "Puntaje Promedio Global",
+  textBox     = "Puntaje Global",
+  libreria    = "highcharter",
+  estilo      = list(hc.Tema = 2)
+)
+
+# Estrato
+
+Plot.Boxplot(
+  datos       = UnalData::SaberPro %>% filter(between(YEAR, 2016, 2021)),
+  variable    = PUNTAJE_GLOBAL,
+  grupo1      = YEAR,
+  grupo2   = ESTRATO,
+  outliers    = FALSE,
+  ylim        = c(0, 300),
+  colores     = c("#00ABFF", "#F3224B", "#FCD116", "#29DF2C"),
+  titulo      = "Evolución Distribución Puntajes Promedios Globales por Estrato de los Estudiantes de la UNAL en la Prueba Saber Pro",
+  labelY      = "Puntaje Promedio Global",
+  textBox     = "Puntaje Global",
+  libreria    = "highcharter",
+  estilo      = list(hc.Tema = 2)
+)
+
+# Inscripción
+
+Plot.Boxplot(
+  datos       = UnalData::SaberPro %>% filter(between(YEAR, 2016, 2021)),
+  variable    = PUNTAJE_GLOBAL,
+  grupo1      = YEAR,
+  grupo2   = TIPO_ADM,
+  outliers    = FALSE,
+  ylim        = c(0, 300),
+  colores     = c("#00ABFF", "#F3224B", "#29DF2C"),
+  titulo      = "Evolución Distribución Puntajes Promedios Globales por Programa de Admisión de los Estudiantes de la UNAL en la Prueba Saber Pro",
+  labelY      = "Puntaje Promedio Global",
+  textBox     = "Puntaje Global",
+  libreria    = "highcharter",
+  estilo      = list(hc.Tema = 2)
+)
+
+
+####
+# Docentes de carrera
+####
+
+# Tendencia 
+
+Agregar(datos = UnalData::Docentes %>% 
+          mutate(TOTAL = "TOTAL"),
+        formula    = TOTAL ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2017, 2), c(2021, 2))) %>% 
+  mutate(Clase  = ifelse(Clase == "TOTAL", "Total Docentes", Clase)) %>% 
+  Plot.Series(
+    categoria = "TOTAL",
+    ylim      = c(0, NaN),
+    colores   = c("#8cc63f"),
+    titulo    = "Evolución del número de docentes de carrera en la UNAL",
+    labelX    = "Periodo",
+    labelY    = "Número de docentes</br>",
+    libreria  = "highcharter",
+    estilo    = list(hc.Tema = 5)
+  )
+
+# Sedes
+
+Agregar(datos = UnalData::Docentes,
+        formula    = SEDE ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2017, 2), c(2021, 2))) %>%  
+  Plot.Series(
+    categoria = "SEDE",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de docentes en la UNAL por sedes",
+    labelX    = "Periodo",
+    labelY    = "Número de docentes</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Sede:", hc.Tema = 5)
+  )
+
+
+# Sexo
+
+Agregar(datos = UnalData::Docentes,
+        formula    = SEXO ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2017, 2), c(2021, 2))) %>%  
+  filter(!Clase %in% c("Transgénero", "No binario")) %>% 
+  Plot.Series(
+    categoria = "SEXO",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de docentes en la UNAL por sexo",
+    labelX    = "Periodo",
+    labelY    = "Número de docentes</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Sexo:", hc.Tema = 5)
+  )
+
+# Formación
+
+Agregar(datos = UnalData::Docentes,
+        formula    = FORMACION ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2017, 2), c(2021, 2))) %>%  
+  Plot.Series(
+    categoria = "FORMACION",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de docentes de la UNAL por máximo nivel de formación",
+    labelX    = "Periodo",
+    labelY    = "Número de docentes</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Nivel de formación:", hc.Tema = 5)
+  )
+
+# Categoría
+
+Agregar(datos = UnalData::Docentes,
+        formula    = CATEGORIA ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2017, 2), c(2021, 2))) %>%  
+  Plot.Series(
+    categoria = "CATEGORIA",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de docentes de la UNAL por categoría",
+    labelX    = "Periodo",
+    labelY    = "Número de docentes</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Categoría del docente:", hc.Tema = 5)
+  )
+
+# Dedicación
+
+Agregar(datos = UnalData::Docentes,
+        formula    = DEDICACION ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2017, 2), c(2021, 2))) %>%  
+  Plot.Series(
+    categoria = "DEDICACION",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de docentes de la UNAL según dedicación",
+    labelX    = "Periodo",
+    labelY    = "Número de docentes</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Dedicación del docente:", hc.Tema = 5)
+  )
+
+# Lugar formación
+
+Agregar(datos = UnalData::Docentes,
+        formula    = LUG_FORMACION ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2017, 2), c(2021, 2))) %>%  
+  Plot.Series(
+    categoria = "LUG_FORMACION",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de docentes de la UNAL por lugar de formación",
+    labelX    = "Periodo",
+    labelY    = "Número de docentes</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Lugar de formación:", hc.Tema = 5)
+  )
+
+
+####
+# Funcionarios de carrera
+####
+
+# Tendencia 
+
+Agregar(datos = UnalData::Administrativos %>% 
+          mutate(TOTAL = "TOTAL"),
+        formula    = TOTAL ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2017, 2), c(2021, 2))) %>% 
+  mutate(Clase  = ifelse(Clase == "TOTAL", "Total Docentes", Clase)) %>% 
+  Plot.Series(
+    categoria = "TOTAL",
+    ylim      = c(0, NaN),
+    colores   = c("#8cc63f"),
+    titulo    = "Evolución del número de funcionarios de carrera en la UNAL",
+    labelX    = "Periodo",
+    labelY    = "Número de funcionarios</br>",
+    libreria  = "highcharter",
+    estilo    = list(hc.Tema = 5)
+  )
+
+# Sedes
+
+Agregar(datos = UnalData::Administrativos,
+        formula    = SEDE ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2017, 2), c(2021, 2))) %>%  
+  Plot.Series(
+    categoria = "SEDE",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de funcionarios en la UNAL por sedes",
+    labelX    = "Periodo",
+    labelY    = "Número de funcionarios</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Sede:", hc.Tema = 5)
+  )
+
+
+# Sexo
+
+Agregar(datos = UnalData::Administrativos,
+        formula    = SEXO ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2017, 2), c(2021, 2))) %>%  
+  filter(!Clase %in% c("Transgénero", "No binario")) %>% 
+  Plot.Series(
+    categoria = "SEXO",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de funcionarios en la UNAL por sexo",
+    labelX    = "Periodo",
+    labelY    = "Número de funcionarios</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Sexo:", hc.Tema = 5)
+  )
+
+# Nivel
+
+Agregar(datos = UnalData::Administrativos,
+        formula    = NIVEL ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2017, 2), c(2021, 2))) %>%  
+  Plot.Series(
+    categoria = "NIVEL",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de funcionarios de la UNAL por nivel de ubicación",
+    labelX    = "Periodo",
+    labelY    = "Número de funcionarios</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Nivel de ubicación:", hc.Tema = 5)
+  )
+
+
+# Formación
+
+Agregar(datos = UnalData::Administrativos,
+        formula    = FORMACION ~ YEAR + SEMESTRE,
+        frecuencia = list("Year" = 2016:2021, "Period" = 1:2),
+        intervalo  = list(c(2017, 2), c(2021, 2))) %>%  
+  Plot.Series(
+    categoria = "FORMACION",
+    ylim      = c(0, NaN),
+    titulo    = "Evolución del número de funcionarios de la UNAL por máximo nivel de formación",
+    labelX    = "Periodo",
+    labelY    = "Número de funcionarios</br>",
+    libreria  = "highcharter",
+    estilo    = list(LegendTitle = "Máximo Nivel de Formación:", hc.Tema = 5)
   )
 
 
