@@ -7950,10 +7950,11 @@ Agregar(datos = UnalData::Aspirantes,
   Plot.Series(
     categoria = "INS_SEDE_NOMBRE",
     ylim      = c(0, NaN),
-    titulo    = "Evolución del número de aspirantes en la UNAL por sedes",
+    titulo    = "Evolución del porcentaje de aspirantes en la UNAL por sedes",
     labelX    = "Periodo",
-    labelY    = "Número de aspirantes</br>",
+    labelY    = "% de aspirantes</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Sede:", hc.Tema = 5)
   )
 
@@ -7966,10 +7967,11 @@ Agregar(datos = UnalData::Aspirantes,
   Plot.Series(
     categoria = "NIVEL",
     ylim      = c(0, NaN),
-    titulo    = "Evolución del número de aspirantes en la UNAL por nivel de formación",
+    titulo    = "Evolución del porcentaje de aspirantes en la UNAL por nivel de formación",
     labelX    = "Periodo",
-    labelY    = "Número de aspirantes</br>",
+    labelY    = "% de aspirantes</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Nivel de formación:", hc.Tema = 5)
   )
 
@@ -7982,11 +7984,12 @@ Agregar(datos = UnalData::Aspirantes,
   filter(!Clase %in% c("Transgénero", "No binario")) %>% 
   Plot.Series(
     categoria = "SEXO",
-    ylim      = c(0, NaN),
-    titulo    = "Evolución del número de aspirantes en la UNAL por sexo",
+    ylim      = c(0, 100),
+    titulo    = "Evolución del porcentaje de aspirantes en la UNAL por sexo",
     labelX    = "Periodo",
-    labelY    = "Número de aspirantes</br>",
+    labelY    = "% de aspirantes</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Sexo:", hc.Tema = 5)
   )
 
@@ -7999,10 +8002,11 @@ Agregar(datos = UnalData::Aspirantes,
   Plot.Series(
     categoria = "ESTRATO_ORIG",
     ylim      = c(0, NaN),
-    titulo    = "Evolución del número de aspirantes en la UNAL por estrato",
+    titulo    = "Evolución del porcentaje de aspirantes en la UNAL por estrato",
     labelX    = "Periodo",
-    labelY    = "Número de aspirantes</br>",
+    labelY    = "% de aspirantes</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Estrato:", hc.Tema = 5)
   )
 
@@ -8016,10 +8020,11 @@ Agregar(datos = UnalData::Aspirantes %>% filter(NIVEL == "Pregrado"),
   Plot.Series(
     categoria = "TIPO_INS",
     ylim      = c(0, NaN),
-    titulo    = "Evolución del número de aspirantes a pregrado por programas de inscripción",
+    titulo    = "Evolución del porcentaje de aspirantes a pregrado por programas de inscripción",
     labelX    = "Periodo",
-    labelY    = "Número de aspirantes</br>",
+    labelY    = "% de aspirantes</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Programa de inscripción:", hc.Tema = 5)
   )
 
@@ -8055,10 +8060,11 @@ Agregar(datos = UnalData::Aspirantes %>% filter(ADMITIDO == "Sí"),
   Plot.Series(
     categoria = "ADM_SEDE_NOMBRE",
     ylim      = c(0, NaN),
-    titulo    = "Evolución del número de admitidos en la UNAL por sedes",
+    titulo    = "Evolución del porcentaje de admitidos en la UNAL por sedes",
     labelX    = "Periodo",
-    labelY    = "Número de admitidos</br>",
+    labelY    = "% de admitidos</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Sede:", hc.Tema = 5)
   )
 
@@ -8071,10 +8077,11 @@ Agregar(datos = UnalData::Aspirantes %>% filter(ADMITIDO == "Sí"),
   Plot.Series(
     categoria = "NIVEL",
     ylim      = c(0, NaN),
-    titulo    = "Evolución del número de admitidos en la UNAL por nivel de formación",
+    titulo    = "Evolución del porcentaje de admitidos en la UNAL por nivel de formación",
     labelX    = "Periodo",
-    labelY    = "Número de admitidos</br>",
+    labelY    = "% de admitidos</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Nivel de formación:", hc.Tema = 5)
   )
 
@@ -8087,11 +8094,12 @@ Agregar(datos = UnalData::Aspirantes %>% filter(ADMITIDO == "Sí"),
   filter(!Clase %in% c("Transgénero", "No binario")) %>% 
   Plot.Series(
     categoria = "SEXO",
-    ylim      = c(0, NaN),
-    titulo    = "Evolución del número de admitidos en la UNAL por sexo",
+    ylim      = c(0, 100),
+    titulo    = "Evolución del porcentaje de admitidos en la UNAL por sexo",
     labelX    = "Periodo",
-    labelY    = "Número de admitidos</br>",
+    labelY    = "% de admitidos</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Sexo:", hc.Tema = 5)
   )
 
@@ -8104,10 +8112,11 @@ Agregar(datos = UnalData::Aspirantes %>% filter(ADMITIDO == "Sí"),
   Plot.Series(
     categoria = "ESTRATO_ORIG",
     ylim      = c(0, NaN),
-    titulo    = "Evolución del número de admitidos en la UNAL por estrato",
+    titulo    = "Evolución del porcentaje de admitidos en la UNAL por estrato",
     labelX    = "Periodo",
-    labelY    = "Número de admitidos</br>",
+    labelY    = "% de admitidos</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Estrato:", hc.Tema = 5)
   )
 
@@ -8121,10 +8130,11 @@ Agregar(datos = UnalData::Aspirantes %>% filter(NIVEL == "Pregrado", ADMITIDO ==
   Plot.Series(
     categoria = "TIPO_INS",
     ylim      = c(0, NaN),
-    titulo    = "Evolución del número de admitidos a pregrado por programas de inscripción",
+    titulo    = "Evolución del porcentaje de admitidos a pregrado por programas de inscripción",
     labelX    = "Periodo",
-    labelY    = "Número de admitidos</br>",
+    labelY    = "% de admitidos</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Programa de inscripción:", hc.Tema = 5)
   )
 
@@ -8161,10 +8171,11 @@ Agregar(datos = UnalData::Matriculados,
   Plot.Series(
     categoria = "SEDE_NOMBRE_MAT",
     ylim      = c(0, NaN),
-    titulo    = "Evolución del número de matriculados en la UNAL por sedes",
+    titulo    = "Evolución del porcentaje de matriculados en la UNAL por sedes",
     labelX    = "Periodo",
-    labelY    = "Número de matriculados</br>",
+    labelY    = "% de matriculados</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Sede:", hc.Tema = 5)
   )
 
@@ -8177,10 +8188,11 @@ Agregar(datos = UnalData::Matriculados,
   Plot.Series(
     categoria = "NIVEL",
     ylim      = c(0, NaN),
-    titulo    = "Evolución del número de matriculados en la UNAL por nivel de formación",
+    titulo    = "Evolución del porcentaje de matriculados en la UNAL por nivel de formación",
     labelX    = "Periodo",
-    labelY    = "Número de matriculados</br>",
+    labelY    = "% de matriculados</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Nivel de formación:", hc.Tema = 5)
   )
 
@@ -8193,11 +8205,12 @@ Agregar(datos = UnalData::Matriculados,
   filter(!Clase %in% c("Transgénero", "No binario")) %>% 
   Plot.Series(
     categoria = "SEXO",
-    ylim      = c(0, NaN),
-    titulo    = "Evolución del número de matriculados en la UNAL por sexo",
+    ylim      = c(0, 100),
+    titulo    = "Evolución del porcentaje de matriculados en la UNAL por sexo",
     labelX    = "Periodo",
-    labelY    = "Número de matriculados</br>",
+    labelY    = "% de matriculados</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Sexo:", hc.Tema = 5)
   )
 
@@ -8210,10 +8223,11 @@ Agregar(datos = UnalData::Matriculados,
   Plot.Series(
     categoria = "ESTRATO_ORIG",
     ylim      = c(0, NaN),
-    titulo    = "Evolución del número de matriculados en la UNAL por estrato",
+    titulo    = "Evolución del porcentaje de matriculados en la UNAL por estrato",
     labelX    = "Periodo",
-    labelY    = "Número de matriculados</br>",
+    labelY    = "% de matriculados</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Estrato:", hc.Tema = 5)
   )
 
@@ -8227,10 +8241,11 @@ Agregar(datos = UnalData::Matriculados %>% filter(NIVEL == "Pregrado"),
   Plot.Series(
     categoria = "TIPO_ADM",
     ylim      = c(0, NaN),
-    titulo    = "Evolución del número de matriculados en pregrado por programas de inscripción",
+    titulo    = "Evolución del porcentaje de matriculados en pregrado por programas de inscripción",
     labelX    = "Periodo",
-    labelY    = "Número de matriculados</br>",
+    labelY    = "% de matriculados</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Programa de inscripción:", hc.Tema = 5)
   )
 
@@ -8244,10 +8259,11 @@ Agregar(datos = UnalData::Matriculados %>% filter(NIVEL == "Pregrado", TIPO_ADM 
   Plot.Series(
     categoria = "PAES",
     ylim      = c(0, NaN),
-    titulo    = "Evolución del número de matriculados en pregrado por modalidades del programa PAES",
+    titulo    = "Evolución del porcentaje de matriculados en pregrado por modalidades del programa PAES",
     labelX    = "Periodo",
-    labelY    = "Número de matriculados</br>",
+    labelY    = "% de matriculados</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Modalidad PAES:", hc.Tema = 5)
   )
 
@@ -8261,10 +8277,11 @@ Agregar(datos = UnalData::Matriculados %>% filter(NIVEL == "Pregrado", TIPO_ADM 
   Plot.Series(
     categoria = "PEAMA",
     ylim      = c(0, NaN),
-    titulo    = "Evolución del número de matriculados en pregrado por modalidades del programa PEAMA",
+    titulo    = "Evolución del porcentaje de matriculados en pregrado por modalidades del programa PEAMA",
     labelX    = "Periodo",
-    labelY    = "Número de matriculados</br>",
+    labelY    = "% de matriculados</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Programa PEAMA:", hc.Tema = 5)
   )
 
@@ -8284,9 +8301,9 @@ Agregar(datos = UnalData::Graduados %>%
     categoria = "TOTAL",
     ylim      = c(0, NaN),
     colores   = c("#8cc63f"),
-    titulo    = "Evolución del número de graduados en la UNAL",
+    titulo    = "Evolución del porcentaje de graduados en la UNAL",
     labelX    = "Periodo",
-    labelY    = "Número de graduados</br>",
+    labelY    = "% de graduados</br>",
     libreria  = "highcharter",
     estilo    = list(hc.Tema = 5)
   )
@@ -8300,10 +8317,11 @@ Agregar(datos = UnalData::Graduados,
   Plot.Series(
     categoria = "SEDE_NOMBRE_ADM",
     ylim      = c(0, NaN),
-    titulo    = "Evolución del número de graduados en la UNAL por sedes",
+    titulo    = "Evolución del porcentaje de graduados en la UNAL por sedes",
     labelX    = "Periodo",
-    labelY    = "Número de graduados</br>",
+    labelY    = "% de graduados</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Sede:", hc.Tema = 5)
   )
 
@@ -8316,10 +8334,11 @@ Agregar(datos = UnalData::Graduados,
   Plot.Series(
     categoria = "NIVEL",
     ylim      = c(0, NaN),
-    titulo    = "Evolución del número de graduados en la UNAL por nivel de formación",
+    titulo    = "Evolución del porcentaje de graduados en la UNAL por nivel de formación",
     labelX    = "Periodo",
-    labelY    = "Número de graduados</br>",
+    labelY    = "% de graduados</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Nivel de formación:", hc.Tema = 5)
   )
 
@@ -8333,10 +8352,11 @@ Agregar(datos = UnalData::Graduados,
   Plot.Series(
     categoria = "SEXO",
     ylim      = c(0, NaN),
-    titulo    = "Evolución del número de graduados en la UNAL por sexo",
+    titulo    = "Evolución del porcentaje de graduados en la UNAL por sexo",
     labelX    = "Periodo",
-    labelY    = "Número de graduados</br>",
+    labelY    = "% de graduados</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Sexo:", hc.Tema = 5)
   )
 
@@ -8349,10 +8369,11 @@ Agregar(datos = UnalData::Graduados,
   Plot.Series(
     categoria = "ESTRATO_ORIG",
     ylim      = c(0, NaN),
-    titulo    = "Evolución del número de graduados en la UNAL por estrato",
+    titulo    = "Evolución del porcentaje de graduados en la UNAL por estrato",
     labelX    = "Periodo",
-    labelY    = "Número de graduados</br>",
+    labelY    = "% de graduados</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Estrato:", hc.Tema = 5)
   )
 
@@ -8366,10 +8387,11 @@ Agregar(datos = UnalData::Graduados %>% filter(NIVEL == "Pregrado"),
   Plot.Series(
     categoria = "TIPO_ADM",
     ylim      = c(0, NaN),
-    titulo    = "Evolución del número de graduados en pregrado por programas de inscripción",
+    titulo    = "Evolución del porcentaje de graduados en pregrado por programas de inscripción",
     labelX    = "Periodo",
-    labelY    = "Número de graduados</br>",
+    labelY    = "% de graduados</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Programa de inscripción:", hc.Tema = 5)
   )
 
@@ -8382,10 +8404,11 @@ Agregar(datos = UnalData::Graduados %>% filter(NIVEL == "Pregrado", TIPO_ADM == 
    Plot.Series(
     categoria = "PAES",
     ylim      = c(0, NaN),
-    titulo    = "Evolución del número de graduados en pregrado por modalidades del programa PAES",
+    titulo    = "Evolución del porcentaje de graduados en pregrado por modalidades del programa PAES",
     labelX    = "Periodo",
-    labelY    = "Número de graduados</br>",
+    labelY    = "% de graduados</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Modalidad PAES:", hc.Tema = 5)
   )
 
@@ -8398,10 +8421,11 @@ Agregar(datos = UnalData::Graduados %>% filter(NIVEL == "Pregrado", TIPO_ADM == 
   Plot.Series(
     categoria = "PEAMA",
     ylim      = c(0, NaN),
-    titulo    = "Evolución del número de graduados en pregrado por modalidades del programa PEAMA",
+    titulo    = "Evolución del porcentaje de graduados en pregrado por modalidades del programa PEAMA",
     labelX    = "Periodo",
-    labelY    = "Número de graduados</br>",
+    labelY    = "% de graduados</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Programa PEAMA:", hc.Tema = 5)
   )
 
@@ -8528,10 +8552,11 @@ Agregar(datos = UnalData::Docentes,
   Plot.Series(
     categoria = "SEDE",
     ylim      = c(0, NaN),
-    titulo    = "Evolución del número de docentes en la UNAL por sedes",
+    titulo    = "Evolución del porcentaje de docentes en la UNAL por sedes",
     labelX    = "Periodo",
-    labelY    = "Número de docentes</br>",
+    labelY    = "% de docentes</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Sede:", hc.Tema = 5)
   )
 
@@ -8545,11 +8570,12 @@ Agregar(datos = UnalData::Docentes,
   filter(!Clase %in% c("Transgénero", "No binario")) %>% 
   Plot.Series(
     categoria = "SEXO",
-    ylim      = c(0, NaN),
-    titulo    = "Evolución del número de docentes en la UNAL por sexo",
+    ylim      = c(0, 100),
+    titulo    = "Evolución del porcentaje de docentes en la UNAL por sexo",
     labelX    = "Periodo",
-    labelY    = "Número de docentes</br>",
+    labelY    = "% de docentes</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Sexo:", hc.Tema = 5)
   )
 
@@ -8562,10 +8588,11 @@ Agregar(datos = UnalData::Docentes,
   Plot.Series(
     categoria = "FORMACION",
     ylim      = c(0, NaN),
-    titulo    = "Evolución del número de docentes de la UNAL por máximo nivel de formación",
+    titulo    = "Evolución del porcentaje de docentes de la UNAL por máximo nivel de formación",
     labelX    = "Periodo",
-    labelY    = "Número de docentes</br>",
+    labelY    = "% de docentes</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Nivel de formación:", hc.Tema = 5)
   )
 
@@ -8578,10 +8605,11 @@ Agregar(datos = UnalData::Docentes,
   Plot.Series(
     categoria = "CATEGORIA",
     ylim      = c(0, NaN),
-    titulo    = "Evolución del número de docentes de la UNAL por categoría",
+    titulo    = "Evolución del porcentaje de docentes de la UNAL por categoría",
     labelX    = "Periodo",
-    labelY    = "Número de docentes</br>",
+    labelY    = "% de docentes</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Categoría del docente:", hc.Tema = 5)
   )
 
@@ -8594,10 +8622,11 @@ Agregar(datos = UnalData::Docentes,
   Plot.Series(
     categoria = "DEDICACION",
     ylim      = c(0, NaN),
-    titulo    = "Evolución del número de docentes de la UNAL según dedicación",
+    titulo    = "Evolución del porcentaje de docentes de la UNAL según dedicación",
     labelX    = "Periodo",
-    labelY    = "Número de docentes</br>",
+    labelY    = "% de docentes</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Dedicación del docente:", hc.Tema = 5)
   )
 
@@ -8610,10 +8639,11 @@ Agregar(datos = UnalData::Docentes,
   Plot.Series(
     categoria = "LUG_FORMACION",
     ylim      = c(0, NaN),
-    titulo    = "Evolución del número de docentes de la UNAL por lugar de formación",
+    titulo    = "Evolución del porcentaje de docentes de la UNAL por lugar de formación",
     labelX    = "Periodo",
-    labelY    = "Número de docentes</br>",
+    labelY    = "% de docentes</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Lugar de formación:", hc.Tema = 5)
   )
 
@@ -8650,10 +8680,11 @@ Agregar(datos = UnalData::Administrativos,
   Plot.Series(
     categoria = "SEDE",
     ylim      = c(0, NaN),
-    titulo    = "Evolución del número de funcionarios en la UNAL por sedes",
+    titulo    = "Evolución del porcentaje de funcionarios en la UNAL por sedes",
     labelX    = "Periodo",
-    labelY    = "Número de funcionarios</br>",
+    labelY    = "% de funcionarios</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Sede:", hc.Tema = 5)
   )
 
@@ -8667,11 +8698,12 @@ Agregar(datos = UnalData::Administrativos,
   filter(!Clase %in% c("Transgénero", "No binario")) %>% 
   Plot.Series(
     categoria = "SEXO",
-    ylim      = c(0, NaN),
-    titulo    = "Evolución del número de funcionarios en la UNAL por sexo",
+    ylim      = c(0, 100),
+    titulo    = "Evolución del porcentaje de funcionarios en la UNAL por sexo",
     labelX    = "Periodo",
-    labelY    = "Número de funcionarios</br>",
+    labelY    = "% de funcionarios</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Sexo:", hc.Tema = 5)
   )
 
@@ -8684,10 +8716,11 @@ Agregar(datos = UnalData::Administrativos,
   Plot.Series(
     categoria = "NIVEL",
     ylim      = c(0, NaN),
-    titulo    = "Evolución del número de funcionarios de la UNAL por nivel de ubicación",
+    titulo    = "Evolución del porcentaje de funcionarios de la UNAL por nivel de ubicación",
     labelX    = "Periodo",
-    labelY    = "Número de funcionarios</br>",
+    labelY    = "% de funcionarios</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Nivel de ubicación:", hc.Tema = 5)
   )
 
@@ -8701,10 +8734,11 @@ Agregar(datos = UnalData::Administrativos,
   Plot.Series(
     categoria = "FORMACION",
     ylim      = c(0, NaN),
-    titulo    = "Evolución del número de funcionarios de la UNAL por máximo nivel de formación",
+    titulo    = "Evolución del porcentaje de funcionarios de la UNAL por máximo nivel de formación",
     labelX    = "Periodo",
-    labelY    = "Número de funcionarios</br>",
+    labelY    = "% de funcionarios</br>",
     libreria  = "highcharter",
+    freqRelativa = TRUE,
     estilo    = list(LegendTitle = "Máximo Nivel de Formación:", hc.Tema = 5)
   )
 
