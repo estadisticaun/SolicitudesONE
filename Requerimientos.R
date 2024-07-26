@@ -8943,4 +8943,80 @@ Medicina_Proc <- UnalData::Matriculados %>%
                  pivot_wider(names_from = Periodo, values_from = Total, values_fill = 0)
                                                                     
 write_xlsx(Medicina_Proc, "Datos/Entrega89/Medicina_Procedencia.xlsx")        
-                
+             
+
+##%######################################################%##
+#                                                          #
+####              90 Solicitud 15-06-2024              ####
+#                                                          #
+##%######################################################%##
+
+ # Presentación Tendencias UNAL Nuevo PGD
+
+
+##%######################################################%##
+#                                                          #
+####              91 Solicitud 25-07-2024              ####
+#                                                          #
+##%######################################################%##
+
+# Matricula, Matricula PV y Graduados por Programa y Periodos
+# Solicitante: Maria Claudia Galindo Gonzales
+
+Programas <- UnalData::Hprogramas %>% 
+             filter(TIPO_NIVEL == "Pregrado", ESTADO != "Migrado") %>% 
+             select(COD_PADRE, SEDE_PROG, FACULTAD_PROGRA, ESTADO)
+
+
+# Matriculados en Pregrado
+
+Mat_Programas <- UnalData::Matriculados %>% 
+  filter(TIPO_NIVEL == "Pregrado") %>% 
+  mutate(PERIODO = paste0(YEAR, SEMESTRE)) %>%   
+  summarise(Total = n(), .by = c(PERIODO, COD_PADRE, PROGRAMA_2)) %>% 
+  pivot_wider(names_from = PERIODO, values_from = Total) %>% 
+  left_join(Programas, by = c("COD_PADRE")) %>% 
+  relocate(c(SEDE_PROG, FACULTAD_PROGRA), .before = COD_PADRE) %>% 
+  rename(SEDE = SEDE_PROG,
+         FACULTAD = FACULTAD_PROGRA,
+         PROGRAMA = PROGRAMA_2) %>% 
+  arrange(SEDE, FACULTAD, COD_PADRE)
+
+write_xlsx(Mat_Programas, "Datos/Entrega91/Mat_Programas.xlsx")        
+
+# Matriculados Primera Vez en Pregrado
+
+Mat_Pvez_Programas <- UnalData::Matriculados %>% 
+  filter(TIPO_NIVEL == "Pregrado", MAT_PVEZ == "Sí") %>% 
+  mutate(PERIODO = paste0(YEAR, SEMESTRE)) %>%   
+  summarise(Total = n(), .by = c(PERIODO, COD_PADRE, PROGRAMA_2)) %>% 
+  pivot_wider(names_from = PERIODO, values_from = Total, values_fill = 0) %>% 
+  left_join(Programas, by = c("COD_PADRE")) %>% 
+  relocate(c(SEDE_PROG, FACULTAD_PROGRA), .before = COD_PADRE) %>% 
+  rename(SEDE = SEDE_PROG,
+         FACULTAD = FACULTAD_PROGRA,
+         PROGRAMA = PROGRAMA_2) %>% 
+  arrange(SEDE, FACULTAD, COD_PADRE)
+
+write_xlsx(Mat_Pvez_Programas, "Datos/Entrega91/Mat_Pvez_Programas.xlsx")        
+
+
+# Graduados en Pregrado
+
+Grad_Programas <- UnalData::Graduados %>% 
+  filter(TIPO_NIVEL == "Pregrado", !COD_PADRE %in% c(52731, 53263)) %>% 
+  mutate(PERIODO = paste0(YEAR, SEMESTRE)) %>%   
+  summarise(Total = n(), .by = c(PERIODO, COD_PADRE, PROGRAMA_2)) %>% 
+  pivot_wider(names_from = PERIODO, values_from = Total, values_fill = 0) %>% 
+  left_join(Programas, by = c("COD_PADRE")) %>% 
+  relocate(c(SEDE_PROG, FACULTAD_PROGRA), .before = COD_PADRE) %>% 
+  rename(SEDE = SEDE_PROG,
+         FACULTAD = FACULTAD_PROGRA,
+         PROGRAMA = PROGRAMA_2) %>% 
+  arrange(SEDE, FACULTAD, COD_PADRE)
+
+write_xlsx(Grad_Programas, "Datos/Entrega91/Grad_Programas.xlsx")        
+
+
+
+
