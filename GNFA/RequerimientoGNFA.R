@@ -143,3 +143,115 @@ View(Mat_Programa)
 write_xlsx(Mat_Programa, "GNFA/Entrega/Matriculados/Mat_Programa.xlsx")
 
 
+# CALIFICADORA DE RIESGO ----
+# SOLICITUD 2024
+# Demanda Académica
+# Gerencia Nacional Financiera y Administrativa
+
+# a)      Estadísticas estudiantiles para los últimos 5 años: 
+# Matriculados, Aspirantes, Admitidos y Matriculados Primera Vez. 
+# Si es posible, entregar la información en un archivo de Excel donde se pueda detallar por sede, 
+# nivel de estudios (pregrado, posgrado) y programa académico.
+
+
+# Aspirantes ----
+
+# Por Nivel
+
+Asp_Nivel <- UnalData::Aspirantes %>% filter(YEAR%in% c(2019:2023)) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "_")) %>%
+  rename(Nivel = TIPO_NIVEL) %>% 
+  summarise(Total = n(), .by = c(Nivel, Periodo)) %>% 
+  arrange(desc(Nivel))
+
+write_xlsx(Asp_Nivel, "GNFA/Calificadora/2024/Aspirantes/Asp_Nivel.xlsx")
+
+
+# Por Sedes
+
+Asp_Sedes <- UnalData::Aspirantes %>% filter(YEAR%in% c(2019:2023)) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "_")) %>%
+  rename(Sede = INS_SEDE_NOMBRE) %>% 
+  summarise(Total = n(), .by = c(Sede, Periodo)) %>% 
+  arrange(desc(Sede))
+
+write_xlsx(Asp_Sedes, "GNFA/Calificadora/2024/Aspirantes/Asp_Sedes.xlsx")
+
+
+# Matricula ----
+
+# Por Nivel
+
+Mat_Nivel <- UnalData::Matriculados %>% filter(YEAR%in% c(2019:2023)) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "_")) %>%
+  rename(Nivel = TIPO_NIVEL) %>% 
+  summarise(Total = n(), .by = c(Nivel, Periodo)) %>% 
+  arrange(desc(Nivel))
+
+write_xlsx(Mat_Nivel, "GNFA/Calificadora/2024/Matricula/Mat_Nivel.xlsx")
+
+
+# Por Sedes
+
+Mat_Sedes <- UnalData::Matriculados %>% filter(YEAR%in% c(2019:2023)) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "_")) %>%
+  rename(Sede = SEDE_NOMBRE_MAT) %>% 
+  summarise(Total = n(), .by = c(Sede, Periodo)) %>% 
+  arrange(desc(Sede))
+
+write_xlsx(Mat_Sedes, "GNFA/Calificadora/2024/Matricula/Mat_Sedes.xlsx")
+
+# Por Programas Académicos
+
+Mat_Programas <- UnalData::Matriculados %>% filter(YEAR%in% c(2019:2023)) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "_")) %>%
+  rename(Sede = SEDE_NOMBRE_MAT,
+         Nivel = TIPO_NIVEL,
+         Modalidad = NIVEL,
+         Programa = PROGRAMA_2) %>% 
+  summarise(Total = n(), .by = c(Sede, Nivel, Modalidad, Programa, Periodo)) %>% 
+  pivot_wider(names_from = Periodo, values_from = Total, values_fill = 0) %>% 
+    arrange(Sede, Nivel, Modalidad)
+ 
+write_xlsx(Mat_Programas, "GNFA/Calificadora/2024/Matricula/Mat_Programas.xlsx")
+
+# Matricula Primera Vez----
+
+# Por Nivel
+
+Mat_Pvez_Nivel <- UnalData::Matriculados %>% filter(YEAR%in% c(2019:2023), 
+                                                    MAT_PVEZ == "Sí") %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "_")) %>%
+  rename(Nivel = TIPO_NIVEL) %>% 
+  summarise(Total = n(), .by = c(Nivel, Periodo)) %>% 
+  arrange(desc(Nivel))
+
+write_xlsx(Mat_Pvez_Nivel, "GNFA/Calificadora/2024/MatriculaPV/Mat_Pvez_Nivel.xlsx")
+
+
+# Por Sedes
+
+Mat_Pvez_Sedes <- UnalData::Matriculados %>% filter(YEAR%in% c(2019:2023), 
+                                               MAT_PVEZ == "Sí") %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "_")) %>%
+  rename(Sede = SEDE_NOMBRE_MAT) %>% 
+  summarise(Total = n(), .by = c(Sede, Periodo)) %>% 
+  arrange(desc(Sede))
+
+write_xlsx(Mat_Pvez_Sedes, "GNFA/Calificadora/2024/MatriculaPV/Mat_Pvez_Sedes.xlsx")
+
+# Por Programas Académicos
+
+Mat_Pvez_Programas <- UnalData::Matriculados %>% filter(YEAR%in% c(2019:2023), 
+                                                        MAT_PVEZ == "Sí") %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "_")) %>%
+  rename(Sede = SEDE_NOMBRE_MAT,
+         Nivel = TIPO_NIVEL,
+         Modalidad = NIVEL,
+         Programa = PROGRAMA_2) %>% 
+  summarise(Total = n(), .by = c(Sede, Nivel, Modalidad, Programa, Periodo)) %>% 
+  pivot_wider(names_from = Periodo, values_from = Total, values_fill = 0) %>% 
+  arrange(Sede, Nivel, Modalidad)
+
+write_xlsx(Mat_Pvez_Programas, "GNFA/Calificadora/2024/MatriculaPV/Mat_Pvez_Programas.xlsx")
+

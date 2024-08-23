@@ -9019,4 +9019,908 @@ write_xlsx(Grad_Programas, "Datos/Entrega91/Grad_Programas.xlsx")
 
 
 
+##%######################################################%##
+#                                                          #
+####              92 Solicitud 15-08-2024              ####
+#                                                          #
+##%######################################################%##
 
+# Solicitud Carlos Salamanca
+
+# Matriculados por Facultad
+
+Est_Facu <- UnalData::Matriculados %>% 
+  filter(YEAR == 2023) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "_")) %>% 
+ # filter(SNIES_SEDE_MAT %in% c(1101:1104)) %>% 
+  group_by(Periodo, SEDE_NOMBRE_MAT, FACULTAD, TIPO_NIVEL) %>% 
+  summarise(`Total Estudiantes` = n()) %>% 
+  pivot_wider(names_from = c(TIPO_NIVEL, Periodo), values_from = `Total Estudiantes`, values_fill = 0) %>% 
+  rename(Sede = SEDE_NOMBRE_MAT,
+         Facultad = FACULTAD)
+
+
+write_xlsx(Est_Facu, "Datos/Entrega92/Mat_Facultad.xlsx")        
+
+##%######################################################%##
+#                                                          #
+####              93 Solicitud 15-08-2024              ####
+#                                                          #
+##%######################################################%##
+
+# Solicitud DNPE
+
+# Tendencias UNAL PGD 2025-2028
+
+
+# Distribución Programas de Pregrado
+
+tibble(Nivel = c("Pregrado", "Maestría", "Especialización", "Especialidades médicas", "Doctorado"),
+                      Total = c(102, 171, 86, 40, 70)) %>% 
+  Plot.Barras(
+    valores   = Total,
+    categoria = Nivel ,
+    ordinal   = FALSE    ,
+    titulo = "Distribución total de programas académicos en la UNAL por modalidad de formación, \naño 2023",
+    labelY    = "Total de programas",
+    estatico = TRUE,
+    estilo    = list(
+      gg.Tema  = 5,
+      gg.Bar   = list(width = 0.5)
+    ))
+
+
+# Aspirantes por Nivel de Formación
+
+UnalData::Aspirantes %>%
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE, TIPO_NIVEL)) %>%
+  mutate(Periodo = factor(paste(YEAR, SEMESTRE, sep = "-"))) %>%
+  Plot.Series(
+    tiempo    = vars(Periodo),
+    valores   = Total,
+    colores = c("#e41a1c", "blue"),
+    ylim = c(0, NaN),
+    titulo = "Evolución total de aspirantes a la UNAL por modalidad de formación",
+    categoria = TIPO_NIVEL,
+    labelX    = "Periodo",
+    labelY    = "Total aspirantes",
+    estatico = FALSE,
+    estilo = list(hc.Tema = 5))
+
+# Aspirantes por Sedes 2024-1
+
+UnalData::Aspirantes %>%
+  filter(YEAR == 2024, SEMESTRE == 1) %>% 
+  summarise(Total = n(), .by = c(INS_SEDE_NOMBRE)) %>% 
+Plot.Barras(
+  valores   = Total,
+  categoria = INS_SEDE_NOMBRE     ,
+  ordinal   = FALSE    ,
+  freqRelativa = TRUE,
+  titulo = "Distribución total de aspirantes a la UNAL por sedes, periodo 2024-1",
+  labelY    = "Porcentaje",
+  vertical = FALSE,
+  ylim = c(0, 100),
+  estatico = TRUE,
+  estilo    = list(
+    gg.Tema  = 5)
+)
+
+
+# Admitidos por Nivel de Formación
+
+UnalData::Aspirantes %>%
+  filter(ADMITIDO == "Sí") %>% 
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE, TIPO_NIVEL)) %>%
+  mutate(Periodo = factor(paste(YEAR, SEMESTRE, sep = "-"))) %>%
+  Plot.Series(
+    tiempo    = vars(Periodo),
+    valores   = Total,
+    colores = c("#e41a1c", "blue"),
+    ylim = c(0, 100),
+    titulo = "Evolución proporción de aspirantes admitidos a la UNAL por modalidad de formación",
+    categoria = TIPO_NIVEL,
+    freqRelativa = TRUE,
+    labelX    = "Periodo",
+    labelY    = "Porcentaje",
+    estatico = FALSE,
+    estilo = list(hc.Tema = 5))
+
+
+# Admitidos por NIVEL de FORMACIÓN 2024-1
+
+UnalData::Aspirantes %>%
+  filter(ADMITIDO == "Sí", YEAR == 2024, SEMESTRE == 1) %>% 
+  summarise(Total = n(), .by = c(NIVEL)) %>% 
+  Plot.Barras(
+    valores   = Total,
+    categoria = NIVEL ,
+    ordinal   = FALSE    ,
+    freqRelativa = TRUE,
+  titulo = "Distribución porcentaje admitidos a la UNAL por nivel de formación,\nperiodo 2024-1",
+    labelY    = "Porcentaje",
+    #vertical = FALSE,
+    ylim = c(0, 100),
+    estatico = TRUE,
+    estilo    = list(
+      gg.Tema  = 5,
+      gg.Bar   = list(width = 0.5)
+  ))
+
+
+# Admitidos por Sedes Andinas
+
+UnalData::Aspirantes %>%
+  filter(ADMITIDO == "Sí") %>% 
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE, ADM_SEDE_NOMBRE)) %>%
+  mutate(Periodo = factor(paste(YEAR, SEMESTRE, sep = "-"))) %>%
+  Plot.Series(
+    tiempo    = vars(Periodo),
+    valores   = Total,
+    # colores = c("#e41a1c", "blue"),
+    ylim = c(0, NaN),
+    titulo = "Evolución proporción de admitidos a la UNAL por sedes",
+    categoria = ADM_SEDE_NOMBRE,
+    freqRelativa = TRUE,
+    labelX    = "Periodo",
+    labelY    = "Porcentaje",
+    estatico = FALSE,
+    estilo = list(hc.Tema = 5))
+
+
+# Admitidos por Sedes 2024-1 - Barras
+
+UnalData::Aspirantes %>%
+  filter(YEAR == 2024, SEMESTRE == 1, ADMITIDO == "Sí") %>% 
+  summarise(Total = n(), .by = c(ADM_SEDE_NOMBRE)) %>% 
+  Plot.Barras(
+    valores   = Total,
+    categoria = ADM_SEDE_NOMBRE     ,
+    ordinal   = FALSE    ,
+    freqRelativa = TRUE,
+    titulo = "Distribución porcentaje de admitidos a la UNAL por sedes, periodo 2024-1",
+    labelY    = "Porcentaje",
+    vertical = FALSE,
+    ylim = c(0, 100),
+    estatico = TRUE,
+    estilo    = list(
+      gg.Tema  = 5)
+  )
+
+
+# Consolidado Pregrado
+
+# Cobertura Pregrado UNAL
+
+Asp_Pre <- UnalData::Aspirantes %>% 
+  filter(YEAR %in% c(2010:2024),
+         (TIPO_NIVEL == "Pregrado"  & is.na(MOD_INS) != TRUE & is.na(TIPO_INS) != TRUE)) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  summarise(Total = n(), .by = c(Periodo)) %>% 
+  mutate(Poblacion = "Aspirantes")
+
+
+Adm_Pre <- UnalData::Aspirantes %>% 
+  filter(YEAR %in% c(2010:2024),
+         ADMITIDO == "Sí",
+         (TIPO_NIVEL == "Pregrado"  & is.na(MOD_INS) != TRUE & is.na(TIPO_INS) != TRUE)) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  summarise(Total = n(), .by = c(Periodo)) %>% 
+  mutate(Poblacion = "Admitidos")
+
+Mpvez_Pre <- UnalData::Matriculados %>% 
+  filter(between(YEAR, 2010, 2024),
+         TIPO_NIVEL == "Pregrado", 
+         MAT_PVEZ == "Sí") %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  summarise(Total = n(), .by = c(Periodo)) %>% 
+  mutate(Poblacion = "Matriculados Primera Vez")
+
+Pob_UNAL <- bind_rows(Asp_Pre, Adm_Pre, Mpvez_Pre) 
+
+
+ggplot(Pob_UNAL, aes(x = Periodo, y = Total, color = Poblacion, group = Poblacion))+
+  geom_line()+ geom_point()+
+  xlab("\n Periodo")+
+  ylab("Total\n")+
+  ylim(0, 80000)+
+  ggtitle("Evolución aspirantes, admitidos y matriculados por primera vez en PREGRADO en la UNAL")+
+  annotate(geom="text", x="2010-1", y=69000,
+           label= "     66.483", color="#2ca25f")+
+  annotate(geom="text", x="2022-2", y=16000,
+           label= "18.825", color="#2ca25f")+
+  annotate(geom="text", x="2024-1", y=58000,
+           label= "54.567    ", color="#2ca25f")+
+  annotate(geom="text", x="2019-1", y=79000,
+           label= "75.681", color="#2ca25f")+
+  annotate(geom="text", x="2010-1", y=9000,
+           label= "    6.467", color="red")+
+  annotate(geom="text", x="2019-1", y=9000,
+           label= "6.951", color="red")+
+  annotate(geom="text", x="2022-2", y=9000,
+           label= "6.206  ", color="red")+
+  annotate(geom="text", x="2024-1", y=9500,
+           label= "7.125  ", color="red")+
+  annotate(geom="text", x="2010-1", y=2000,
+           label= "    5.096", color="blue")+
+  annotate(geom="text", x="2019-1", y=2000,
+           label= "5.370", color="blue")+
+  annotate(geom="text", x="2023-2", y=2000,
+           label= "4.622  ", color="blue")+
+  theme(axis.text.y = element_text(size = 10, face = "bold"),
+        axis.text.x = element_text(size = 9, colour = "blue", angle = 90),
+        axis.title = element_text(face="bold", color="black", size=13),
+        legend.position="bottom",
+        legend.title = element_text("Población", size = 12, face="bold"),
+        legend.text = element_text(size = 12),
+        strip.text = element_text(size = 12))
+
+
+# Cobertura Postgrado UNAL
+
+Asp_Pos <- UnalData::Aspirantes %>% 
+  filter(YEAR %in% c(2010:2024),
+         (TIPO_NIVEL == "Postgrado"  & is.na(MOD_INS) != TRUE & is.na(TIPO_INS) != TRUE)) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  summarise(Total = n(), .by = c(Periodo)) %>% 
+  mutate(Poblacion = "Aspirantes")
+
+
+Adm_Pos <- UnalData::Aspirantes %>% 
+  filter(YEAR %in% c(2010:2024),
+         ADMITIDO == "Sí",
+         (TIPO_NIVEL == "Postgrado"  & is.na(MOD_INS) != TRUE & is.na(TIPO_INS) != TRUE)) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  summarise(Total = n(), .by = c(Periodo)) %>% 
+  mutate(Poblacion = "Admitidos")
+
+Mpvez_Pos <- UnalData::Matriculados %>% 
+  filter(between(YEAR, 2010, 2024),
+         TIPO_NIVEL == "Postgrado", 
+         MAT_PVEZ == "Sí") %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  summarise(Total = n(), .by = c(Periodo)) %>% 
+  mutate(Poblacion = "Matriculados Primera Vez")
+
+Pob_UNAL_Pos <- bind_rows(Asp_Pos, Adm_Pos, Mpvez_Pos) %>% 
+  mutate(Total = ifelse(Periodo == "2011-2" & Poblacion == "Matriculados Primera Vez", NA, Total))
+
+ggplot(Pob_UNAL_Pos, aes(x = Periodo, y = Total, color = Poblacion, group = Poblacion))+
+  geom_line()+ geom_point()+
+  xlab("\n Periodo")+
+  ylab("Total\n")+
+  ylim(0, 10000)+
+  ggtitle("Evolución aspirantes, admitidos y matriculados por primera vez en POSTGRADO en la UNAL")+
+  annotate(geom="text", x="2010-1", y=8000,
+           label= "     7.387", color="#2ca25f")+
+  annotate(geom="text", x="2017-1", y=9200,
+           label= "8.812", color="#2ca25f")+
+  annotate(geom="text", x="2022-2", y=2100,
+           label= "2.510", color="#2ca25f")+
+  annotate(geom="text", x="2024-1", y=6300,
+           label= "5.731    ", color="#2ca25f")+
+  annotate(geom="text", x="2010-1", y=3100,
+           label= "     2.798", color="red")+
+  annotate(geom="text", x="2017-1", y=3200,
+           label= "2.827", color="red")+
+  annotate(geom="text", x="2024-1", y=2300,
+           label= "1.950    ", color="red")+
+  annotate(geom="text", x="2010-1", y=1100,
+           label= "     2.137", color="blue")+
+  annotate(geom="text", x="2017-1", y=1700,
+           label= "2.305", color="blue")+
+  annotate(geom="text", x="2022-2", y=800,
+           label= "1.153   ", color="blue")+
+  annotate(geom="text", x="2023-2", y=1000,
+           label= "1.389", color="blue")+
+  theme(axis.text.y = element_text(size = 10, face = "bold"),
+        axis.text.x = element_text(size = 9, colour = "blue", angle = 90),
+        axis.title = element_text(face="bold", color="black", size=13),
+        legend.position="bottom",
+        legend.title = element_text("Población", size = 12, face="bold"),
+        legend.text = element_text(size = 12),
+        strip.text = element_text(size = 12))
+
+# MATRICULADOS
+
+UnalData::Matriculados %>%
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE, TIPO_NIVEL)) %>%
+  mutate(Periodo = factor(paste(YEAR, SEMESTRE, sep = "-"))) %>%
+  Plot.Series(
+    tiempo    = vars(Periodo),
+    valores   = Total,
+    colores = c("#e41a1c", "blue"),
+    ylim = c(0, 100),
+    titulo = "Evolución proporción de matriculados en la UNAL por nivel de formación",
+    categoria = TIPO_NIVEL,
+    freqRelativa = TRUE,
+    labelX    = "Periodo",
+    labelY    = "Porcentaje",
+    estatico = FALSE,
+    estilo = list(hc.Tema = 5))
+
+
+# Matriculados por Sedes 2023-2 - Barras
+
+UnalData::Matriculados %>%
+  filter(YEAR == 2023, SEMESTRE == 2) %>% 
+  summarise(Total = n(), .by = c(SEDE_NOMBRE_MAT)) %>% 
+  Plot.Barras(
+    valores   = Total,
+    categoria = SEDE_NOMBRE_MAT     ,
+    ordinal   = FALSE    ,
+    freqRelativa = TRUE,
+    titulo = "Distribución porcentaje de matriculados en la UNAL por sedes, periodo 2023-2",
+    labelY    = "Porcentaje",
+    vertical = FALSE,
+    ylim = c(0, 100),
+    estatico = TRUE,
+    estilo    = list(
+      gg.Tema  = 5)
+  )
+
+# Matriculados Pregrado por estrato 2023-2 - Barras
+
+UnalData::Matriculados %>%
+  filter(YEAR == 2023, SEMESTRE == 2, TIPO_NIVEL == "Pregrado") %>% 
+  summarise(Total = n(), .by = c(ESTRATO_ORIG)) %>% 
+  Plot.Barras(
+    valores   = Total,
+    categoria = ESTRATO_ORIG     ,
+    ordinal   = TRUE    ,
+    freqRelativa = TRUE,
+    titulo = "Distribución porcentaje de matriculados en PREGRADO en la UNAL por estrato, \nperiodo 2023-2.",
+    labelY    = "Porcentaje",
+    vertical = TRUE,
+    ylim = c(0, 50),
+    estatico = TRUE,
+    estilo    = list(
+      gg.Tema  = 5)
+  )
+
+# GRADUADOS
+
+UnalData::Graduados %>%
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE, TIPO_NIVEL)) %>%
+  mutate(Periodo = factor(paste(YEAR, SEMESTRE, sep = "-"))) %>%
+  Plot.Series(
+    tiempo    = vars(Periodo),
+    valores   = Total,
+    colores = c("#e41a1c", "blue"),
+    ylim = c(0, 100),
+    titulo = "Evolución proporción de graduados en la UNAL por nivel de formación",
+    categoria = TIPO_NIVEL,
+    freqRelativa = TRUE,
+    labelX    = "Periodo",
+    labelY    = "Porcentaje",
+    estatico = FALSE,
+    estilo = list(hc.Tema = 5))
+
+# Graduados por Sedes 2023 y 2024-1 - Barras
+
+UnalData::Graduados %>%
+  filter(YEAR %in% c(2024, 2023)) %>% 
+  summarise(Total = n(), .by = c(SEDE_NOMBRE_ADM)) %>% 
+  Plot.Barras(
+    valores   = Total,
+    categoria = SEDE_NOMBRE_ADM     ,
+    ordinal   = FALSE    ,
+    freqRelativa = TRUE,
+    titulo = "Distribución porcentaje de graduados en la UNAL por sedes de admisión, \nperiodos 2023 y 2024-1",
+    labelY    = "Porcentaje",
+    vertical = TRUE,
+    ylim = c(0, 75),
+    estatico = TRUE,
+    estilo    = list(
+      gg.Tema  = 5)
+  )
+
+# Graduados por Estrato 2023 y 2024-1 - Barras
+
+UnalData::Graduados %>%
+  filter(YEAR %in% c(2024, 2023), TIPO_NIVEL == "Pregrado") %>% 
+  summarise(Total = n(), .by = c(ESTRATO_ORIG)) %>% 
+  Plot.Barras(
+    valores   = Total,
+    categoria = ESTRATO_ORIG     ,
+    ordinal   = TRUE    ,
+    freqRelativa = TRUE,
+    titulo = "Distribución porcentaje de graduados en PREGRADO en la UNAL por estrato, \nperiodos 2023 y 2024-1",
+    labelY    = "Porcentaje",
+    vertical = TRUE,
+    ylim = c(0, 50),
+    estatico = TRUE,
+    estilo    = list(
+      gg.Tema  = 5)
+  )
+
+# DOCENTES DE CARRERA
+
+# Docentes por Sedes 2024-1 - Barras
+
+UnalData::Docentes %>%
+  filter(YEAR == 2024, SEMESTRE == 1) %>% 
+  summarise(Total = n(), .by = c(SEDE)) %>% 
+  Plot.Barras(
+    valores   = Total,
+    categoria = SEDE     ,
+    ordinal   = FALSE    ,
+    freqRelativa = TRUE,
+    titulo = "Distribución porcentaje docentes de carrera en la UNAL por sedes, \nperiodo 2024-1",
+    labelY    = "Porcentaje",
+    vertical = TRUE,
+    ylim = c(0, 75),
+    estatico = TRUE,
+    estilo    = list(
+      gg.Tema  = 5)
+  )
+
+# Docentes por Grupos de EDad 2024-1 - Barras
+
+UnalData::Docentes %>%
+  filter(YEAR == 2024, SEMESTRE == 1) %>% 
+  summarise(Total = n(), .by = c(CAT_EDAD)) %>% 
+  Plot.Barras(
+    valores   = Total,
+    categoria = CAT_EDAD     ,
+    ordinal   = TRUE    ,
+    freqRelativa = TRUE,
+    titulo = "Distribución porcentaje docentes de carrera en la UNAL por grupos etarios, \nperiodo 2024-1",
+    labelY    = "Porcentaje",
+    vertical = TRUE,
+    ylim = c(0, 50),
+    estatico = TRUE,
+    estilo    = list(
+      gg.Tema  = 5)
+  )
+
+# FUNCIONARIOS ADMINISTRATIVOS
+
+# Funcionarios por Sedes 2024-1 - Barras
+
+UnalData::Administrativos %>%
+  filter(YEAR == 2024, SEMESTRE == 1) %>% 
+  summarise(Total = n(), .by = c(SEDE)) %>% 
+  Plot.Barras(
+    valores   = Total,
+    categoria = SEDE     ,
+    ordinal   = FALSE    ,
+    freqRelativa = TRUE,
+    titulo = "Distribución porcentaje funcionarios administrativos de la UNAL por sedes, \nperiodo 2024-1",
+    labelY    = "Porcentaje",
+    vertical = TRUE,
+    ylim = c(0, 65),
+    estatico = TRUE,
+    estilo    = list(
+      gg.Tema  = 5)
+  )
+
+# Docentes por Grupos de EDad 2024-1 - Barras
+
+UnalData::Administrativos %>%
+  filter(YEAR == 2024, SEMESTRE == 1) %>% 
+  summarise(Total = n(), .by = c(CAT_EDAD)) %>% 
+  Plot.Barras(
+    valores   = Total,
+    categoria = CAT_EDAD     ,
+    ordinal   = TRUE    ,
+    freqRelativa = TRUE,
+    titulo = "Distribución porcentaje funcionarios administrativos en la UNAL por grupos etarios, \nperiodo 2024-1",
+    labelY    = "Porcentaje",
+    vertical = TRUE,
+    ylim = c(0, 50),
+    estatico = TRUE,
+    estilo    = list(
+      gg.Tema  = 5)
+  )
+
+# PAES - PEAMA - PAET
+
+# Tabla de Frecuencia General
+
+UnalData::Aspirantes %>%
+  filter(MOD_INS == "Especial", YEAR == 2024, SEMESTRE == 1) %>%
+  summarise(Total = n(), .by = c(TIPO_INS)) %>%
+  filter(TIPO_INS != "PEAA") %>% 
+  Plot.Barras(
+    valores   = Total,
+    categoria = TIPO_INS     ,
+    ordinal   = TRUE   ,
+    freqRelativa = TRUE,
+    titulo = "Distribución porcentaje aspirantes programas de inscripción y admisión especial en la UNAL, \nperiodo 2024-1",
+    labelY    = "Porcentaje",
+    vertical = TRUE,
+    ylim = c(0, 50),
+    estatico = TRUE,
+    estilo    = list(
+      gg.Tema  = 5)
+  )
+
+
+# ADMITIDOS PAES-PEAMA-PAET
+
+UnalData::Aspirantes %>%
+  filter(ADMITIDO == "Sí") %>% 
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE, MOD_INS)) %>%
+  mutate(Periodo = factor(paste(YEAR, SEMESTRE, sep = "-"))) %>%
+  Plot.Series(
+    tiempo    = vars(Periodo),
+    valores   = Total,
+    colores = c("#e31a1c", "#08519c"),
+    ylim = c(0, NaN),
+    titulo = "Evolución porcentaje de admitidos a la UNAL por modalidad de admisión",
+    categoria = MOD_INS,
+    freqRelativa = TRUE,
+    labelX    = "Periodo",
+    labelY    = "Porcentaje",
+    estilo = list(hc.Tema = 5))
+
+
+
+
+# Tabla de Frecuencia PAET
+
+UnalData::Aspirantes %>%
+  filter(MOD_INS == "Especial", ADMITIDO == "Sí", TIPO_INS == "PAET", YEAR == 2024, SEMESTRE == 1) %>%
+  summarise(Total = n(), .by = c(PAET)) %>%
+  Plot.Barras(
+    valores   = Total,
+    categoria = PAET     ,
+    ordinal   = FALSE  ,
+    freqRelativa = TRUE,
+    titulo = "Distribución porcentaje admitidos por modalidades del programa PAET, \nperiodo 2024-1",
+    labelY    = "Porcentaje",
+    vertical = FALSE,
+    ylim = c(0, 40),
+    estatico = TRUE,
+    estilo    = list(
+      gg.Tema  = 5)
+  )
+
+
+# MATRICUALDOS
+
+# Tabla de Frecuencia PAES
+
+UnalData::Matriculados %>%
+  filter(MOD_ADM == "Especial", TIPO_ADM == "PAES", YEAR == 2023, SEMESTRE == 2) %>%
+  summarise(Total = n(), .by = c(PAES)) %>%
+  Plot.Barras(
+    valores   = Total,
+    categoria = PAES     ,
+    ordinal   = FALSE  ,
+    freqRelativa = TRUE,
+    titulo = "Distribución porcentaje matriculados por modalidades del programa PAES, \nperiodo 2023-2",
+    labelY    = "Porcentaje",
+    vertical = FALSE,
+    ylim = c(0, 50),
+    estatico = TRUE,
+    estilo    = list(
+      gg.Tema  = 5)
+  )
+
+  
+# Tabla de Frecuencia PEAMA
+
+UnalData::Matriculados %>%
+  filter(MOD_ADM == "Especial", TIPO_ADM == "PEAMA", YEAR == 2023, SEMESTRE == 2) %>%
+  summarise(Total = n(), .by = c(PEAMA)) %>%
+  Plot.Barras(
+    valores   = Total,
+    categoria = PEAMA     ,
+    ordinal   = FALSE  ,
+    freqRelativa = TRUE,
+    titulo = "Distribución porcentaje matriculados por modalidades del programa PEAMA, \nperiodo 2023-2",
+    labelY    = "Porcentaje",
+    vertical = FALSE,
+    ylim = c(0, 50),
+    estatico = TRUE,
+    estilo    = list(
+      gg.Tema  = 5)
+  )
+
+# Docentes y Personal Administrativo
+
+# Aspirantes por Nivel de Formación
+
+# Barras Máxima Formación Docentes
+
+UnalData::Docentes %>%
+  filter(YEAR == 2024, SEMESTRE == 1) %>% 
+  summarise(Total = n(), .by = c(FORMACION)) %>%
+  Plot.Barras(
+    valores   = Total,
+    categoria = FORMACION     ,
+    ordinal   = FALSE  ,
+    freqRelativa = TRUE,
+    titulo = "Distribución porcentaje máximo nivel de formación de los docentes de carrera, \nperiodo 2024-1",
+    labelY    = "Porcentaje",
+    vertical = TRUE,
+    ylim = c(0, 70),
+    estatico = TRUE,
+    estilo    = list(
+      gg.Tema  = 5)
+  )
+
+# Series Formación Administrativos
+
+UnalData::Administrativos %>%
+  filter(YEAR >= 2015) %>% 
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE, FORMACION)) %>%
+  mutate(Periodo = factor(paste(YEAR, SEMESTRE, sep = "-"))) %>%
+  Plot.Series(
+    tiempo    = vars(Periodo),
+    categoria = FORMACION,
+    valores   = Total,
+    #colores = c("#1b7837","#1f78b4", "#4d4d4d", "#e31a1c","#ff7f00"),
+    ylim = c(0, NaN),
+    titulo = "Evolución total de funcionarios administrativos en la UNAL por máximo nivel de formación",
+    labelX    = "Periodo",
+    labelY    = "Total funcionarios",
+    estilo = list(hc.Tema = 5))
+
+# Barras Máxima Formación Administrativos
+
+UnalData::Administrativos %>%
+  filter(YEAR == 2024, SEMESTRE == 1) %>% 
+  summarise(Total = n(), .by = c(FORMACION)) %>%
+  Plot.Barras(
+    valores   = Total,
+    categoria = FORMACION     ,
+    ordinal   = FALSE  ,
+    freqRelativa = TRUE,
+    titulo = "Distribución porcentaje máximo nivel de formación de los administrativos de carrera, \nperiodo 2024-1",
+    labelY    = "Porcentaje",
+    vertical = FALSE,
+    ylim = c(0, 40),
+    estatico = TRUE,
+    estilo    = list(
+      gg.Tema  = 5)
+  )
+
+# Examen de Admisión por Sedes
+
+Puntaje_Adm <- UnalData::Aspirantes %>%                     filter(TIPO_NIVEL == "Pregrado", YEAR >= 2009) %>%
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-"))
+
+Plot.Boxplot(
+  datos = Puntaje_Adm %>% filter(YEAR >= 2024, ADMITIDO == "Sí"),
+  variable = PTOTAL,
+  grupo1 = Periodo,
+  grupo2 = INS_SEDE_NOMBRE,
+  ylim = c(0, 1000),
+  outliers = FALSE,
+  colores = c("#377eb8","#e41a1c","#252525","#984ea3","#ff7f00","#4daf4a","#a65628", "#f781bf","#999999"),
+  titulo = "Evolución distribución puntajes examen de admisión de admitidos por sedes",
+  labelY = "Puntaje examen",
+  textBox = "Puntaje",
+  libreria = "highcharter",
+  estilo = list(LegendTitle = "Sede:", hc.Tema = 5, hc.Credits = "Admitidos a pregado (No incluye datos atípicos)"
+  ))
+
+# Examen de Admisión por Sexo
+
+Plot.Boxplot(
+  datos = Puntaje_Adm %>% filter(YEAR >= 2023, ADMITIDO == "Sí"),
+  variable = PTOTAL,
+  grupo1 = Periodo,
+  grupo2 = SEXO,
+  ylim = c(0, 1000),
+  outliers = FALSE,
+  colores = c("#e41a1c","#377eb8", "#ff7f00","#4daf4a"),
+  titulo = "Evolución distribución puntajes examen de admisión de admitidos por sexo",
+  labelY = "Puntaje examen",
+  textBox = "Puntaje",
+  libreria = "highcharter",
+  estilo = list(LegendTitle = "Género:", hc.Tema = 5, hc.Credits = "Admitidos a pregado (No incluye datos atípicos)"
+  ))
+
+# Examen de Admisión por Tipo de Admisión
+
+Plot.Boxplot(
+  datos = Puntaje_Adm %>% filter(YEAR >= 2023, ADMITIDO == "Sí"),
+  variable = PTOTAL,
+  grupo1 = Periodo,
+  grupo2 = TIPO_INS,
+  ylim = c(0, 1000),
+  outliers = FALSE,
+  colores = c("#e41a1c","#377eb8", "#ff7f00","#4daf4a"),
+  titulo = "Evolución distribución puntajes examen de admisión de admitidos por programa de inscripción",
+  labelY = "Puntaje examen",
+  textBox = "Puntaje",
+  libreria = "highcharter",
+  estilo = list(LegendTitle = "Programa:", hc.Tema = 5, hc.Credits = "Admitidos a pregado (No incluye datos atípicos)"
+  ))
+
+# Examen de Admisión PAES
+
+Plot.Boxplot(
+  datos = Puntaje_Adm %>% filter(YEAR >= 2024, ADMITIDO == "Sí", TIPO_INS == "PAES"),
+  variable = PTOTAL,
+  grupo1 = Periodo,
+  grupo2 = PAES,
+  ylim = c(0, 1000),
+  outliers = FALSE,
+  colores = c("#e41a1c","#377eb8", "#ff7f00","#4daf4a", "#984ea3"),
+  titulo = "Evolución distribución puntajes examen de admisión de admitidos por modalidades del programa PAES",
+  labelY = "Puntaje examen",
+  textBox = "Puntaje",
+  libreria = "highcharter",
+  estilo = list(LegendTitle = "Programa:", hc.Tema = 5, hc.Credits = "Admitidos a pregado (No incluye datos atípicos)"
+  ))
+
+# Examen de Admisión PEAMA
+
+Plot.Boxplot(
+  datos = Puntaje_Adm %>% filter(YEAR >= 2024, ADMITIDO == "Sí", TIPO_INS == "PEAMA"),
+  variable = PTOTAL,
+  grupo1 = Periodo,
+  grupo2 = PEAMA,
+  ylim = c(0, 1000),
+  outliers = FALSE,
+  colores = c("#e41a1c","#377eb8", "#ff7f00","#4daf4a", "#984ea3"),
+  titulo = "Evolución distribución puntajes examen de admisión de admitidos por modalidades del programa PEAMA",
+  labelY = "Puntaje examen",
+  textBox = "Puntaje",
+  libreria = "highcharter",
+  estilo = list(LegendTitle = "Modalidad:", hc.Tema = 5, hc.Credits = "Admitidos a pregado (No incluye datos atípicos)"
+  ))
+
+# Examen de Admisión por Estrato
+
+Plot.Boxplot(
+  datos = Puntaje_Adm %>% filter(YEAR >= 2024, ADMITIDO == "Sí"),
+  variable = PTOTAL,
+  grupo1 = Periodo,
+  grupo2 = ESTRATO_ORIG,
+  ylim = c(0, 1000),
+  outliers = FALSE,
+  colores = c("#e41a1c","#377eb8", "#ff7f00","#4daf4a", "#984ea3", "#525252", "yellow"),
+  titulo = "Evolución distribución puntajes examen de admisión de admitidos según estrato",
+  labelY = "Puntaje examen",
+  textBox = "Puntaje",
+  libreria = "highcharter",
+  estilo = list(LegendTitle = "Estrato:", hc.Tema = 5, hc.Credits = "Admitidos a pregado (No incluye datos atípicos)"
+  ))
+
+# Análisis Salarios UNAL-OLE
+
+OleUN <- read_excel("Datos/Fuentes/SalariosEgresadosUNAL.xlsx") %>% 
+         filter()  
+
+# General
+
+OleUN %>% summarise(Total = sum(Egresados), .by = c(SMMLV)) %>% 
+          filter(SMMLV != "Total") %>% 
+  Plot.Barras(
+    valores   = Total,
+    categoria = SMMLV     ,
+    ordinal   = TRUE  ,
+    freqRelativa = TRUE,
+    titulo = "Rangos salariales recien graduados de la UNAL, \nAños 2016 a 2022",
+    labelY    = "Porcentaje",
+    vertical = FALSE,
+    ylim = c(0, 50),
+    estatico = TRUE,
+    estilo    = list(
+      gg.Tema  = 5)
+  )
+
+# Graduados de Pregrado
+
+OleUN %>% filter(Nivel == "Pregrado") %>% 
+  summarise(Total = sum(Egresados), .by = c(SMMLV)) %>% 
+  filter(SMMLV != "Total") %>% 
+  Plot.Barras(
+    valores   = Total,
+    categoria = SMMLV     ,
+    ordinal   = TRUE  ,
+    freqRelativa = TRUE,
+    titulo = "Rangos salariales recien graduados de PREGRADO de la UNAL, \nAños 2016 a 2022",
+    labelY    = "Porcentaje",
+    vertical = FALSE,
+    ylim = c(0, 50),
+    estatico = TRUE,
+    estilo    = list(
+      gg.Tema  = 5)
+  )
+
+# Graduados de Postgrado
+
+OleUN %>% filter(Nivel == "Posgrado") %>% 
+  summarise(Total = sum(Egresados), .by = c(SMMLV)) %>% 
+  filter(SMMLV != "Total") %>% 
+  Plot.Barras(
+    valores   = Total,
+    categoria = SMMLV     ,
+    ordinal   = TRUE  ,
+    freqRelativa = TRUE,
+    titulo = "Rangos salariales recien graduados de POSTGRADO de la UNAL, \nAños 2016 a 2022",
+    labelY    = "Porcentaje",
+    vertical = FALSE,
+    ylim = c(0, 50),
+    estatico = TRUE,
+    estilo    = list(
+      gg.Tema  = 5)
+  )
+
+# Calculo Razón Estudiante por Profesor
+
+# General
+
+Mat <- UnalData::Matriculados %>%
+  filter(between(YEAR, 2018, 2023)) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  summarise(Matriculados = n(), .by = c(Periodo))
+
+Doc <- UnalData::Docentes %>%
+  filter(between(YEAR, 2018, 2023)) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  summarise(Docentes = n(), .by = c(Periodo))
+
+left_join(Mat, Doc, by = "Periodo") %>% 
+  filter(Periodo != "2020-1") %>% 
+  mutate(Razón = round(Matriculados / Docentes, 2)) %>% 
+  mutate(Variable = "Razón estudiantes por docente") %>% 
+  Plot.Series(
+    tiempo    = vars(Periodo),
+    categoria = Variable,
+    valores   = Razón,
+    ylim = c(0, 30),
+    titulo = "Evolución razón total estudiantes por docente de carrera en la UNAL",
+    labelX    = "Periodo",
+    labelY    = "Razón",
+    estilo = list(hc.Tema = 5, hc.Tema = 5, hc.Credits = "* No incluye el periodo 2020-1"))
+
+# Por Sedes
+
+Mat <- UnalData::Matriculados %>%
+  filter(between(YEAR, 2018, 2023)) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  summarise(Matriculados = n(), .by = c(Periodo, SEDE_NOMBRE_MAT)) %>% 
+  pivot_wider(names_from = SEDE_NOMBRE_MAT, values_from = Matriculados) %>% 
+  mutate(Medellín = ifelse(Periodo == "2020-1", NA, Medellín)) %>% 
+  select(-Tumaco)
+
+Doc <- UnalData::Docentes %>%
+  filter(between(YEAR, 2018, 2023)) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  summarise(Docentes = n(), .by = c(Periodo, SEDE)) %>% 
+  pivot_wider(names_from = SEDE, values_from = Docentes)
+
+ Raz_Sedes <- left_join(Mat, Doc, by = "Periodo") %>% 
+  mutate(Bogotá = round(Bogotá.x/Bogotá.y, 2),
+         Medellín = round(Medellín.x/Medellín.y, 2), 
+         Manizales = round(Manizales.x/Manizales.y, 2),
+         Palmira = round(Palmira.x/Palmira.y, 2),
+         `La Paz` = round(`La Paz.x`/`La Paz.y`, 2),
+         Orinoquía = round(Orinoquía.x/Orinoquía.y, 2),
+         Amazonía = round(Amazonía.x/Amazonía.y, 2),
+         Caribe=  round(Caribe.x/Caribe.y, 2)) %>% 
+    select(Periodo, Bogotá:Caribe) %>% 
+    mutate(`La Paz` = ifelse(Periodo %in% c("2019-2", "2020-1", "2020-2", "2021-1"), NA, `La Paz`)) %>% 
+  pivot_longer(Bogotá:Caribe, 
+               names_to = "Sede" , 
+               values_to = "Razón") 
+ 
+ # Sedes andinas
+ 
+ Raz_Sedes %>% 
+   filter(Sede %in% c("Bogotá", "Medellín", "Manizales", "Palmira", "Palmira", "La Paz")) %>% 
+   Plot.Series(
+     tiempo    = vars(Periodo),
+     categoria = Sede,
+     valores   = Razón,
+     ylim = c(0, 35),
+     colores = c("#4daf4a", "#ff7f00", "#984ea3", "#377eb8", "#e41a1c"),
+     titulo = "Evolución razón total estudiantes por docente de carrera en Sedes Andinas de la UNAL",
+     labelX    = "Periodo",
+     labelY    = "Razón",
+     estilo = list(hc.Tema = 5))
+ 
+   
+   
+ 
+ 
+ 
+  
