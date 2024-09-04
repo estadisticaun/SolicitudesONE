@@ -9042,9 +9042,32 @@ Est_Facu <- UnalData::Matriculados %>%
 
 write_xlsx(Est_Facu, "Datos/Entrega92/Mat_Facultad.xlsx")        
 
+
 ##%######################################################%##
 #                                                          #
-####              93 Solicitud 15-08-2024              ####
+####              95 Solicitud 27-08-2024              ####
+#                                                          #
+##%######################################################%##
+
+# Solicitud DANE Manizales 2024-1
+
+# Importar y cruzar datos
+
+Dane_Mat <- read_excel("Datos/Fuentes/Matricula_Manizales_DANE.xlsx") 
+Dane_Gratis <- read_excel("Datos/Fuentes/Gratuidad_Manizales_DANE.xlsx") 
+
+PBM_Car_DANE <- Dane_Mat %>% left_join(Dane_Gratis, by = "DOCUMENTO") %>% 
+                  mutate(BENEFICIARIO = ifelse(is.na(BENEFICIARIO), "No", BENEFICIARIO)) %>%
+                  filter(BENEFICIARIO == "Sí") %>% 
+                  summarise(Total = n(),.by = c(PBM, PROGRAMA)) %>% 
+                  pivot_wider(names_from = PROGRAMA, values_from = Total, values_fill = 0) %>% 
+                  arrange(PBM)
+
+write_xlsx(PBM_Car_DANE, "Datos/Entrega95/PBM_Car_DANE.xlsx")
+
+##%######################################################%##
+#                                                          #
+####              94 Solicitud 15-08-2024              ####
 #                                                          #
 ##%######################################################%##
 
@@ -9919,8 +9942,43 @@ Doc <- UnalData::Docentes %>%
      estilo = list(hc.Tema = 5))
  
    
-   
- 
- 
- 
+
+ nrow(UnalData::Aspirantes %>% 
+   filter(YEAR == 2024, SEMESTRE == 1) %>% 
+   summarise(Total = n(), .by = c(COD_CIU_RES)))
   
+
+ nrow(UnalData::Matriculados %>% 
+        filter(YEAR == 2023, SEMESTRE == 2) %>% 
+        summarise(Total = n(), .by = c(COD_CIU_PROC)))
+ 
+ nrow(UnalData::Matriculados %>% 
+        filter(YEAR == 2023, SEMESTRE == 2, TIPO_ADM == "PAES") %>% 
+        summarise(Total = n(), .by = c(COD_CIU_PROC)))
+ 
+ nrow(UnalData::Matriculados %>% 
+        filter(YEAR == 2023, SEMESTRE == 2, TIPO_ADM == "PEAMA") %>% 
+        summarise(Total = n(), .by = c(COD_CIU_PROC)))
+ 
+ ##%######################################################%##
+ #                                                          #
+ ####              96 Solicitud 03-09-2024              ####
+ #                                                          #
+ ##%######################################################%##
+ 
+ # Puntajes PBM candidatos estudiantes auxiliares PGD2027
+ # Solicitante: Mónica Andrea Carrillo
+ # Calidad - DNPE
+ 
+ # Importar y cruzar Base Estudiantes
+ 
+ Pbm_Auxiliares <- read_excel("Datos/Fuentes/Aiuxiliares_PGD.xlsx") %>% 
+                   mutate(ID = as.character(ID))%>% 
+                   left_join(UnalData::Matriculados %>% 
+                             filter(YEAR == 2023, SEMESTRE == 2), 
+                             by = "ID") %>% 
+                   select("SEDE_PGD", "NOMBRE_PGD", "ID", "PBM_ORIG")
+
+ write_xlsx(Pbm_Auxiliares, "Datos/Entrega96/Pbm_Auxiliares.xlsx")
+ 
+ 

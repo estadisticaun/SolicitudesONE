@@ -162,7 +162,8 @@ Asp_Nivel <- UnalData::Aspirantes %>% filter(YEAR%in% c(2019:2023)) %>%
   mutate(Periodo = paste(YEAR, SEMESTRE, sep = "_")) %>%
   rename(Nivel = TIPO_NIVEL) %>% 
   summarise(Total = n(), .by = c(Nivel, Periodo)) %>% 
-  arrange(desc(Nivel))
+  pivot_wider(names_from = Nivel, values_from = Total)
+
 
 write_xlsx(Asp_Nivel, "GNFA/Calificadora/2024/Aspirantes/Asp_Nivel.xlsx")
 
@@ -173,10 +174,50 @@ Asp_Sedes <- UnalData::Aspirantes %>% filter(YEAR%in% c(2019:2023)) %>%
   mutate(Periodo = paste(YEAR, SEMESTRE, sep = "_")) %>%
   rename(Sede = INS_SEDE_NOMBRE) %>% 
   summarise(Total = n(), .by = c(Sede, Periodo)) %>% 
-  arrange(desc(Sede))
+  pivot_wider(names_from = Sede, values_from = Total, values_fill = 0)
 
 write_xlsx(Asp_Sedes, "GNFA/Calificadora/2024/Aspirantes/Asp_Sedes.xlsx")
 
+
+# Admitidos ----
+
+# Por Nivel
+
+Adm_Nivel <- UnalData::Aspirantes %>% filter(YEAR%in% c(2019:2023),
+                                             ADMITIDO == "Sí") %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "_")) %>%
+  rename(Nivel = TIPO_NIVEL) %>% 
+  summarise(Total = n(), .by = c(Nivel, Periodo)) %>% 
+  pivot_wider(names_from = Nivel, values_from = Total)
+
+
+write_xlsx(Adm_Nivel, "GNFA/Calificadora/2024/Admitidos/Adm_Nivel.xlsx")
+
+
+# Por Sedes
+
+Adm_Sedes <- UnalData::Aspirantes %>% filter(YEAR%in% c(2019:2023),
+                                             ADMITIDO == "Sí") %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "_")) %>%
+  rename(Sede = ADM_SEDE_NOMBRE) %>% 
+  summarise(Total = n(), .by = c(Sede, Periodo)) %>% 
+  pivot_wider(names_from = Sede, values_from = Total, values_fill = 0)
+
+write_xlsx(Adm_Sedes, "GNFA/Calificadora/2024/Admitidos/Adm_Sedes.xlsx")
+
+# Por Programas Académicos
+
+Adm_Programas <- UnalData::Aspirantes %>% filter(YEAR%in% c(2019:2023)) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "_")) %>%
+  rename(Sede = ADM_SEDE_NOMBRE,
+         Nivel = TIPO_NIVEL,
+         Modalidad = NIVEL,
+         Programa = PROGRAMA_2) %>% 
+  summarise(Total = n(), .by = c(Sede, Nivel, Modalidad, Programa, Periodo)) %>% 
+  pivot_wider(names_from = Periodo, values_from = Total, values_fill = 0) %>% 
+  arrange(Sede, Nivel, Modalidad)
+
+write_xlsx(Adm_Programas, "GNFA/Calificadora/2024/Admitidos/Adm_Programas.xlsx")
 
 # Matricula ----
 
@@ -186,7 +227,7 @@ Mat_Nivel <- UnalData::Matriculados %>% filter(YEAR%in% c(2019:2023)) %>%
   mutate(Periodo = paste(YEAR, SEMESTRE, sep = "_")) %>%
   rename(Nivel = TIPO_NIVEL) %>% 
   summarise(Total = n(), .by = c(Nivel, Periodo)) %>% 
-  arrange(desc(Nivel))
+  pivot_wider(names_from = Nivel, values_from = Total)
 
 write_xlsx(Mat_Nivel, "GNFA/Calificadora/2024/Matricula/Mat_Nivel.xlsx")
 
@@ -197,7 +238,7 @@ Mat_Sedes <- UnalData::Matriculados %>% filter(YEAR%in% c(2019:2023)) %>%
   mutate(Periodo = paste(YEAR, SEMESTRE, sep = "_")) %>%
   rename(Sede = SEDE_NOMBRE_MAT) %>% 
   summarise(Total = n(), .by = c(Sede, Periodo)) %>% 
-  arrange(desc(Sede))
+  pivot_wider(names_from = Sede, values_from = Total, values_fill = 0)
 
 write_xlsx(Mat_Sedes, "GNFA/Calificadora/2024/Matricula/Mat_Sedes.xlsx")
 
@@ -224,7 +265,7 @@ Mat_Pvez_Nivel <- UnalData::Matriculados %>% filter(YEAR%in% c(2019:2023),
   mutate(Periodo = paste(YEAR, SEMESTRE, sep = "_")) %>%
   rename(Nivel = TIPO_NIVEL) %>% 
   summarise(Total = n(), .by = c(Nivel, Periodo)) %>% 
-  arrange(desc(Nivel))
+  pivot_wider(names_from = Nivel, values_from = Total)
 
 write_xlsx(Mat_Pvez_Nivel, "GNFA/Calificadora/2024/MatriculaPV/Mat_Pvez_Nivel.xlsx")
 
@@ -236,7 +277,8 @@ Mat_Pvez_Sedes <- UnalData::Matriculados %>% filter(YEAR%in% c(2019:2023),
   mutate(Periodo = paste(YEAR, SEMESTRE, sep = "_")) %>%
   rename(Sede = SEDE_NOMBRE_MAT) %>% 
   summarise(Total = n(), .by = c(Sede, Periodo)) %>% 
-  arrange(desc(Sede))
+  pivot_wider(names_from = Sede, values_from = Total, values_fill = 0)
+
 
 write_xlsx(Mat_Pvez_Sedes, "GNFA/Calificadora/2024/MatriculaPV/Mat_Pvez_Sedes.xlsx")
 
