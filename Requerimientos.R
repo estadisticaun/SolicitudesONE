@@ -9981,4 +9981,56 @@ Doc <- UnalData::Docentes %>%
 
  write_xlsx(Pbm_Auxiliares, "Datos/Entrega96/Pbm_Auxiliares.xlsx")
  
+ # Nuevos Progarmas 2024-1
+ 
+ Programas_2024 <- read_excel("Datos/Fuentes/SNIESAspirantes20242.xlsx") %>% 
+                   summarise(Total = n(), .by = c(Nivel, SNIES_PROGRA)) %>% 
+                   left_join(UnalData::Hprogramas, by = "SNIES_PROGRA")
+ 
+ View(UnalData::Graduados %>% summarise(Total = n(), .by = c(YEAR, SEMESTRE)))
+ 
+ ##%######################################################%##
+ #                                                          #
+ ####              97 Solicitud 03-10-2024              ####
+ #                                                          #
+ ##%######################################################%##
+ 
+ # Estadísticas Admitidos Química e Ingeniería Química
+ # Solicitante: DNPE
+ 
+ Química <- UnalData::Aspirantes %>% filter(SNIES_PROGRA %in% c(29, 36),
+                                 ADMITIDO == "Sí",
+                                 MOD_INS == "Regular") %>% 
+            mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-"),
+                   PROGRAMA = ifelse(PROGRAMA == "Ingeniería química", 	
+                                     "Ingeniería Química", PROGRAMA)) %>% 
+            summarise(Máximo = max(PTOTAL, na.rm = TRUE), 
+                      Promedio = mean(PTOTAL, na.rm = TRUE), 
+                      Mínimo = min(PTOTAL, na.rm = TRUE), 
+                      `Total Admitidos` = n(),
+                      .by = c(PROGRAMA, Periodo)) %>% 
+            arrange(PROGRAMA) %>% 
+            filter(Periodo != "2008-1")
+ 
+ 
+ Aspirantes <- UnalData::Aspirantes %>% filter(TIPO_NIVEL == "Pregrado",
+                                               MOD_INS == "Regular") %>% 
+   mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+               summarise(`Total Aspirantes` = n(), .by = c(Periodo))
+
+ 
+ Química <- Química %>% left_join(Aspirantes, by = "Periodo")  
+ 
+ write_xlsx(Química, "Datos/Entrega97/Química.xlsx")
+ 
+ ##%######################################################%##
+ #                                                          #
+ ####              98 Solicitud 28-10-2024              ####
+ #                                                          #
+ ##%######################################################%##
+ 
+ # Matriculados por Facultades Medellín
+ # Solicitante: Memoria Financiera
+ 
+ 
  
