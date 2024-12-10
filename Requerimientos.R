@@ -10032,5 +10032,64 @@ Doc <- UnalData::Docentes %>%
  # Matriculados por Facultades Medellín
  # Solicitante: Memoria Financiera
  
+ ##%######################################################%##
+ #                                                          #
+ ####              99 Solicitud 25-11-2024              ####
+ #                                                          #
+ ##%######################################################%##
  
+ # Respuesta Derecho de Petición
+ # Solicitante: Diana Patricia González Torres
+ # CC. 52.501.957 de Bogotá
+ 
+ # Matriculados Postgrado 2019
+ 
+MatPos_2019 <- UnalData::Matriculados %>% filter(YEAR == 2019, 
+                                  TIPO_NIVEL == "Postgrado") %>% 
+               select(Año = YEAR,
+                      Semestre = SEMESTRE,
+                      Sexo= SEXO, 
+                      Edad = EDAD_MOD,
+                      CODS_NAC:NACIONALIDAD,
+                      DEP_NAC:COD_CIU_NAC,
+                      DEP_PROC:COD_CIU_PROC,
+                      `Nivel de Formación` = NIVEL,
+                      `Sede Matrícula` = SEDE_NOMBRE_MAT,
+                      Facultad = FACULTAD,
+                      `SNIES Programa` = SNIES_PROGRA, 
+                      Programa = PROGRAMA,
+                      `Área SNIES` = AREAC_SNIES) %>% 
+              rename(Nacionalidad = NACIONALIDAD,
+                     `Dpto Nacimiento`= DEP_NAC,
+                     `Ciudad Nacimiento`= CIU_NAC,
+                     `Dpto Procedencia`= DEP_PROC,
+                     `Ciudad Procedencia`= CIU_PROC)
+ 
+ write_xlsx(MatPos_2019, "Datos/Entrega99/MatPos_2019.xlsx") 
+   
+# Graduados Postgrado 2020-2023
+ 
+Gra_20_23 <- UnalData::Graduados %>% filter(YEAR %in% c(2020:2023), 
+                                                  TIPO_NIVEL == "Postgrado") %>% 
+   select(Año = YEAR,
+          Semestre = SEMESTRE,
+          Sexo= SEXO, 
+          Edad = EDAD_MOD,
+          CODS_NAC:NACIONALIDAD,
+          DEP_NAC:COD_CIU_NAC,
+          DEP_PROC:COD_CIU_PROC,
+          `Nivel de Formación` = NIVEL,
+          `Sede Graduación` = SEDE_NOMBRE_MAT,
+          Facultad = FACULTAD,
+          `SNIES Programa` = SNIES_PROGRA, 
+          Programa = PROGRAMA,
+          `Área SNIES` = AREAC_SNIES) %>% 
+   rename(Nacionalidad = NACIONALIDAD,
+          `Dpto Nacimiento`= DEP_NAC,
+          `Ciudad Nacimiento`= CIU_NAC,
+          `Dpto Procedencia`= DEP_PROC,
+          `Ciudad Procedencia`= CIU_PROC)
+ 
+write_xlsx(Gra_20_23, "Datos/Entrega99/Gra_20_23.xlsx") 
+
  
