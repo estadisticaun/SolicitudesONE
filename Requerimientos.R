@@ -10,7 +10,7 @@ library(UnalR)
 library(dplyr)
 library(tidyr)
 library(readxl)
-library(xlsx)
+#library(xlsx)
 library(writexl)
 library(openxlsx)
 library(tidyverse)
@@ -10092,4 +10092,25 @@ Gra_20_23 <- UnalData::Graduados %>% filter(YEAR %in% c(2020:2023),
  
 write_xlsx(Gra_20_23, "Datos/Entrega99/Gra_20_23.xlsx") 
 
- 
+
+##%######################################################%##
+#                                                          #
+####              100 Solicitud 10-12-2024              ####
+#                                                          #
+##%######################################################%##
+
+# Respuesta Solicitud Datos Desarrollo Asignatura
+# Solicitante: Alejandro Bolaños
+# CC. Estudiante Derecho UNAL
+
+ Adm_Procedencia <- UnalData::Aspirantes %>% 
+              filter(ADMITIDO == "Sí", 
+                     YEAR >= 2018, 
+                     ADM_SEDE_NOMBRE == "Bogotá") %>% 
+              select(YEAR, SEMESTRE, COD_DEP_RES, DEP_RES, COD_CIU_RES, CIU_RES) %>% 
+              summarise(Total = n(), 
+              .by = c(YEAR, SEMESTRE, COD_DEP_RES, DEP_RES, COD_CIU_RES, CIU_RES))
+  
+write_xlsx(Adm_Procedencia, "Datos/Entrega100/Adm_Procedencia.xlsx") 
+
+
