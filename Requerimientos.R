@@ -10114,3 +10114,33 @@ write_xlsx(Gra_20_23, "Datos/Entrega99/Gra_20_23.xlsx")
 write_xlsx(Adm_Procedencia, "Datos/Entrega100/Adm_Procedencia.xlsx") 
 
 
+##%######################################################%##
+#                                                          #
+####              101 Solicitud 11-12-2024              ####
+#                                                          #
+##%######################################################%##
+
+# Solicitud Tabla Resumen Estadísticas UNAL
+# Solicitante: DNPE
+
+# Aspirantes
+
+UnalData::Aspirantes %>% 
+  mutate(Periodo = as.numeric(paste0(YEAR, SEMESTRE))) %>% 
+  summarise(Total = n(), .by= c(Periodo, TIPO_NIVEL)) %>% 
+  arrange(desc(Periodo)) %>% 
+  slice(1:4) %>% 
+  pivot_wider(names_from = Periodo,
+              values_from = Total) %>% 
+  rename(`Nivel de formación` = TIPO_NIVEL) %>% 
+  rowwise() %>% 
+  mutate(Total = sum(across(`20242`:`20241`))) %>% 
+  select(c(1,3,2)) 
+
+  
+  
+  
+
+
+
+
