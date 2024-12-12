@@ -24,6 +24,8 @@ library(RColorBrewer)
 library(RSocrata)
 library(viridis)
 library(gt)
+library(scales)
+library(gtExtras)
 
 ######################################-
 # 1 Solicitud 14-05-2021 -----
@@ -10123,24 +10125,163 @@ write_xlsx(Adm_Procedencia, "Datos/Entrega100/Adm_Procedencia.xlsx")
 # Solicitud Tabla Resumen Estadísticas UNAL
 # Solicitante: DNPE
 
-# Aspirantes
+# Aspirantes Nivel de Formación
 
-UnalData::Aspirantes %>% 
-  mutate(Periodo = as.numeric(paste0(YEAR, SEMESTRE))) %>% 
-  summarise(Total = n(), .by= c(Periodo, TIPO_NIVEL)) %>% 
-  arrange(desc(Periodo)) %>% 
-  slice(1:4) %>% 
+UnalData::Aspirantes %>%
+  mutate(Periodo = as.numeric(paste0(YEAR, SEMESTRE))) %>%
+  summarise(Total = n(), .by= c(Periodo, TIPO_NIVEL)) %>%
+  arrange(desc(Periodo)) %>%
+  slice(1:4) %>%
   pivot_wider(names_from = Periodo,
-              values_from = Total) %>% 
-  rename(`Nivel de formación` = TIPO_NIVEL) %>% 
-  rowwise() %>% 
-  mutate(Total = sum(across(`20242`:`20241`))) %>% 
-  select(c(1,3,2)) 
+              values_from = Total) %>%
+  select(c(1,3,2)) %>% 
+  rename(`Nivel de formación` = TIPO_NIVEL) %>%
+  mutate(`%1` = percent(unlist(.[, 2]/sum(.[, 2])), accuracy = 0.1),
+         `%2` = percent(unlist(.[, 3]/sum(.[, 3])), accuracy = 0.1)) %>% 
+  relocate(`%1`, .after = names(.[, 2])) %>% 
+  rename(`%` = `%1`,
+         `% ` = `%2`) %>% 
+  rowwise() %>%
+  mutate(`Total aspirantes` = sum(across(contains("20")))) %>% 
+  add_row(!!! setNames(list("Total aspirantes", sum(.[, 2]), "", sum(.[, 4]), "", 
+                            sum(.[, 6])), names(.))) %>% 
+  gt() %>% 
+  cols_align(align = c("left"), columns = c(`Nivel de formación`)) %>%
+  cols_align(align = c("center"), columns = c(`20241`)) %>% 
+  cols_align(align = c("center"), columns = c(`%`)) %>% 
+  cols_align(align = c("center"), columns = c(`20242`)) %>% 
+  cols_align(align = c("center"), columns = c(`% `)) %>% 
+  cols_align(align = c("center"), columns = c(`Total aspirantes`))  %>% 
+  cols_label(
+    `Nivel de formación` = md("**Nivel de formación**"),
+    `20241` = md("**20241**"),
+    `%` = md("**%**"),
+    `20242` = md("**20242**"),
+    `% ` = md("**%**"),
+    `Total aspirantes` = md("**Total aspirantes**")) %>% 
+  tab_options(column_labels.background.color = c("#7AC5CD")) %>% 
+  gt_highlight_rows(rows = c(3),fill = c("#DBDBDB"))
+ 
+# Aspirantes por Sedes 
 
-  
-  
-  
+UnalData::Aspirantes %>%
+  mutate(Periodo = as.numeric(paste0(YEAR, SEMESTRE))) %>%
+  summarise(Total = n(), .by= c(Periodo, INS_SEDE_NOMBRE)) %>%
+  arrange(desc(Periodo)) %>%
+  slice(1:19) %>%
+  pivot_wider(names_from = Periodo,
+              values_from = Total,
+              values_fill = 0) %>%
+  select(c(1,3,2)) %>% 
+  rename(`Sede de inscripción` = INS_SEDE_NOMBRE) %>%
+  mutate(`%1` = percent(unlist(.[, 2]/sum(.[, 2])), accuracy = 0.1),
+         `%2` = percent(unlist(.[, 3]/sum(.[, 3])), accuracy = 0.1)) %>% 
+  relocate(`%1`, .after = names(.[, 2])) %>% 
+  rename(`%` = `%1`,
+         `% ` = `%2`) %>% 
+  rowwise() %>%
+  mutate(`Total aspirantes` = sum(across(contains("20")))) %>% 
+  add_row(!!! setNames(list("Total aspirantes", sum(.[, 2]), "", sum(.[, 4]), "", 
+                            sum(.[, 6])), names(.))) %>% 
+  gt() %>% 
+  cols_align(align = c("left"), columns = c(`Sede de inscripción`)) %>%
+  cols_align(align = c("center"), columns = c(`20241`)) %>% 
+  cols_align(align = c("center"), columns = c(`%`)) %>% 
+  cols_align(align = c("center"), columns = c(`20242`)) %>% 
+  cols_align(align = c("center"), columns = c(`% `)) %>% 
+  cols_align(align = c("center"), columns = c(`Total aspirantes`))  %>% 
+  cols_label(
+    `Sede de inscripción` = md("**Sede de inscripción**"),
+    `20241` = md("**2024-1**"),
+    `%` = md("**%**"),
+    `20242` = md("**2024-2**"),
+    `% ` = md("**%**"),
+    `Total aspirantes` = md("**Total aspirantes**")) %>% 
+  tab_options(column_labels.background.color = c("#7AC5CD")) %>% 
+  gt_highlight_rows(rows = 11, fill = c("#DBDBDB")) %>% 
+  data_color(columns = `20241`, palette = "Oranges") %>% 
+  data_color(columns = `20242`, palette = "Oranges") 
 
 
+# Admitidos
+
+
+UnalData::Aspirantes %>%
+  filter(ADMITIDO == "Sí") %>% 
+  mutate(Periodo = as.numeric(paste0(YEAR, SEMESTRE))) %>%
+  summarise(Total = n(), .by= c(Periodo, TIPO_NIVEL)) %>%
+  arrange(desc(Periodo)) %>%
+  slice(1:4) %>%
+  pivot_wider(names_from = Periodo,
+              values_from = Total) %>%
+  select(c(1,3,2)) %>% 
+  rename(`Nivel de formación` = TIPO_NIVEL) %>%
+  mutate(`%1` = percent(unlist(.[, 2]/sum(.[, 2])), accuracy = 0.1),
+         `%2` = percent(unlist(.[, 3]/sum(.[, 3])), accuracy = 0.1)) %>% 
+  relocate(`%1`, .after = names(.[, 2])) %>% 
+  rename(`%` = `%1`,
+         `% ` = `%2`) %>% 
+  rowwise() %>%
+  mutate(`Total admitidos` = sum(across(contains("20")))) %>% 
+  add_row(!!! setNames(list("Total admitidos", sum(.[, 2]), "", sum(.[, 4]), "", 
+                            sum(.[, 6])), names(.))) %>% 
+  gt() %>% 
+  cols_align(align = c("left"), columns = c(`Nivel de formación`)) %>%
+  cols_align(align = c("center"), columns = c(`20241`)) %>% 
+  cols_align(align = c("center"), columns = c(`%`)) %>% 
+  cols_align(align = c("center"), columns = c(`20242`)) %>% 
+  cols_align(align = c("center"), columns = c(`% `)) %>% 
+  cols_align(align = c("center"), columns = c(`Total admitidos`))  %>% 
+  cols_label(
+    `Nivel de formación` = md("**Nivel de formación**"),
+    `20241` = md("**2024-1**"),
+    `%` = md("**%**"),
+    `20242` = md("**2024-2**"),
+    `% ` = md("**%**"),
+    `Total admitidos` = md("**Total admitidos**")) %>% 
+  tab_options(column_labels.background.color = c("#7AC5CD")) %>% 
+  gt_highlight_rows(rows = c(3),fill = c("#DBDBDB")) 
+
+
+# Admitidos por Sedes 
+
+UnalData::Aspirantes %>%
+  filter(ADMITIDO == "Sí") %>% 
+  mutate(Periodo = as.numeric(paste0(YEAR, SEMESTRE))) %>%
+  summarise(Total = n(), .by= c(Periodo, ADM_SEDE_NOMBRE)) %>%
+  arrange(desc(Periodo)) %>%
+  slice(1:18) %>%
+  pivot_wider(names_from = Periodo,
+              values_from = Total,
+              values_fill = 0) %>%
+  select(c(1,3,2)) %>% 
+  rename(`Sede de inscripción` = ADM_SEDE_NOMBRE) %>%
+  mutate(`%1` = percent(unlist(.[, 2]/sum(.[, 2])), accuracy = 0.1),
+         `%2` = percent(unlist(.[, 3]/sum(.[, 3])), accuracy = 0.1)) %>% 
+  relocate(`%1`, .after = names(.[, 2])) %>% 
+  rename(`%` = `%1`,
+         `% ` = `%2`) %>% 
+  rowwise() %>%
+  mutate(`Total admitidos` = sum(across(contains("20")))) %>% 
+  add_row(!!! setNames(list("Total admitidos", sum(.[, 2]), "", sum(.[, 4]), "", 
+                            sum(.[, 6])), names(.))) %>% 
+  gt() %>% 
+  cols_align(align = c("left"), columns = c(`Sede de inscripción`)) %>%
+  cols_align(align = c("center"), columns = c(`20241`)) %>% 
+  cols_align(align = c("center"), columns = c(`%`)) %>% 
+  cols_align(align = c("center"), columns = c(`20242`)) %>% 
+  cols_align(align = c("center"), columns = c(`% `)) %>% 
+  cols_align(align = c("center"), columns = c(`Total admitidos`))  %>% 
+  cols_label(
+    `Sede de inscripción` = md("**Sede de admisión**"),
+    `20241` = md("**2024-1**"),
+    `%` = md("**%**"),
+    `20242` = md("**2024-2**"),
+    `% ` = md("**%**"),
+    `Total admitidos` = md("**Total admitidos**")) %>% 
+  tab_options(column_labels.background.color = c("#7AC5CD")) %>% 
+  gt_highlight_rows(rows = 10, fill = c("#DBDBDB")) %>% 
+  data_color(columns = `20241`, palette = "Oranges") %>% 
+  data_color(columns = `20242`, palette = "Oranges") 
 
 
