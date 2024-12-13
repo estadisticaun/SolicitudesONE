@@ -10125,16 +10125,16 @@ write_xlsx(Adm_Procedencia, "Datos/Entrega100/Adm_Procedencia.xlsx")
 # Solicitud Tabla Resumen Estadísticas UNAL
 # Solicitante: DNPE
 
-# Aspirantes Nivel de Formación
+# Aspirantes por Nivel de Formación
 
 UnalData::Aspirantes %>%
   mutate(Periodo = as.numeric(paste0(YEAR, SEMESTRE))) %>%
   summarise(Total = n(), .by= c(Periodo, TIPO_NIVEL)) %>%
-  arrange(desc(Periodo)) %>%
-  slice(1:4) %>%
+  mutate(rank = dense_rank(desc(Periodo))) %>% 
+  filter(rank %in% c(1:2)) %>% 
+  select(-c(rank)) %>% 
   pivot_wider(names_from = Periodo,
               values_from = Total) %>%
-  select(c(1,3,2)) %>% 
   rename(`Nivel de formación` = TIPO_NIVEL) %>%
   mutate(`%1` = percent(unlist(.[, 2]/sum(.[, 2])), accuracy = 0.1),
          `%2` = percent(unlist(.[, 3]/sum(.[, 3])), accuracy = 0.1)) %>% 
@@ -10146,33 +10146,26 @@ UnalData::Aspirantes %>%
   add_row(!!! setNames(list("Total aspirantes", sum(.[, 2]), "", sum(.[, 4]), "", 
                             sum(.[, 6])), names(.))) %>% 
   gt() %>% 
-  cols_align(align = c("left"), columns = c(`Nivel de formación`)) %>%
-  cols_align(align = c("center"), columns = c(`20241`)) %>% 
-  cols_align(align = c("center"), columns = c(`%`)) %>% 
-  cols_align(align = c("center"), columns = c(`20242`)) %>% 
-  cols_align(align = c("center"), columns = c(`% `)) %>% 
-  cols_align(align = c("center"), columns = c(`Total aspirantes`))  %>% 
-  cols_label(
-    `Nivel de formación` = md("**Nivel de formación**"),
-    `20241` = md("**20241**"),
-    `%` = md("**%**"),
-    `20242` = md("**20242**"),
-    `% ` = md("**%**"),
-    `Total aspirantes` = md("**Total aspirantes**")) %>% 
+  tab_header(title = md("Distribución de aspirantes en la UNAL por nivel de formación"),
+             subtitle = md("Últimos <u>**dos**</u> periodos disponibles")) %>% 
+  cols_align(align = c("center"), columns = everything()) %>% 
+  cols_align(align = c("left"), columns = c(`Nivel de formación`)) %>% 
   tab_options(column_labels.background.color = c("#7AC5CD")) %>% 
-  gt_highlight_rows(rows = c(3),fill = c("#DBDBDB"))
- 
+  gt_highlight_rows(rows = `Nivel de formación` == max(`Nivel de formación`), 
+                    fill = c("#DBDBDB")) %>% 
+  tab_source_note(source_note = md("*Más información en:* https://estadisticas.unal.edu.co/Aspirantes/"))
+
 # Aspirantes por Sedes 
 
 UnalData::Aspirantes %>%
   mutate(Periodo = as.numeric(paste0(YEAR, SEMESTRE))) %>%
   summarise(Total = n(), .by= c(Periodo, INS_SEDE_NOMBRE)) %>%
-  arrange(desc(Periodo)) %>%
-  slice(1:19) %>%
+  mutate(rank = dense_rank(desc(Periodo))) %>% 
+  filter(rank %in% c(1:2)) %>% 
+  select(-c(rank)) %>% 
   pivot_wider(names_from = Periodo,
               values_from = Total,
               values_fill = 0) %>%
-  select(c(1,3,2)) %>% 
   rename(`Sede de inscripción` = INS_SEDE_NOMBRE) %>%
   mutate(`%1` = percent(unlist(.[, 2]/sum(.[, 2])), accuracy = 0.1),
          `%2` = percent(unlist(.[, 3]/sum(.[, 3])), accuracy = 0.1)) %>% 
@@ -10184,37 +10177,30 @@ UnalData::Aspirantes %>%
   add_row(!!! setNames(list("Total aspirantes", sum(.[, 2]), "", sum(.[, 4]), "", 
                             sum(.[, 6])), names(.))) %>% 
   gt() %>% 
-  cols_align(align = c("left"), columns = c(`Sede de inscripción`)) %>%
-  cols_align(align = c("center"), columns = c(`20241`)) %>% 
-  cols_align(align = c("center"), columns = c(`%`)) %>% 
-  cols_align(align = c("center"), columns = c(`20242`)) %>% 
-  cols_align(align = c("center"), columns = c(`% `)) %>% 
-  cols_align(align = c("center"), columns = c(`Total aspirantes`))  %>% 
-  cols_label(
-    `Sede de inscripción` = md("**Sede de inscripción**"),
-    `20241` = md("**2024-1**"),
-    `%` = md("**%**"),
-    `20242` = md("**2024-2**"),
-    `% ` = md("**%**"),
-    `Total aspirantes` = md("**Total aspirantes**")) %>% 
+  tab_header(title = md("Distribución de aspirantes por sedes de la UNAL"),
+             subtitle = md("Últimos <u>**dos**</u> periodos disponibles")) %>%
+  cols_align(align = c("center"), columns = everything()) %>% 
+  cols_align(align = c("left"), columns = c(`Sede de inscripción`)) %>% 
   tab_options(column_labels.background.color = c("#7AC5CD")) %>% 
-  gt_highlight_rows(rows = 11, fill = c("#DBDBDB")) %>% 
-  data_color(columns = `20241`, palette = "Oranges") %>% 
-  data_color(columns = `20242`, palette = "Oranges") 
+  gt_highlight_rows(rows = `Total aspirantes` == max(`Total aspirantes`), 
+                    fill = c("#DBDBDB")) %>% 
+  data_color(columns = contains(c("20", "Total")), palette = "Oranges")%>% 
+  tab_source_note(source_note = md("*Más información en:* https://estadisticas.unal.edu.co/Aspirantes/"))
 
 
-# Admitidos
+
+# Admitidos por Nivel de Formación
 
 
 UnalData::Aspirantes %>%
   filter(ADMITIDO == "Sí") %>% 
   mutate(Periodo = as.numeric(paste0(YEAR, SEMESTRE))) %>%
   summarise(Total = n(), .by= c(Periodo, TIPO_NIVEL)) %>%
-  arrange(desc(Periodo)) %>%
-  slice(1:4) %>%
+  mutate(rank = dense_rank(desc(Periodo))) %>% 
+  filter(rank %in% c(1:2)) %>% 
+  select(-c(rank)) %>% 
   pivot_wider(names_from = Periodo,
               values_from = Total) %>%
-  select(c(1,3,2)) %>% 
   rename(`Nivel de formación` = TIPO_NIVEL) %>%
   mutate(`%1` = percent(unlist(.[, 2]/sum(.[, 2])), accuracy = 0.1),
          `%2` = percent(unlist(.[, 3]/sum(.[, 3])), accuracy = 0.1)) %>% 
@@ -10226,36 +10212,30 @@ UnalData::Aspirantes %>%
   add_row(!!! setNames(list("Total admitidos", sum(.[, 2]), "", sum(.[, 4]), "", 
                             sum(.[, 6])), names(.))) %>% 
   gt() %>% 
-  cols_align(align = c("left"), columns = c(`Nivel de formación`)) %>%
-  cols_align(align = c("center"), columns = c(`20241`)) %>% 
-  cols_align(align = c("center"), columns = c(`%`)) %>% 
-  cols_align(align = c("center"), columns = c(`20242`)) %>% 
-  cols_align(align = c("center"), columns = c(`% `)) %>% 
-  cols_align(align = c("center"), columns = c(`Total admitidos`))  %>% 
-  cols_label(
-    `Nivel de formación` = md("**Nivel de formación**"),
-    `20241` = md("**2024-1**"),
-    `%` = md("**%**"),
-    `20242` = md("**2024-2**"),
-    `% ` = md("**%**"),
-    `Total admitidos` = md("**Total admitidos**")) %>% 
+  tab_header(title = md("Distribución de admitdios en la UNAL por nivel de formación"),
+             subtitle = md("Últimos <u>**dos**</u> periodos disponibles")) %>%
+  cols_align(align = c("center"), columns = everything()) %>% 
+  cols_align(align = c("left"), columns = c(`Nivel de formación`)) %>% 
   tab_options(column_labels.background.color = c("#7AC5CD")) %>% 
-  gt_highlight_rows(rows = c(3),fill = c("#DBDBDB")) 
+  gt_highlight_rows(rows = `Nivel de formación` == max(`Nivel de formación`), 
+                    fill = c("#DBDBDB"))%>% 
+  tab_source_note(source_note = md("*Más información en:* https://estadisticas.unal.edu.co/Admitidos/"))
 
 
-# Admitidos por Sedes 
+# Admitidos por Sedes
+
 
 UnalData::Aspirantes %>%
   filter(ADMITIDO == "Sí") %>% 
   mutate(Periodo = as.numeric(paste0(YEAR, SEMESTRE))) %>%
-  summarise(Total = n(), .by= c(Periodo, ADM_SEDE_NOMBRE)) %>%
-  arrange(desc(Periodo)) %>%
-  slice(1:18) %>%
+  summarise(Total = n(), .by= c(Periodo, INS_SEDE_NOMBRE)) %>%
+  mutate(rank = dense_rank(desc(Periodo))) %>% 
+  filter(rank %in% c(1:2)) %>% 
+  select(-c(rank)) %>% 
   pivot_wider(names_from = Periodo,
               values_from = Total,
               values_fill = 0) %>%
-  select(c(1,3,2)) %>% 
-  rename(`Sede de inscripción` = ADM_SEDE_NOMBRE) %>%
+  rename(`Sede de admisión` = INS_SEDE_NOMBRE) %>%
   mutate(`%1` = percent(unlist(.[, 2]/sum(.[, 2])), accuracy = 0.1),
          `%2` = percent(unlist(.[, 3]/sum(.[, 3])), accuracy = 0.1)) %>% 
   relocate(`%1`, .after = names(.[, 2])) %>% 
@@ -10266,22 +10246,135 @@ UnalData::Aspirantes %>%
   add_row(!!! setNames(list("Total admitidos", sum(.[, 2]), "", sum(.[, 4]), "", 
                             sum(.[, 6])), names(.))) %>% 
   gt() %>% 
-  cols_align(align = c("left"), columns = c(`Sede de inscripción`)) %>%
-  cols_align(align = c("center"), columns = c(`20241`)) %>% 
-  cols_align(align = c("center"), columns = c(`%`)) %>% 
-  cols_align(align = c("center"), columns = c(`20242`)) %>% 
-  cols_align(align = c("center"), columns = c(`% `)) %>% 
-  cols_align(align = c("center"), columns = c(`Total admitidos`))  %>% 
-  cols_label(
-    `Sede de inscripción` = md("**Sede de admisión**"),
-    `20241` = md("**2024-1**"),
-    `%` = md("**%**"),
-    `20242` = md("**2024-2**"),
-    `% ` = md("**%**"),
-    `Total admitidos` = md("**Total admitidos**")) %>% 
+  tab_header(title = md("Distribución de admitidos por sedes de la UNAL"),
+             subtitle = md("Últimos <u>**dos**</u> periodos disponibles")) %>%
+  cols_align(align = c("center"), columns = everything()) %>% 
+  cols_align(align = c("left"), columns = c(`Sede de admisión`)) %>% 
   tab_options(column_labels.background.color = c("#7AC5CD")) %>% 
-  gt_highlight_rows(rows = 10, fill = c("#DBDBDB")) %>% 
-  data_color(columns = `20241`, palette = "Oranges") %>% 
-  data_color(columns = `20242`, palette = "Oranges") 
+  gt_highlight_rows(rows = `Total admitidos` == max(`Total admitidos`), 
+                    fill = c("#DBDBDB")) %>% 
+  data_color(columns = contains(c("20", "Total")), palette = "Oranges")%>% 
+  tab_source_note(source_note = md("*Más información en:* https://estadisticas.unal.edu.co/Admitidos/"))
 
+
+# Matriculados por Nivel de Formación
+
+UnalData::Matriculados %>%
+  mutate(Periodo = as.numeric(paste0(YEAR, SEMESTRE))) %>%
+  summarise(Total = n(), .by= c(Periodo, TIPO_NIVEL)) %>%
+  mutate(rank = dense_rank(desc(Periodo))) %>% 
+  filter(rank %in% c(1:2)) %>% 
+  select(-c(rank)) %>% 
+  pivot_wider(names_from = Periodo,
+              values_from = Total) %>%
+  rename(`Nivel de formación` = TIPO_NIVEL) %>%
+  mutate(`%1` = percent(unlist(.[, 2]/sum(.[, 2])), accuracy = 0.1),
+         `%2` = percent(unlist(.[, 3]/sum(.[, 3])), accuracy = 0.1)) %>% 
+  relocate(`%1`, .after = names(.[, 2])) %>% 
+  rename(`%` = `%1`,
+         `% ` = `%2`) %>% 
+  rowwise() %>%
+  add_row(!!! setNames(list("Total matriculados", sum(.[, 2]), "", sum(.[, 4]), ""), names(.))) %>% 
+  gt() %>% 
+  tab_header(title = md("Distribución de matriculados en la UNAL por nivel de formación"),
+             subtitle = md("Últimos <u>**dos**</u> periodos disponibles")) %>% 
+  cols_align(align = c("center"), columns = everything()) %>% 
+  cols_align(align = c("left"), columns = c(`Nivel de formación`)) %>% 
+  tab_options(column_labels.background.color = c("#7AC5CD")) %>% 
+  gt_highlight_rows(rows = `Nivel de formación` == max(`Nivel de formación`), 
+                    fill = c("#DBDBDB")) %>% 
+  tab_source_note(source_note = md("*Más información en:* https://estadisticas.unal.edu.co/Matriculados/"))
+
+# Matriculados por Sede de Formación
+
+UnalData::Matriculados %>%
+  mutate(Periodo = as.numeric(paste0(YEAR, SEMESTRE))) %>%
+  summarise(Total = n(), .by= c(Periodo, SEDE_NOMBRE_MAT)) %>%
+  mutate(rank = dense_rank(desc(Periodo))) %>% 
+  filter(rank %in% c(1:2)) %>% 
+  select(-c(rank)) %>% 
+  pivot_wider(names_from = Periodo,
+              values_from = Total) %>%
+  rename(`Sede` = SEDE_NOMBRE_MAT) %>%
+  mutate(`%1` = percent(unlist(.[, 2]/sum(.[, 2])), accuracy = 0.1),
+         `%2` = percent(unlist(.[, 3]/sum(.[, 3])), accuracy = 0.1)) %>% 
+  relocate(`%1`, .after = names(.[, 2])) %>% 
+  rename(`%` = `%1`,
+         `% ` = `%2`) %>% 
+  rowwise() %>%
+  add_row(!!! setNames(list("Total matriculados", sum(.[, 2]), "", sum(.[, 4]), ""), names(.))) %>% 
+  gt() %>% 
+  tab_header(title = md("Distribución de matriculados en la UNAL por sede de formación"),
+             subtitle = md("Últimos <u>**dos**</u> periodos disponibles")) %>% 
+  cols_align(align = c("center"), columns = everything()) %>% 
+  cols_align(align = c("left"), columns = c(`Sede`)) %>% 
+  tab_options(column_labels.background.color = c("#7AC5CD")) %>% 
+  gt_highlight_rows(rows = `Sede` == "Total matriculados", 
+                    fill = c("#DBDBDB")) %>% 
+  data_color(columns = contains(c("20", "Total")), palette = "Oranges") %>% 
+  tab_source_note(source_note = md("*Más información en:* https://estadisticas.unal.edu.co/Matriculados/"))
+
+
+# Graduados por Nivel de Formación
+
+UnalData::Graduados %>%
+  mutate(Periodo = as.numeric(paste0(YEAR, SEMESTRE))) %>%
+  summarise(Total = n(), .by= c(Periodo, TIPO_NIVEL)) %>%
+  mutate(rank = dense_rank(desc(Periodo))) %>% 
+  filter(rank %in% c(1:2)) %>% 
+  select(-c(rank)) %>% 
+  pivot_wider(names_from = Periodo,
+              values_from = Total) %>%
+  rename(`Nivel de formación` = TIPO_NIVEL) %>%
+  mutate(`%1` = percent(unlist(.[, 2]/sum(.[, 2])), accuracy = 0.1),
+         `%2` = percent(unlist(.[, 3]/sum(.[, 3])), accuracy = 0.1)) %>% 
+  relocate(`%1`, .after = names(.[, 2])) %>% 
+  rename(`%` = `%1`,
+         `% ` = `%2`) %>% 
+  rowwise() %>%
+  mutate(`Total graduados` = sum(across(contains("20")))) %>% 
+  add_row(!!! setNames(list("Total graduados", sum(.[, 2]), "", sum(.[, 4]), "", 
+                            sum(.[, 6])), names(.))) %>% 
+  gt() %>% 
+  tab_header(title = md("Distribución de graduados en la UNAL por nivel de formación"),
+             subtitle = md("Últimos <u>**dos**</u> periodos disponibles")) %>% 
+  cols_align(align = c("center"), columns = everything()) %>% 
+  cols_align(align = c("left"), columns = c(`Nivel de formación`)) %>% 
+  tab_options(column_labels.background.color = c("#7AC5CD")) %>% 
+  gt_highlight_rows(rows = `Nivel de formación` == max(`Nivel de formación`), 
+                    fill = c("#DBDBDB")) %>% 
+  tab_source_note(source_note = md("*Más información en:* https://estadisticas.unal.edu.co/Graduados/"))
+
+
+# Graduados por Sedes 
+
+UnalData::Graduados %>%
+  mutate(Periodo = as.numeric(paste0(YEAR, SEMESTRE))) %>%
+  summarise(Total = n(), .by= c(Periodo, SEDE_NOMBRE_ADM)) %>%
+  mutate(rank = dense_rank(desc(Periodo))) %>% 
+  filter(rank %in% c(1:2)) %>% 
+  select(-c(rank)) %>% 
+  pivot_wider(names_from = Periodo,
+              values_from = Total,
+              values_fill = 0) %>%
+  rename(`Sede de inscripción` = SEDE_NOMBRE_ADM) %>%
+  mutate(`%1` = percent(unlist(.[, 2]/sum(.[, 2])), accuracy = 0.1),
+         `%2` = percent(unlist(.[, 3]/sum(.[, 3])), accuracy = 0.1)) %>% 
+  relocate(`%1`, .after = names(.[, 2])) %>% 
+  rename(`%` = `%1`,
+         `% ` = `%2`) %>% 
+  rowwise() %>%
+  mutate(`Total graduados` = sum(across(contains("20")))) %>% 
+  add_row(!!! setNames(list("Total graduados", sum(.[, 2]), "", sum(.[, 4]), "", 
+                            sum(.[, 6])), names(.))) %>% 
+  gt() %>% 
+  tab_header(title = md("Distribución de graduados por sedes de la UNAL"),
+             subtitle = md("Últimos <u>**dos**</u> periodos disponibles")) %>%
+  cols_align(align = c("center"), columns = everything()) %>% 
+  cols_align(align = c("left"), columns = c(`Sede de inscripción`)) %>% 
+  tab_options(column_labels.background.color = c("#7AC5CD")) %>% 
+  gt_highlight_rows(rows = `Total graduados` == max(`Total graduados`), 
+                    fill = c("#DBDBDB")) %>% 
+  data_color(columns = contains(c("20", "Total")), palette = "Oranges")%>% 
+  tab_source_note(source_note = md("*Más información en:* https://estadisticas.unal.edu.co/Aspirantes/"))
 
