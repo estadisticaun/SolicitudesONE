@@ -10378,3 +10378,86 @@ UnalData::Graduados %>%
   data_color(columns = contains(c("20", "Total")), palette = "Oranges")%>% 
   tab_source_note(source_note = md("*Más información en:* https://estadisticas.unal.edu.co/Aspirantes/"))
 
+
+# Docentes por Sedes 
+
+UnalData::Docentes %>%
+  mutate(Periodo = as.numeric(paste0(YEAR, SEMESTRE))) %>%
+  summarise(Total = n(), .by= c(Periodo, SEDE)) %>%
+  mutate(rank = dense_rank(desc(Periodo))) %>% 
+  filter(rank %in% c(1:2)) %>% 
+  select(-c(rank)) %>% 
+  pivot_wider(names_from = Periodo,
+              values_from = Total) %>%
+  rename(`Sede` = SEDE) %>%
+  mutate(`%1` = percent(unlist(.[, 2]/sum(.[, 2])), accuracy = 0.1),
+         `%2` = percent(unlist(.[, 3]/sum(.[, 3])), accuracy = 0.1)) %>% 
+  relocate(`%1`, .after = names(.[, 2])) %>% 
+  rename(`%` = `%1`,
+         `% ` = `%2`) %>% 
+  rowwise() %>%
+  add_row(!!! setNames(list("Total docentes", sum(.[, 2]), "", sum(.[, 4]), ""), names(.))) %>% 
+  gt() %>% 
+  tab_header(title = md("Distribución docentes de carrera en la UNAL por sedes"),
+             subtitle = md("Últimos <u>**dos**</u> periodos disponibles")) %>% 
+  cols_align(align = c("center"), columns = everything()) %>% 
+  cols_align(align = c("left"), columns = c(`Sede`)) %>% 
+  tab_options(column_labels.background.color = c("#7AC5CD")) %>% 
+  gt_highlight_rows(rows = `Sede` == "Total docentes", 
+                    fill = c("#DBDBDB")) %>% 
+  data_color(columns = contains(c("20", "Total")), palette = "Oranges") %>% 
+  tab_source_note(source_note = md("*Más información en:* https://estadisticas.unal.edu.co/Docentes/"))
+
+
+# Funcionarios por Sedes 
+
+UnalData::Administrativos %>%
+  mutate(Periodo = as.numeric(paste0(YEAR, SEMESTRE))) %>%
+  summarise(Total = n(), .by= c(Periodo, SEDE)) %>%
+  mutate(rank = dense_rank(desc(Periodo))) %>% 
+  filter(rank %in% c(1:2)) %>% 
+  select(-c(rank)) %>% 
+  pivot_wider(names_from = Periodo,
+              values_from = Total) %>%
+  rename(`Sede` = SEDE) %>%
+  mutate(`%1` = percent(unlist(.[, 2]/sum(.[, 2])), accuracy = 0.1),
+         `%2` = percent(unlist(.[, 3]/sum(.[, 3])), accuracy = 0.1)) %>% 
+  relocate(`%1`, .after = names(.[, 2])) %>% 
+  rename(`%` = `%1`,
+         `% ` = `%2`) %>% 
+  rowwise() %>%
+  add_row(!!! setNames(list("Total administrativos", sum(.[, 2]), "", sum(.[, 4]), ""), names(.))) %>% 
+  gt() %>% 
+  tab_header(title = md("Distribución administrativos de carrera en la UNAL por sedes"),
+             subtitle = md("Últimos <u>**dos**</u> periodos disponibles")) %>% 
+  cols_align(align = c("center"), columns = everything()) %>% 
+  cols_align(align = c("left"), columns = c(`Sede`)) %>% 
+  tab_options(column_labels.background.color = c("#7AC5CD")) %>% 
+  gt_highlight_rows(rows = `Sede` == "Total administrativos", 
+                    fill = c("#DBDBDB")) %>% 
+  data_color(columns = contains(c("20", "Total")), palette = "Oranges") %>% 
+  tab_source_note(source_note = md("*Más información en:* https://estadisticas.unal.edu.co/Administrativos/"))
+
+
+
+##%######################################################%##
+#                                                          #
+####              102 Solicitud 24-01-2024              ####
+#                                                          #
+##%######################################################%##
+
+# Solicitud Estudiantes matriculados por municipios de procedencia en los últimos
+# 10 años por sedes
+# Solicitante: Director Dirección Nacional de Programas de Pregrado
+
+MunicipiosPre <- UnalData::Matriculados %>% 
+  filter(YEAR >= 2013, TIPO_NIVEL == "Pregrado", !is.na(COD_CIU_PROC)) %>% 
+  group_by(SEDE_NOMBRE_MAT) %>% 
+  distinct(ID, .keep_all = TRUE) %>% 
+  ungroup() %>% 
+  summarise(Total = n(), .by = c(SEDE_NOMBRE_MAT, COD_DEP_PROC, DEP_PROC, COD_CIU_PROC, CIU_PROC)) 
+
+write_xlsx(MunicipiosPre, "Datos/Entrega102/MunicipiosPre.xlsx")
+  
+
+
