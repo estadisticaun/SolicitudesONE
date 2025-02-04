@@ -10460,4 +10460,39 @@ MunicipiosPre <- UnalData::Matriculados %>%
 write_xlsx(MunicipiosPre, "Datos/Entrega102/MunicipiosPre.xlsx")
   
 
+##%######################################################%##
+#                                                          #
+####              103 Solicitud 27-01-2024              ####
+#                                                          #
+##%######################################################%##
+
+# Revisión caso Palmira Estadísticas 2011-2
+
+
+Cod20489 <- UnalData::Matriculados %>% 
+            filter(SNIES_PROGRA == 54576, YEAR == 2011, SEMESTRE == 2, SNIES_SEDE_MAT == 1104)
+View(Cod20489)
+
+##%######################################################%##
+#                                                          #
+####              104 Solicitud 03-02-2024              ####
+#                                                          #
+##%######################################################%##
+
+# Solicitante: Maria Claudia Galindo DNPE
+# Solicitud: Cruzar base faltantes SNIES Saber UNAL con base Estadísticas UNAL
+
+Saber_Vacia <- readxl::read_excel("Datos/Fuentes/Saber_Pro_Vacia.xlsx") %>% 
+              mutate(IDF = paste0(DOCUMENTO, SNIES))
+
+Saber_Esta <- UnalData::SaberPro %>% select(YEAR, ID, SNP, SNIES_PROGRA, PROGRAMA) %>% 
+              mutate(IDF = paste0(ID, SNIES_PROGRA))
+              
+            
+Cruce_Saber <- left_join(Saber_Vacia, Saber_Esta, by = "IDF") %>% 
+               arrange(SNP)
+
+# Se exporta el archivo a Excel haciendo uso del adding VIEWXL 
+# última línea Rstudio
+
 
