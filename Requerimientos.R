@@ -10495,4 +10495,196 @@ Cruce_Saber <- left_join(Saber_Vacia, Saber_Esta, by = "IDF") %>%
 # Se exporta el archivo a Excel haciendo uso del adding VIEWXL 
 # última línea Rstudio
 
+##%######################################################%##
+#                                                          #
+####              105 Solicitud 25-02-2024              ####
+#                                                          #
+##%######################################################%##
+
+# Solicitante: Vicerrectoría Académica
+# Solicitud: Análisis PBM Municipios PDET
+
+# ANALISIS PDET
+
+# Importar PDET
+PDET <- read_excel("Datos/Fuentes/PDET.xlsx") %>% 
+        filter(ZONA_PDET != "No") %>% 
+        select(COD_CIU_PROC, Municipio, Departamen, ZONA_PDET) %>% 
+        group_by(COD_CIU_PROC)  %>% 
+        summarise(Municipio = max(Municipio), Departamento = max(Departamen), 
+                  Zona_PDET = max(ZONA_PDET)) %>% 
+        mutate(PDET = "Sí")
+
+
+# Matriculados
+Matricula_ORG <- UnalData::Matriculados %>% filter(TIPO_NIVEL == "Pregrado", YEAR >= 2012) %>% 
+  select(TID, ID, DEP_NAC:COD_CIU_PROC, SEXO, ESTRATO_ORIG, TIPO_COL, PBM_ORIG, PBM, 
+         SNIES_SEDE_ADM:MOV_PEAMA, FACULTAD, SNIES_PROGRA:PROGRAMA, AREA_CINE)
+
+
+# Cruzar bases de datos
+
+Matricula <-  Matricula_ORG %>% left_join(PDET, by = "COD_CIU_PROC") %>% 
+              distinct(ID, .keep_all = TRUE) %>% 
+              mutate(PDET = ifelse(is.na(PDET), "No", PDET)) %>% 
+              group_by(CIU_PROC) %>% 
+              mutate(Promedio_PBM = mean(PBM_ORIG, na.rm = TRUE))
+
+Matricula_PDET <-  Matricula %>% 
+  filter(PDET == "Sí") %>% 
+  distinct(ID, .keep_all = TRUE) %>% 
+  group_by(CIU_PROC) %>% 
+  mutate(Promedio_PBM = mean(PBM_ORIG, na.rm = TRUE))
+
+
+# Análisis ---
+
+# Total municipios PDET
+
+length(unique(Matricula_PDET$COD_CIU_PROC))
+
+# Cobertura PDET UNAL
+
+print(paste0(round(length(unique(Matricula_PDET$COD_CIU_PROC))/170*100, 2), "%"))
+
+# Mapa PDET - UNAL
+
+Plot.Mapa(datos = Matricula_PDET,
+  depto     = COD_DEP_PROC,
+  mpio      = COD_CIU_PROC,
+  tipo     = "SiNoMpios",
+  colores  = c("#cccccc", "#78c679"),
+  SiNoLegend = c("No", "Sí"),
+  titulo   = " ¿Municipio PDET?")
+
+# Mapa Matriculados PDET
+
+Plot.Mapa(
+  datos     = Matricula_PDET,
+  depto     = COD_DEP_PROC,
+  mpio      = COD_CIU_PROC,
+  # zoomIslas = TRUE,
+  tipo      = "Mpios",
+  titulo    = "Matriculados PDET",
+ # colNA     = "#4ACB46",
+  cortes    = c(0, 1, 10, 50, 250, Inf),
+  colores   = c("#f0f0f0", "#d7191c", "#fdae61", "#a6d96a", "#2b83ba"),
+  opacidad  = 0.6,
+  estatico  = FALSE)
+
+
+# Tabla Top - Max Matriculados PDET
+
+Tabla(ungroup(Matricula_PDET) %>% 
+  summarise(Total = n(), .by = c(DEP_PROC, CIU_PROC)) %>% 
+  slice_max(Total, n = 20),
+  estatico = TRUE,
+  colorHead      = "gray")
+
+# Tabla Top - Min Matriculados PDET
+
+Tabla(ungroup(Matricula_PDET) %>% 
+        summarise(Total = n(), .by = c(DEP_PROC, CIU_PROC)) %>% 
+        slice_min(Total, n = 20),
+      estatico = TRUE,
+      colorHead      = "gray")
+
+
+# Construcción de gráficos PBM
+
+Matricula %>% ggplot(aes(x = PBM_ORIG)) + geom_density(alpha = 0.3, fill = "#74a9cf") + ylim(0, 0.08)
+Matricula %>% ggplot(aes(x = PBM_ORIG, fill = PDET)) + geom_density(alpha = 0.3) + ylim(0, 0.08)
+Matricula %>% ggplot(aes(y = PBM_ORIG, x = PDET, fill = PDET)) + geom_boxplot(alpha = 0.3) 
+
+# Promedio PBM PDET
+
+Tabla(ungroup(Matricula) %>% 
+  summarise(`Percentil_25` = quantile(PBM_ORIG, probs = c(0.25), na.rm = TRUE),
+            Promedio = round(mean(PBM_ORIG, na.rm = TRUE), 2), 
+            Mediana = median(PBM_ORIG, na.rm = TRUE),
+            `Percentil_75` = quantile(PBM_ORIG, probs = c(0.75), na.rm = TRUE),
+            Varianza = round(var(PBM_ORIG, na.rm = TRUE), 2),
+            `Total Matriculados 2012-2024` = n(),
+            .by = c(PDET)),
+  estatico = TRUE,
+  colorHead      = "gray")
+
+
+# Mapa Promedio PBM PDET
+
+Plot.Mapa(
+  datos     = Matricula_PDET,
+  depto     = COD_DEP_PROC,
+  mpio      = COD_CIU_PROC,
+  variable = Promedio_PBM,
+  estadistico = "Promedio",
+  # zoomIslas = TRUE,
+  tipo      = "Mpios",
+  titulo    = "Promedio PBM <br> Municipios PAET",
+  # colNA     = "#4ACB46",
+  cortes    = c(0, 1, 10, 20, 30, Inf),
+  colores   = c("#f0f0f0", "#d7191c", "#fdae61", "#a6d96a", "#2b83ba"),
+  opacidad  = 0.6,
+  estatico  = FALSE)
+
+# Mapa Promedio NACIONAL
+
+Plot.Mapa(
+  datos     = ungroup(Matricula),
+  depto     = COD_DEP_PROC,
+  mpio      = COD_CIU_PROC,
+  variable = Promedio_PBM,
+  estadistico = "Promedio",
+  # zoomIslas = TRUE,
+  tipo      = "Mpios",
+  titulo    = "Promedio PBM <br> Nacional",
+  # colNA     = "#4ACB46",
+  cortes    = c(0, 1, 10, 20, 30, Inf),
+  colores   = c("#f0f0f0", "#d7191c", "#fdae61", "#a6d96a", "#2b83ba"),
+  opacidad  = 0.6,
+  estatico  = FALSE)
+
+
+# ANALISIS INDICE DE POBREZA MULTIDIMENSIONAL
+
+
+# Importar PDET
+Pobreza <- read_excel("Datos/Fuentes/PDET.xlsx") %>% 
+  select(COD_CIU_PROC, Municipio, Departamen, ZONA_PDET, I_pob_cab_) %>% 
+  group_by(COD_CIU_PROC)  %>% 
+  summarise(Municipio = max(Municipio), Departamento = max(Departamen), 
+            Zona_PDET = max(ZONA_PDET),
+            Pobreza = max(I_pob_cab_)) 
+
+  
+# Matriculados UNAL
+MatriculaH <- UnalData::Matriculados %>% filter(TIPO_NIVEL == "Pregrado", YEAR >= 2012) %>% 
+  select(TID, ID, DEP_NAC:COD_CIU_PROC, SEXO, ESTRATO_ORIG, TIPO_COL, PBM_ORIG, PBM, 
+         SNIES_SEDE_ADM:MOV_PEAMA, FACULTAD, SNIES_PROGRA:PROGRAMA, AREA_CINE) %>% 
+  group_by(COD_CIU_PROC) %>% 
+  summarise(PBM = round(mean(PBM_ORIG, na.rm = TRUE), 2), 
+            Total = n())
+
+# Cruzar base con pobreza
+
+Pobreza <- Pobreza %>% left_join(MatriculaH, by = c("COD_CIU_PROC"))
+
+# Gráficos Generales
+
+Pobreza %>% ggplot(aes(x = PBM, y = Pobreza)) + geom_point()
+
+Pobreza %>% ggplot(aes(x = PBM, y = Pobreza)) + geom_point() +
+  geom_vline(xintercept=20, , color = "red", size=1)+
+  geom_hline(yintercept=30, , color = "red", size=1)
+
+Pobreza %>% ggplot(aes(x = PBM, y = Pobreza)) + geom_point() +
+  geom_vline(xintercept=20, , color = "red", size=1)+
+  geom_hline(yintercept=30, , color = "red", size=1)+
+  annotate(geom="text", x=10, y=100, label="Ideal", color="#2ca25f", size = 10)+
+  annotate(geom="text", x=55, y=15, label="Ideal", color="#2ca25f", size = 10)+
+  annotate(geom="text", x=5, y=12, label="Bajo PBM \n Baja Pobreza", color="#e34a33", size = 6)+
+  annotate(geom="text", x=55, y=90, label="Alto PBM \n Alta Pobreza", color="#e34a33", size = 6)
+
+
+
 
