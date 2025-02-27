@@ -10665,25 +10665,73 @@ MatriculaH <- UnalData::Matriculados %>% filter(TIPO_NIVEL == "Pregrado", YEAR >
   summarise(PBM = round(mean(PBM_ORIG, na.rm = TRUE), 2), 
             Total = n())
 
+# Matriculados UNAL
+
+MatriculaH1 <- UnalData::Matriculados %>% filter(TIPO_NIVEL == "Pregrado", YEAR >= 2012) %>% 
+               select(ID, COD_DEP_PROC, COD_CIU_PROC, SEDE_NOMBRE_ADM, PBM_ORIG) %>% 
+               group_by(ID, SEDE_NOMBRE_ADM) %>% 
+               summarise(COD_DEP_PROC = max(COD_DEP_PROC),
+                         COD_CIU_PROC = max(COD_CIU_PROC),
+                         PBM_ORIG = round(mean(PBM_ORIG, na.rm = TRUE), 2)) %>% 
+               add_count(ID, name = "count") %>% 
+               filter(count == 1) %>% 
+               group_by(SEDE_NOMBRE_ADM, COD_CIU_PROC) %>% 
+               summarise(PBM_ORIG = round(mean(PBM_ORIG, na.rm = TRUE), 2),
+                         Total = n())
+  
+  
 # Cruzar base con pobreza
 
-Pobreza <- Pobreza %>% left_join(MatriculaH, by = c("COD_CIU_PROC"))
+Pobreza <- MatriculaH1 %>% left_join(Pobreza, by = c("COD_CIU_PROC"))
 
-# Gráficos Generales
+# Gráficos Generales - por sedes
 
-Pobreza %>% ggplot(aes(x = PBM, y = Pobreza)) + geom_point()
-
-Pobreza %>% ggplot(aes(x = PBM, y = Pobreza)) + geom_point() +
-  geom_vline(xintercept=20, , color = "red", size=1)+
-  geom_hline(yintercept=30, , color = "red", size=1)
-
-Pobreza %>% ggplot(aes(x = PBM, y = Pobreza)) + geom_point() +
-  geom_vline(xintercept=20, , color = "red", size=1)+
+Pobreza %>% ggplot(aes(x = PBM_ORIG, y = Pobreza, size = Total)) + geom_point() +
+  geom_vline(xintercept=10, , color = "red", size=1)+
   geom_hline(yintercept=30, , color = "red", size=1)+
-  annotate(geom="text", x=10, y=100, label="Ideal", color="#2ca25f", size = 10)+
-  annotate(geom="text", x=55, y=15, label="Ideal", color="#2ca25f", size = 10)+
-  annotate(geom="text", x=5, y=12, label="Bajo PBM \n Baja Pobreza", color="#e34a33", size = 6)+
-  annotate(geom="text", x=55, y=90, label="Alto PBM \n Alta Pobreza", color="#e34a33", size = 6)
+  scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, 10))+
+  scale_y_continuous(
+                     limits = c(100, 0), 
+                     breaks = seq(0, 100, 10),
+                     trans = 'reverse',                    
+                     labels = label_number(suffix = ' %'))+  
+  scale_size(name = "Total estudiantes matriculados")+
+  annotate(geom="text", x=70, y=60, label="Alto PBM \n Alta Pobreza", color="#e34a33", size = 6)+
+  labs(title = "Distribución histórica de puntajes promedio de matrícula (PBM) por municipios\nde procedencia de los estudiantes de pregrado.",
+       subtitle = "Matriculados, al menos una vez, desde el año 2012",
+       x= "\nPuntaje Básico de Matrícula - PBM",
+       y = "Indice de Probreza Multidimensional\n")+
+  theme(legend.position="bottom")
+
+
+# Gráficos Generales - por sedes 
+# "Amazonía"  "Bogotá"  "Caribe" "De La Paz" "Manizales" 
+# "Medellín" "Orinoquía" "Palmira" "Tumaco"
+
+
+Pobreza %>% filter(SEDE_NOMBRE_ADM == "Palmira") %>% 
+  ggplot(aes(x = PBM_ORIG, y = Pobreza, size = Total)) + geom_point() +
+  geom_vline(xintercept=10, , color = "red", size=1)+
+  geom_hline(yintercept=30, , color = "red", size=1)+
+  scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, 10))+
+  scale_y_continuous(
+    limits = c(100, 0), 
+    breaks = seq(0, 100, 10),
+    trans = 'reverse',                    
+    labels = label_number(suffix = ' %'))+ 
+  geom_text_repel(aes(label = Municipio), size = 3)+
+  scale_size(name = "Total estudiantes matriculados")+
+  annotate(geom="text", x=70, y=60, label="Alto PBM \n Alta Pobreza", color="#e34a33", size = 6)+
+  labs(title = "Distribución histórica de puntajes promedio de matrícula (PBM) por municipios\nde procedencia de los estudiantes de pregrado - SEDE PALMIRA.",
+       subtitle = "Matriculados, al menos una vez, desde el año 2012",
+       x= "\nPuntaje Básico de Matrícula - PBM",
+       y = "Indice de Probreza Multidimensional\n")+
+  theme(legend.position="bottom")
+
+  
+
+
+
 
 
 
