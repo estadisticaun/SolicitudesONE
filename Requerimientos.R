@@ -10497,7 +10497,7 @@ Cruce_Saber <- left_join(Saber_Vacia, Saber_Esta, by = "IDF") %>%
 
 ##%######################################################%##
 #                                                          #
-####              105 Solicitud 25-02-2024              ####
+####              105 Solicitud 25-02-2025              ####
 #                                                          #
 ##%######################################################%##
 
@@ -10730,7 +10730,50 @@ Pobreza %>% filter(SEDE_NOMBRE_ADM == "Palmira") %>%
 
   
 
+##%######################################################%##
+#                                                          #
+####              107 Solicitud 11-03-2025              ####
+#                                                          #
+##%######################################################%##
 
+# Solicitante: Gerencia Nacional Financiera y Administrativa
+# Solicitud: Promedio de edad Funcionarios Administrativos
+
+# Promedio de Edad
+
+Edad <- UnalData::Administrativos %>% filter(YEAR == 2024, SEMESTRE == 2, 
+                                             DOCENTES != "Docente en comisión administrativa") %>% 
+  summarise(`Promedio Edad` = mean(EDAD, na.rm = TRUE),
+            Total = n())
+
+
+
+Edad_Sedes <- UnalData::Administrativos %>% filter(YEAR == 2024, SEMESTRE == 2,
+                                                   DOCENTES != "Docente en comisión administrativa") %>% 
+  summarise(`Promedio Edad` = mean(EDAD, na.rm = TRUE), 
+            `Total Funcionarios` = n(),
+            .by = c(SEDE))
+
+Edad_Sexo <- UnalData::Administrativos %>% filter(YEAR == 2024, SEMESTRE == 2,
+                                                   DOCENTES != "Docente en comisión administrativa") %>% 
+  summarise(`Promedio Sexo` = mean(EDAD, na.rm = TRUE), 
+            `Total Funcionarios` = n(),
+            .by = c(SEXO))
+
+Grupos_Edad <- UnalData::Administrativos %>% filter(YEAR == 2024, SEMESTRE == 2,
+                                                    DOCENTES != "Docente en comisión administrativa") %>% 
+  summarise(`Total Funcionarios` = n(),
+            .by = c(CAT_EDAD))
+
+# Plot de Servicio Vs EDad
+
+UnalData::Administrativos %>% filter(YEAR == 2024, SEMESTRE == 2, 
+                                     DOCENTES != "Docente en comisión administrativa") %>% 
+  ggplot(aes(x = EDAD, y = SERVICIO)) + geom_point(col = "#2ca25f")+
+  labs(title = "Diagrama de dispersión de edad de los funcionarios vs años de servicio",
+       subtitle = "Periodo 2024-2",
+       x = "\nEdad de los funcionarios",
+       y = "Años de servicio\n")
 
 
 
