@@ -10776,6 +10776,32 @@ UnalData::Administrativos %>% filter(YEAR == 2024, SEMESTRE == 2,
        y = "Años de servicio\n")
 
 
+##%######################################################%##
+#                                                          #
+####              108 Solicitud 26-03-2025              ####
+#                                                          #
+##%######################################################%##
+
+# Solicitante: Maria C - Renciión de Cuentas
+# Solicitud: Participación de graduados en postgrado que se graduaron en pregrado en la UNAL
+
+Grad_pos <- UnalData::Graduados %>% 
+  filter(YEAR == 2024, TIPO_NIVEL == "Postgrado") %>% 
+  select(ID, NIVEL, SEDE_NOMBRE_MAT, SEXO) 
+
+Grad_Pre <- UnalData::Graduados %>% filter(TIPO_NIVEL == "Pregrado") %>%
+  distinct(ID, .keep_all = TRUE) %>% 
+  select(ID, SEDE_NOMBRE_ADM) %>% 
+  mutate(Cruce = 1)
+
+Final <- left_join(Grad_pos, Grad_Pre,  by = "ID") %>% filter(Cruce == 1)
+
+Final_pos <- Final %>% count(NIVEL) %>% mutate(Porcentaje = scales::percent(n/sum(n)))
+Final_sexo <- Final %>% count(SEXO) %>% mutate(Porcentaje = scales::percent(n/sum(n)))
+
+
+View(Final_pos)
+View(Final_sexo)
 
 
 
