@@ -3694,7 +3694,7 @@ Puntajes <- left_join(Adm_Pregrado, Hist_Programas, by = "SNIES_PROGRA") %>%
 
 # Exportar Información General Estadísticas Admitidos
 
-write_xlsx(Puntajes, "Datos/Entrega43/Puntajes.xlsx")
+write_xlsx(Puntajes, "Datos/Entrega43/Puntajes2025.xlsx")
 
 
 ##%######################################################%##
@@ -10442,7 +10442,7 @@ UnalData::Administrativos %>%
 
 ##%######################################################%##
 #                                                          #
-####              102 Solicitud 24-01-2024              ####
+####              102 Solicitud 24-01-2025              ####
 #                                                          #
 ##%######################################################%##
 
@@ -10462,7 +10462,7 @@ write_xlsx(MunicipiosPre, "Datos/Entrega102/MunicipiosPre.xlsx")
 
 ##%######################################################%##
 #                                                          #
-####              103 Solicitud 27-01-2024              ####
+####              103 Solicitud 27-01-2025              ####
 #                                                          #
 ##%######################################################%##
 
@@ -10475,7 +10475,7 @@ View(Cod20489)
 
 ##%######################################################%##
 #                                                          #
-####              104 Solicitud 03-02-2024              ####
+####              104 Solicitud 03-02-2025              ####
 #                                                          #
 ##%######################################################%##
 
@@ -10803,5 +10803,100 @@ Final_sexo <- Final %>% count(SEXO) %>% mutate(Porcentaje = scales::percent(n/su
 View(Final_pos)
 View(Final_sexo)
 
+##%######################################################%##
+#                                                          #
+####              109 Solicitud 02-04-2025              ####
+#                                                          #
+##%######################################################%##
+
+# Solicitante: Maria C - Rendición de Cuentas
+# Solicitud: Transito "inmediato" a postgrado
+
+# Transito 2023 - Graduados pre 2022 matriculados pos 2023
+
+# Graduados Pre 2022
+
+Gra_2022 <- UnalData::Graduados %>% filter(TIPO_NIVEL == "Pregrado", YEAR == 2022)
+
+Mat_2023_Pos <- UnalData::Matriculados %>% 
+  filter(TIPO_NIVEL == "Postgrado", YEAR == 2023) %>% 
+  select(ID, NIVEL) %>% 
+  mutate(Cruce = 1) %>% 
+  distinct(ID, .keep_all = TRUE)
+
+df <- Gra_2022 %>% left_join(Mat_2023_Pos, by = "ID")
+
+table(df$Cruce) #Transito
+
+##%######################################################%##
+#                                                          #
+####              110 Solicitud 02-04-2025              ####
+#                                                          #
+##%######################################################%##
+
+# Solicitante: 
+# Solicitud: 
+# Puntos planeación: 1, 2, 3, 4, 5, 8, 9 y 14.
+
+# 1. Con cuantos programas o carreras cuenta la Universidad Nacional de Colombia.
+
+# La Universidad cuenta con 470 programas activos de los cuales 105 (22 %) son de pregrado y 365 (78 %) de postgrado
+
+# 2. Informar cuantos estudiantes de comunidad negra, afrocolombiana, negra palenquera y
+# raizal han ingresado por cupos especial a la Universidad desde 2010 hasta la fecha 2025.
+
+Adm_Afros <- UnalData::Aspirantes %>% filter(TIPO_NIVEL == "Pregrado", 
+                                             ADMITIDO == "Sí", 
+                                             PAES == "Población afrocolombiana") 
+
+nrow(Adm_Afros)
+
+Mpvez_Afros <- UnalData::Matriculados %>% filter(MAT_PVEZ == "Sí",
+                                             TIPO_NIVEL == "Pregrado", 
+                                             PAES == "Población afrocolombiana") 
+
+names(UnalData::Matriculados)
+
+# 3. Detalle a que programas han ingresado.
+
+Afros_Programas <-   Adm_Afros %>% 
+  summarise(Total = n(), .by = c(ADM_SEDE_NOMBRE, COD_PADRE, PROGRAMA_2)) %>% 
+  arrange(desc(Total))
+
+
+
+# 3.1 Detalle a que programas han ingresado.
+
+
+Programas <- UnalData::Hprogramas %>% 
+  group_by(COD_PADRE) %>% 
+  filter(SNIES_PROGRA == max(SNIES_PROGRA)) %>% 
+  rename(`Nombre Programa` = PROGRAMA) %>% # Nombre actual del programa
+  select(COD_PADRE, `Nombre Programa`) %>% 
+  left_join(UnalData::Hprogramas, by = "COD_PADRE") %>% 
+  ungroup() %>% 
+  select(COD_PADRE, SEDE_PROG) %>% 
+  distinct()
+
+
+Afros_Mpvez_Programas <-   Mpvez_Afros %>% 
+  summarise(Total = n(), .by = c(COD_PADRE, PROGRAMA_2)) %>% 
+  arrange(desc(Total)) %>% 
+  left_join(Programas, by = "COD_PADRE")
+
+Afros_Mpvez_Programas
+
+
+# 4. Cuantos de esos estudiantes se han graduado.
+
+Gra_Afros <- UnalData::Graduados %>% filter(TIPO_NIVEL == "Pregrado", 
+                                            PAES == "Población afrocolombiana") 
+
+nrow(Gra_Afros)
+
+# 5. Que semestre se encuentran cursando
+
+# 8. Cuál es el grado de deserción de los estudiantes afrocolombianos, negros, palenqueros y raizal.
+#  y cuál es el grado de deserción general en la universidad.
 
 
