@@ -10023,6 +10023,8 @@ Doc <- UnalData::Docentes %>%
  
  Química <- Química %>% left_join(Aspirantes, by = "Periodo")  
  
+ View(Química)
+ 
  write_xlsx(Química, "Datos/Entrega97/Química.xlsx")
  
  ##%######################################################%##
@@ -10900,3 +10902,116 @@ nrow(Gra_Afros)
 #  y cuál es el grado de deserción general en la universidad.
 
 
+##%######################################################%##
+#                                                          #
+####              111  Solicitud 22-04-2025              ####
+#                                                          #
+##%######################################################%##
+
+# Requerimiento DANE Manizales
+
+DANE_Man <- UnalData::Matriculados %>% 
+  filter(YEAR == 2024, SEMESTRE == 2, 
+         SNIES_PROGRA %in% c(4120, 4121, 4126)) %>% 
+  group_by(SNIES_PROGRA, PBM_ORIG) %>% 
+  summarise(Total = n(), .groups = "drop") %>% 
+  pivot_wider(names_from = SNIES_PROGRA, values_from = Total)
+
+DANE_Man_Final <- tibble(PBM_ORIG = seq(1,100)) %>% 
+                  left_join(DANE_Man, by = "PBM_ORIG")
+
+##%######################################################%##
+#                                                          #
+####             112  Solicitud 24-04-2025              ####
+#                                                          #
+##%######################################################%##
+
+# Requerimiento Profesor Garzón
+# Matriculados y graduados en los programas de diseño industrial en la UNAL
+# Últimos 5 años
+
+# Matriculados
+Matri_diseno <- UnalData::Matriculados %>% 
+  filter(SNIES_PROGRA %in% c(5, 16903), YEAR >= 2020) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  summarise(Total = n(), .by = c(Periodo, SNIES_PROGRA, PROGRAMA_2)) %>% 
+  pivot_wider(names_from = SNIES_PROGRA, values_from = Total) %>% 
+  mutate(Población = "Matriculados") %>% 
+  relocate(Población, .before = Periodo)
+
+# Graduados
+
+Gra_diseno <- UnalData::Graduados %>% 
+  filter(SNIES_PROGRA %in% c(5, 16903), YEAR >= 2020) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  summarise(Total = n(), .by = c(Periodo, SNIES_PROGRA, PROGRAMA_2)) %>% 
+  pivot_wider(names_from = SNIES_PROGRA, values_from = Total) %>% 
+  mutate(Población = "Graduados") %>% 
+  relocate(Población, .before = Periodo)
+
+# Unir, por abajo, matriculados y graduados
+Diseno <- bind_rows(Matri_diseno, Gra_diseno)
+
+##%######################################################%##
+#                                                          #
+####             113  Solicitud 06-05-2025              ####
+#                                                          #
+##%######################################################%##
+
+# Requerimiento Vicerrectoría Académica
+# Maritza Torres
+# Matriculados Primera Vez 2024-2 por sedes y programas académicos
+
+Mat_pre_PV <- UnalData::Matriculados %>%
+  filter(YEAR == 2024, SEMESTRE == 2,
+         TIPO_NIVEL == "Pregrado", MAT_PVEZ == "Sí") %>%
+  summarise(Total = n(), .by = c(SEDE_NOMBRE_MAT,
+                                 TIPO_ADM,
+                                 SNIES_PROGRA,
+                                 PROGRAMA_S)) %>%
+  pivot_wider(names_from = c(TIPO_ADM),
+              values_from = Total,
+              values_fill = 0) %>%
+  arrange(SEDE_NOMBRE_MAT) %>%
+  rename(`Sede` = SEDE_NOMBRE_MAT,
+         `Snies Programa` = SNIES_PROGRA,
+         `Programa` = PROGRAMA_S)
+
+# Exportar Resultados
+
+write_xlsx(Mat_pre_PV, "Datos/Entrega113/Mat_pre_PV_20242.xlsx")
+
+
+##%######################################################%##
+#                                                          #
+####             114  Solicitud 23-05-2025              ####
+#                                                          #
+##%######################################################%##
+
+# Laura María Guevara Ardila
+# Estudiante de Economía  
+# Universidad Nacional de Colombia – Sede Bogotá
+# Base de datos anonimizada sobre los aspirantes a PREGRADO al proceso de 
+# admisión para los últimos periodos de admisión 
+# ( si es posible años 2023 y 2024).
+
+Aspira23_25 <- UnalData::Aspirantes %>% 
+  filter(TIPO_NIVEL == "Pregrado", YEAR >= 2023) %>% 
+  select(AÑO = YEAR, 
+         SEMESTRE, 
+         `CÓDIGO DEPARTAMENTO` = COD_DEP_RES, 
+         `DEPRATAMENTO RESIDENCIA` = DEP_RES, 
+         `CÓDIGO MUNICIPIO` = COD_CIU_RES, 
+         `MUNICIPIO RESIDENCIA` = CIU_RES, 
+         `SEDE DE INSCRIPCIÓN` = INS_SEDE_NOMBRE, 
+         ADMITIDO, 
+         SEXO,  
+         EDAD = EDAD_MOD, 
+         `PUNTAJE ADMISIÓN` = PTOTAL, 
+         `SNIES PROGRAMA` = SNIES_PROGRA, 
+         `PROGRAMA ADMITIDO` = PROGRAMA_S)
+
+
+# Exportar Resultados
+
+write_xlsx(Aspira23_25, "Datos/Entrega114/Aspira23_25.xlsx")
