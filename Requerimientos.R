@@ -11015,3 +11015,74 @@ Aspira23_25 <- UnalData::Aspirantes %>%
 # Exportar Resultados
 
 write_xlsx(Aspira23_25, "Datos/Entrega114/Aspira23_25.xlsx")
+
+##%######################################################%##
+#                                                          #
+####             117  Solicitud 27-06-2025              ####
+#                                                          #
+##%######################################################%##
+
+# Alba Lucero López Díaz - Enfermería UNAL
+# Gestora Evaluación continua programas 
+# Fecha de ingreso docentes Enfermería 2022-2025
+
+# Importar
+Enfermeria_INGRESO <- read_excel("Datos/Entrega117/Enfermeria FECHA-INGRESO.xlsx")
+
+# Fecha de Ingreso única
+
+Enfermeria_INGRESO <- Enfermeria_INGRESO %>% 
+                      group_by(ID) %>% 
+                      summarise(FACULTAD = max(FACULTAD),
+                                UNIDAD = max(UNIDAD),
+                                FECHA_INGRESO = min(FECHA_INGRESO))
+
+write_xlsx(Enfermeria_INGRESO, "Datos/Entrega117/Enfermeria_INGRESO.xlsx")
+
+
+##%######################################################%##
+#                                                          #
+####             118 Solicitud 27-06-2025              ####
+#                                                          #
+##%######################################################%##
+
+# Solicitante:
+# Diana Taimal y mi persona, Paola Donado
+# Solicitud:
+# personas indígenas admitidas y matriculadas por período académico discriminadas 
+# por pueblos, territorios de origen y programas académicos.
+
+
+
+
+# Base Admitidos
+
+Adm_Indigenas <- UnalData::Aspirantes %>% 
+  filter(ADMITIDO == "Sí", TIPO_NIVEL == "Pregrado", PAES == "Comunidades indígenas") 
+  
+# Por municipios de procedencia
+
+Adm_Ind_Mun <- Adm_Indigenas %>% summarise(Total = n(), .by = c(YEAR, SEMESTRE, COD_DEP_RES, DEP_RES, COD_CIU_RES, CIU_RES))
+write_xlsx(Adm_Ind_Mun, "Datos/Entrega118/Adm_Ind_Mun.xlsx")  
+
+# Por programas académicos
+
+Adm_Ind_Pro <- Adm_Indigenas %>% summarise(Total = n(), .by = c(YEAR, SEMESTRE, SNIES_PROGRA, PROGRAMA))
+write_xlsx(Adm_Ind_Pro, "Datos/Entrega118/Adm_Ind_Pro.xlsx")  
+
+
+# Base Matriculados
+
+Mat_Indigenas <- UnalData::Matriculados %>% 
+  filter(YEAR >= 2010, TIPO_NIVEL == "Pregrado", PAES == "Comunidades indígenas") 
+
+# Por municipios de procedencia
+
+Mat_Ind_Mun <- Mat_Indigenas %>% summarise(Total = n(), .by = c(YEAR, SEMESTRE, COD_DEP_PROC, DEP_PROC, COD_CIU_PROC, CIU_PROC))
+write_xlsx(Mat_Ind_Mun, "Datos/Entrega118/Mat_Ind_Mun.xlsx")  
+
+# Por programas académicos
+
+Mat_Ind_Pro <- Mat_Indigenas %>% summarise(Total = n(), .by = c(YEAR, SEMESTRE, SNIES_PROGRA, PROGRAMA))
+write_xlsx(Mat_Ind_Pro, "Datos/Entrega118/Mat_Ind_Pro.xlsx")  
+
