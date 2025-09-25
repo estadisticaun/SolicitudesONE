@@ -11086,3 +11086,172 @@ write_xlsx(Mat_Ind_Mun, "Datos/Entrega118/Mat_Ind_Mun.xlsx")
 Mat_Ind_Pro <- Mat_Indigenas %>% summarise(Total = n(), .by = c(YEAR, SEMESTRE, SNIES_PROGRA, PROGRAMA))
 write_xlsx(Mat_Ind_Pro, "Datos/Entrega118/Mat_Ind_Pro.xlsx")  
 
+
+
+##%######################################################%##
+#                                                          #
+####             119 Solicitud 27-06-2025              ####
+#                                                          #
+##%######################################################%##
+
+# Derecho de Petición
+# Solicitante: KATHERINE MIRANDA PEÑA - REPRESENTANTE A LA CÁMARA
+# PARTIDO ALIANZA VERDE
+# 
+# 3. Sírvase tabular, por año, el número total de estudiantes matriculados entre enero de 2018 y agosto
+# de 2025, especificando el programa académico, sede (si aplica), modalidad de estudio 
+# (presencial,virtual, etc.), y nivel de formación (técnico, tecnológico, profesional, posgrado).
+
+# Derecho de Petición 2
+
+# Sírvase tabular, por año, el número total de estudiantes que se presentaron por semestre, entre enero
+# de 2018 y agosto de 2025, especificando el programa académico, sede (si aplica), modalidad de
+# estudio (presencial, virtual, etc.), y nivel de formación (técnico, tecnológico, profesional, posgrado).
+
+# Lista de programas académicos
+
+Programas <- UnalData::Hprogramas %>%
+  select(COD_PADRE, SEDE_PROG) %>% 
+  distinct() # Eliminar códigos padre repetidos
+
+# Aspirantes por programas académicos - Postgrado
+
+Aspirantes_UNAL_Pos <- UnalData::Aspirantes %>% 
+  filter(YEAR > 2017, 
+        (TIPO_INS == "Regular" & TIPO_NIVEL == "Postgrado")) %>% 
+        mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  group_by(Periodo, TIPO_NIVEL, NIVEL, COD_PADRE, PROGRAMA_2) %>% 
+  summarise(Aspirantes = n()) %>% 
+  ungroup() %>% 
+  left_join(Programas, by = "COD_PADRE") %>% 
+  pivot_wider(names_from = Periodo, values_from = Aspirantes, values_fill = 0) %>% 
+  rename(Sede = SEDE_PROG, Nivel = TIPO_NIVEL, `Subtipo Nivel` = NIVEL,  
+         Snies = COD_PADRE, Programa = PROGRAMA_2) %>% 
+  relocate(Sede, .before = Programa) %>% 
+  arrange(desc(Nivel))
+  
+
+# Aspirantes por programas académicos - Pregrado
+  
+  Aspirantes_UNAL_Pre <- UnalData::Aspirantes %>% 
+    filter(YEAR > 2017, 
+          TIPO_NIVEL == "Pregrado"  & is.na(MOD_INS) != TRUE & is.na(TIPO_INS) != TRUE) %>% 
+    mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+    group_by(Periodo, TIPO_NIVEL, INS_SEDE_NOMBRE) %>% 
+    summarise(Aspirantes = n()) %>% 
+    ungroup() %>% 
+    pivot_wider(names_from = Periodo, values_from = Aspirantes, values_fill = 0)  %>% 
+    rename(Sede = INS_SEDE_NOMBRE, Nivel = TIPO_NIVEL) 
+
+  
+# Admitidos por programas académicos
+
+Adm_Programas_UNAL <- UnalData::Aspirantes %>% 
+  filter(YEAR > 2017, 
+         (TIPO_INS == "Regular" & TIPO_NIVEL == "Postgrado")|
+           (TIPO_NIVEL == "Pregrado"),
+         ADMITIDO == "Sí") %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>%
+  group_by(Periodo, TIPO_NIVEL, NIVEL, COD_PADRE, PROGRAMA_2) %>% 
+  summarise(Matriculados = n()) %>% 
+  ungroup() %>% 
+  left_join(Programas, by = "COD_PADRE") %>% 
+  pivot_wider(names_from = Periodo, values_from = Matriculados, values_fill = 0) %>% 
+  rename(Sede = SEDE_PROG, Nivel = TIPO_NIVEL, `Subtipo Nivel` = NIVEL,  
+         Snies = COD_PADRE, Programa = PROGRAMA_2) %>% 
+  relocate(Sede, .before = Programa) %>% 
+  arrange(desc(Nivel))
+
+  
+# Matriculados por programas académicos
+  
+Mat_Programas <- UnalData::Matriculados %>% 
+  filter(YEAR >= 2018) %>%
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>%
+  group_by(Periodo, TIPO_NIVEL, NIVEL, COD_PADRE, PROGRAMA_2) %>% 
+  summarise(Matriculados = n()) %>% 
+  ungroup() %>% 
+  left_join(Programas, by = "COD_PADRE") %>% 
+  pivot_wider(names_from = Periodo, values_from = Matriculados, values_fill = 0) %>% 
+  rename(Sede = SEDE_PROG, Nivel = TIPO_NIVEL, `Subtipo Nivel` = NIVEL,  
+         Snies = COD_PADRE, Programa = PROGRAMA_2) %>% 
+  relocate(Sede, .before = Programa) %>% 
+  arrange(desc(Nivel))
+
+
+# Matriculados primera vez por programas académicos
+
+Mat_Pvez_Programas <- UnalData::Matriculados %>% 
+  filter(YEAR >= 2018, MAT_PVEZ == "Sí") %>%
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>%
+  group_by(Periodo, TIPO_NIVEL, NIVEL, COD_PADRE, PROGRAMA_2) %>% 
+  summarise(Matriculados = n()) %>% 
+  ungroup() %>% 
+  left_join(Programas, by = "COD_PADRE") %>% 
+  pivot_wider(names_from = Periodo, values_from = Matriculados, values_fill = 0) %>% 
+  rename(Sede = SEDE_PROG, Nivel = TIPO_NIVEL, `Subtipo Nivel` = NIVEL,  
+         Snies = COD_PADRE, Programa = PROGRAMA_2) %>% 
+  relocate(Sede, .before = Programa) %>% 
+  arrange(desc(Nivel))
+
+
+# Exportar resultados
+
+Hojas <- list('Matriculados' = Mat_Programas, 'MatriculadosPVEZ' = Mat_Pvez_Programas)
+openxlsx::write.xlsx(Hojas, file = 'Datos/Entrega119/Consolidado_Matriculados_UNAL_1824.xlsx')
+
+Hojas1 <- list('Aspirantes_pre' = Aspirantes_UNAL_Pre, 
+               'Aspirantes_pos' = Aspirantes_UNAL_Pos, 
+               'Admitidos' = Adm_Programas_UNAL)
+openxlsx::write.xlsx(Hojas1, file = 'Datos/Entrega119/Consolidado_Aspirantes_UNAL_1824.xlsx')
+
+
+##%######################################################%##
+#                                                          #
+####             120 Solicitud 16-09-2025              ####
+#                                                          #
+##%######################################################%##
+
+# Derecho de Petición
+# Junior Misael Torrez Montero
+# C.C: 1.133.599.028
+
+# 1.	Se me informe el número total de estudiantes matriculados en la sede Bogotá en el año 2025.
+# 2.	Se me indique el número de estudiantes admitidos y matriculados en 2024 y 2025 diferenciando entre: Admisión regular y programas especiales (PAES, PEAMA y PAET).
+# 3.	Se me brinde la desagregación por género de los estudiantes matriculados en la sede Bogotá en 2025.
+# 4.	Se me informe el número de aspirantes que presentaron el proceso de admisión para la sede Bogotá en 2025.
+# 5.	Se me suministre el número de estudiantes que han desertado en la sede Bogotá durante los semestres correspondientes a los años 2024 y 2025.
+# 6.	Se me informe el número de graduados en la sede Bogotá durante los años 2024 y 2025, señalando la respectiva tasa de titulación y diferenciando, en lo posible, según el tipo de admisión (regular, PAES, PEAMA, PAET u otros programas especiales).
+
+##%######################################################%##
+#                                                          #
+####             121 Solicitud 24-09-2025              ####
+#                                                          #
+##%######################################################%##
+
+# Buenas tardes,
+
+# Lo que sucede es que intento hacer una doble titulación en Francia, y me piden un documento de mi posición en la carrera según mi puntaje de admisión con respecto a los otros admitidos, sin embargo, yo entre por traslado entonces este documento no se puede conseguir, para mi actual carrera pero puedo dar un aproximado según el primer y último puntaje de los admitidos, y no he podido encontrar esta información, no sé si sea posible que me colaboren con ese dato.
+# 
+# Gracias por su atención, espero su respuesta.
+# 
+# Tatiana Acelas
+# Estudiante de Ingeniería de Sistemas y Computación
+
+Aspirantes_UNAL_Pre <- UnalData::Aspirantes %>% 
+  filter(TIPO_INS == "Regular", 
+         ADMITIDO == "Sí",
+         COD_PADRE %in% c(9, 26), 
+         (YEAR == 2020 & SEMESTRE == 1) | (YEAR == 2022 & SEMESTRE == 2)) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  summarise(Mínimo = round(min(PTOTAL, na.rm = TRUE), 3),
+            Media = round(mean(PTOTAL, na.rm = TRUE), 3),
+            Mediana = round(median(PTOTAL, na.rm = TRUE), 3),
+            Máximo = round(max(PTOTAL, na.rm = TRUE), 3),
+            `Desviación Estándar` = round(sd(PTOTAL, na.rm = TRUE), 3),
+            `Varianza` = round(var(PTOTAL, na.rm = TRUE), 3),
+            .by = c(Periodo, PROGRAMA)) %>% 
+  arrange(PROGRAMA)
+
+openxlsx::write.xlsx(Aspirantes_UNAL_Pre, file = 'Datos/Entrega121/Est_Med_IngSis.xlsx') 
+
