@@ -26,6 +26,8 @@ library(viridis)
 library(gt)
 library(scales)
 library(gtExtras)
+library(googledrive)
+library(plotly)
 
 ######################################-
 # 1 Solicitud 14-05-2021 -----
@@ -10444,6 +10446,12 @@ UnalData::Administrativos %>%
 
 ##%######################################################%##
 #                                                          #
+####              VIGENCIA 2025                         ####
+#                                                          #
+##%######################################################%##
+
+##%######################################################%##
+#                                                          #
 ####              102 Solicitud 24-01-2025              ####
 #                                                          #
 ##%######################################################%##
@@ -11255,3 +11263,393 @@ Aspirantes_UNAL_Pre <- UnalData::Aspirantes %>%
 
 openxlsx::write.xlsx(Aspirantes_UNAL_Pre, file = 'Datos/Entrega121/Est_Med_IngSis.xlsx') 
 
+##%######################################################%##
+#                                                          #
+####             122 Solicitud 03-10-2025              ####
+#                                                          #
+##%######################################################%##
+# 
+# Respetados/as señores/as de la Universidad Nacional de Colombia,
+# Reciban un cordial saludo.
+# Me permito solicitar respetuosamente, en el marco del derecho de acceso a la información pública, los datos correspondientes a:
+# Número de estudiantes admitidos en la carrera de Medicina en los años 2021, 2022, 2023 y 2024 (desagregados por semestre si es posible).
+# Número de estudiantes graduados del programa de Medicina en esos mismos años.
+# Agradezco mucho si la información pudiera ser enviada en un formato de fácil lectura (Excel, PDF u otro disponible) o con la referencia del enlace donde se pueda consultar.
+# Quedo atenta/o a su respuesta y agradezco de antemano la atención prestada.
+
+
+##%######################################################%##
+#                                                          #
+####             123 Solicitud 14-10-2025              ####
+#                                                          #
+##%######################################################%##
+
+
+# SaberPro Vicerrectoría Académica
+
+# Importar Datos
+SaberPro_23_24 <- read_excel("Datos/Fuentes/SaberPro_23_24.xlsx")
+
+# Posisicones Globales
+SaberPro_23_24_Global <- SaberPro_23_24 %>% filter(AGREGACION == "INSTITUCIÓN",
+                                                   MEDIDA_AGREGACION == "PUNTAJE_GLOBAL") %>%
+  group_by(EXAMEN) %>%
+  mutate(Posición = rank(PROMEDIO_GLOBAL)) %>%
+  arrange(desc(PROMEDIO_GLOBAL))
+
+# Top_20 Puntajes Globales
+SaberPro_23_24_Global <- SaberPro_23_24 %>% filter(AGREGACION == "INSTITUCIÓN",
+                                                   MEDIDA_AGREGACION == "PUNTAJE_GLOBAL") %>%
+  group_by(EXAMEN) %>%
+  slice_max(order_by = PROMEDIO_GLOBAL, n = 20) %>%
+  mutate(Posición = row_number(desc(PROMEDIO_GLOBAL))) %>%
+  ungroup() %>%
+  select(EXAMEN, NOMBRE_INSTITUCION, PROMEDIO_GLOBAL, Posición)
+
+# Resultados Sede Bogotá - UNAL
+
+SaberPro_23_24_Bogotá <- SaberPro_23_24 %>% filter(AGREGACION == "SEDE",
+                                                   MEDIDA_AGREGACION == "PUNTAJE_GLOBAL",
+                                                   ID_SEDE == 8964)
+
+# Top_20 Competencias Ciudadanas
+SaberPro_23_24_CompCiud <- SaberPro_23_24 %>% filter(CANTIDADEVALUADOS >= 50,
+                                                   AGREGACION == "INSTITUCIÓN",
+                                                   MEDIDA_AGREGACION == "PUNTAJE_PRUEBA",
+                                                   NOMBRE_PRUEBA == "COMPETENCIAS CIUDADANAS") %>%
+  group_by(EXAMEN) %>%
+  slice_max(order_by = PROMEDIO_PRUEBA, n = 20) %>%
+  mutate(Posición = row_number(desc(PROMEDIO_PRUEBA))) %>%
+  ungroup() %>%
+  select(EXAMEN, NOMBRE_INSTITUCION, PROMEDIO_PRUEBA, Posición)
+
+# Resultados Sede Bogotá - UNAL
+
+SaberPro_23_24_Bogotá_23_24_CompCiud <- SaberPro_23_24 %>% filter(AGREGACION == "SEDE",
+                                                                  MEDIDA_AGREGACION == "PUNTAJE_PRUEBA",
+                                                                  NOMBRE_PRUEBA == "COMPETENCIAS CIUDADANAS",
+                                                   ID_SEDE == 8964)
+
+# Top_20 Coumunicación Escrita
+SaberPro_23_24_ComuEscri <- SaberPro_23_24 %>% filter(CANTIDADEVALUADOS >= 50,
+                                                     AGREGACION == "INSTITUCIÓN",
+                                                     MEDIDA_AGREGACION == "PUNTAJE_PRUEBA",
+                                                     NOMBRE_PRUEBA == "COMUNICACIÓN ESCRITA") %>%
+  group_by(EXAMEN) %>%
+  slice_max(order_by = PROMEDIO_PRUEBA, n = 20) %>%
+  mutate(Posición = row_number(desc(PROMEDIO_PRUEBA))) %>%
+  ungroup() %>%
+  select(EXAMEN, NOMBRE_INSTITUCION, PROMEDIO_PRUEBA, Posición)
+
+# Resultados Sede Bogotá - UNAL
+
+SaberPro_23_24_Bogotá_23_24_ComuEscri <- SaberPro_23_24 %>% filter(AGREGACION == "SEDE",
+                                                                  MEDIDA_AGREGACION == "PUNTAJE_PRUEBA",
+                                                                  NOMBRE_PRUEBA == "COMUNICACIÓN ESCRITA",
+                                                                  ID_SEDE == 8964)
+
+
+# Top_20 Lectura Crítica
+SaberPro_23_24_ComuEscri <- SaberPro_23_24 %>% filter(CANTIDADEVALUADOS >= 50,
+                                                      AGREGACION == "INSTITUCIÓN",
+                                                      MEDIDA_AGREGACION == "PUNTAJE_PRUEBA",
+                                                      NOMBRE_PRUEBA == "LECTURA CRÍTICA") %>%
+  group_by(EXAMEN) %>%
+  slice_max(order_by = PROMEDIO_PRUEBA, n = 20) %>%
+  mutate(Posición = row_number(desc(PROMEDIO_PRUEBA))) %>%
+  ungroup() %>%
+  select(EXAMEN, NOMBRE_INSTITUCION, PROMEDIO_PRUEBA, Posición)
+
+# Resultados Sede Bogotá - UNAL
+
+SaberPro_23_24_Bogotá_23_24_ComuEscri <- SaberPro_23_24 %>% filter(AGREGACION == "SEDE",
+                                                                   MEDIDA_AGREGACION == "PUNTAJE_PRUEBA",
+                                                                   NOMBRE_PRUEBA == "LECTURA CRÍTICA",
+                                                                   ID_SEDE == 8964)
+
+
+# Top_20 Razonamiento Cuantitativo
+SaberPro_23_24_RazCuant <- SaberPro_23_24 %>% filter(CANTIDADEVALUADOS >= 50,
+                                                      AGREGACION == "INSTITUCIÓN",
+                                                      MEDIDA_AGREGACION == "PUNTAJE_PRUEBA",
+                                                      NOMBRE_PRUEBA == "RAZONAMIENTO CUANTITATIVO") %>%
+  group_by(EXAMEN) %>%
+  slice_max(order_by = PROMEDIO_PRUEBA, n = 20) %>%
+  mutate(Posición = row_number(desc(PROMEDIO_PRUEBA))) %>%
+  ungroup() %>%
+  select(EXAMEN, NOMBRE_INSTITUCION, PROMEDIO_PRUEBA, Posición)
+
+# Resultados Sede Bogotá - UNAL
+
+SaberPro_23_24_Bogotá_23_24_RazCuant <- SaberPro_23_24 %>% filter(AGREGACION == "SEDE",
+                                                                   MEDIDA_AGREGACION == "PUNTAJE_PRUEBA",
+                                                                   NOMBRE_PRUEBA == "RAZONAMIENTO CUANTITATIVO",
+                                                                   ID_SEDE == 8964)
+
+
+# Top_20 Inglés
+SaberPro_23_24_Ingles <- SaberPro_23_24 %>% filter(CANTIDADEVALUADOS >= 50,
+                                                     AGREGACION == "INSTITUCIÓN",
+                                                     MEDIDA_AGREGACION == "PUNTAJE_PRUEBA",
+                                                     NOMBRE_PRUEBA == "INGLÉS") %>%
+  group_by(EXAMEN) %>%
+  slice_max(order_by = PROMEDIO_PRUEBA, n = 20) %>%
+  mutate(Posición = row_number(desc(PROMEDIO_PRUEBA))) %>%
+  ungroup() %>%
+  select(EXAMEN, NOMBRE_INSTITUCION, PROMEDIO_PRUEBA, Posición)
+
+# Resultados Sede Bogotá - UNAL
+
+SaberPro_23_24_Bogotá_23_24_Ingles <- SaberPro_23_24 %>% filter(AGREGACION == "SEDE",
+                                                                  MEDIDA_AGREGACION == "PUNTAJE_PRUEBA",
+                                                                  NOMBRE_PRUEBA == "INGLÉS",
+                                                                  ID_SEDE == 8964)
+
+
+##%######################################################%##
+#                                                          #
+####              VIGENCIA 2026                       ####
+#                                                          #
+##%######################################################%##
+
+##%######################################################%##
+#                                                          #
+####              124 Solicitud 23-01-2026              ####
+#                                                          #
+##%######################################################%##
+
+DemandaPos <- UnalData::Aspirantes %>% 
+  filter(TIPO_NIVEL == "Postgrado", YEAR %in% c(2023:2025)) %>% 
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE, SNIES_PROGRA, PROGRAMA)) %>% 
+  summarise(Promedio = round(mean(Total), 0), .by = c(SNIES_PROGRA, PROGRAMA)) %>% 
+  slice_max(order_by = Promedio, n = 5)
+
+
+# Máximo Especializaciones Manizales
+
+DemandaPos_Esp <- UnalData::Aspirantes %>% 
+  filter(TIPO_NIVEL == "Postgrado", NIVEL == "Especialización", INS_SEDE_NOMBRE == "Manizales", YEAR %in% c(2023:2025)) %>% 
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE, FACULTAD, SNIES_PROGRA, PROGRAMA)) %>% 
+  summarise(Promedio = round(mean(Total), 0), .by = c(FACULTAD, SNIES_PROGRA, PROGRAMA)) %>% 
+  slice_max(order_by = Promedio, n = 5)
+
+DemandaPos_Esp
+
+
+##%######################################################%##
+#                                                          #
+####              125 Solicitud 6-02-2026              ####
+#                                                          #
+##%######################################################%##
+
+# Solicitante: Alberto Rodríguez R
+# Tendencias SPN
+
+# Histórico Aspirantes SPN - Desde 2008
+
+UnalData::Aspirantes %>% filter(INS_SEDE_NOMBRE %in% c("Orinoquía", "Amazonía", "Caribe", "Tumaco")) %>% 
+  summarise(Total = n())
+
+# Histórico Admitidos SPN - Desde 2008
+
+UnalData::Aspirantes %>% filter(ADMITIDO == "Sí", INS_SEDE_NOMBRE %in% c("Orinoquía", "Amazonía", "Caribe", "Tumaco")) %>% 
+  summarise(Total = n())
+
+# Histórico Graduados SPN - Desde 2008
+
+UnalData::Graduados %>% filter(SEDE_NOMBRE_ADM %in% c("Orinoquía", "Amazonía", "Caribe", "Tumaco")) %>% 
+  summarise(Total = n())
+
+
+
+##%######################################################%##
+#                                                          #
+####              126 Solicitud 9-02-2026              ####
+#                                                          #
+##%######################################################%##
+
+
+# Solicitante: Alberto Rodríguez R
+# Construcción gráfico Seguimiento Financiero BPUN
+
+# Importar Datos
+
+QUIPU_2026 <- read_excel("Datos/Fuentes/Consulta Avance Financiero.xlsx") 
+QUIPU_2026V2 <- read_excel("Datos/Fuentes/Consulta Avance Financiero Feb10.xlsx") 
+BPUN_2026 <- read_excel("Datos/Fuentes/Fichas QUIPU PGD2527.xlsx") 
+
+# Importar dados desde oja de Google
+
+
+# # 2. Definir la URL del archivo
+# url_archivo <- "https://docs.google.com/spreadsheets/d/1NlzwsRcf1AvQRllrJp4n5bjDw08WC4M3/edit#gid=1374813622"
+# 
+# # 3. Descargar el archivo
+# # 'as_id' extrae automáticamente el identificador de la URL proporcionada
+# drive_download(
+#   file = as_id(url_archivo),
+#   path = "PGD2527.xlsx", # Nombre del archivo local
+#   overwrite = TRUE                     # Sobreescribir si ya existe
+# )
+
+
+# Trasformar datos
+
+QUIPU_2026 %>% 
+  inner_join(BPUN_2026, by = c("PROYECTO" = "quipu")) %>% 
+  filter(VIGENCIA_MOV == 2026) %>% 
+  select(c("Vigencia" = "VIGENCIA_MOV", 
+           "Apropiacion" =  "VR_APROP_VIGENCIA", 
+           "Disponibilidad" =  "VR_DISPONIBILIDAD", 
+           "Compromisos" = "VR_COMPROMISOS", 
+           "Pagos" ="VR_PAGOS_VIG_ACT")) %>% 
+  summarise(Apropiacion = sum(Apropiacion), 
+            Disponibilidad = sum(Disponibilidad),
+            Compromisos = sum(Compromisos),
+            Pagos = sum(Pagos),
+            .by = c(Vigencia)) %>% 
+  filter(Apropiacion > 0) %>% 
+  mutate(P_Disponibilidad = round(Disponibilidad / Apropiacion, 3),
+         P_Compromisos = round(Compromisos / Apropiacion, 3),
+         P_Pagos = round(Pagos / Compromisos, 3)) %>% 
+  pivot_longer(cols = starts_with("P_"),
+               names_to = "Proceso",
+               values_to = "Valor") %>% 
+  mutate(Proceso = fct_rev(fct_inorder(Proceso)),
+         Barra = 1) %>% 
+  ggplot()+
+  geom_rect(xmin = 0, xmax = 0.35, ymin = -Inf, ymax = Inf, alpha = 0.04, fill = "red")+
+  geom_rect(xmin = 0.35, xmax = 0.70, ymin = -Inf, ymax = Inf, alpha = 0.05, fill = "yellow")+
+  geom_rect(xmin = 0.70, xmax = 1, ymin = -Inf, ymax = Inf, alpha = 0.03, fill = "green")+
+  geom_bar(aes(x = Barra, y = Proceso), stat = "identity", fill = "gray80", col= "white", width = 0.6)+
+  geom_bar(aes(x = Valor, y = Proceso), stat = "identity", fill = "#41b6c4", width = 0.50)+
+  geom_text(aes(x = Valor, y = Proceso, label = scales::percent(Valor, accuracy = 0.01)), hjust = -0.3, size = 3.5)+
+  labs(x = "\nPorcentaje de ejecución financiera", y = "Estado de los recursos financieros\n")+
+  scale_x_continuous(limits = c(0, 1), 
+                     labels = scales::percent,
+                     n.breaks = 100/12)+
+  scale_y_discrete(labels = c("Con pagos", "Con compromisos", "Con Certificado de   \nDisponibilidad (CDP)"))+
+  theme(aspect.ratio = 1/3,
+        panel.grid = element_blank())
+
+
+# Alberto Rodríguez R
+
+
+QUIPU_2026 %>%  filter(VIGENCIA_MOV == 2026, NOMBRE_DIRECTOR == "RODRIGUEZ RODRIGUEZ ALBERTO") %>% 
+  select(c("Vigencia" = "VIGENCIA_MOV", 
+           "Apropiacion" =  "VR_APROP_VIGENCIA", 
+           "Disponibilidad" =  "VR_DISPONIBILIDAD", 
+           "Compromisos" = "VR_COMPROMISOS", 
+           "Pagos" ="VR_PAGOS_VIG_ACT")) %>% 
+  summarise(Apropiacion = sum(Apropiacion), 
+            Disponibilidad = sum(Disponibilidad),
+            Compromisos = sum(Compromisos),
+            Pagos = sum(Pagos),
+            .by = c(Vigencia)) %>% 
+  filter(Apropiacion > 0) %>% 
+  mutate(P_Disponibilidad = round(Disponibilidad / Apropiacion, 3),
+         P_Compromisos = round(Compromisos / Apropiacion, 3),
+         P_Pagos = round(Pagos / Compromisos, 3)) %>% 
+  pivot_longer(cols = starts_with("P_"),
+               names_to = "Proceso",
+               values_to = "Valor") %>% 
+  mutate(Proceso = fct_rev(fct_inorder(Proceso)),
+         Barra = 1) %>% 
+  ggplot()+
+  geom_rect(xmin = 0, xmax = 0.35, ymin = -Inf, ymax = Inf, alpha = 0.04, fill = "red")+
+  geom_rect(xmin = 0.35, xmax = 0.70, ymin = -Inf, ymax = Inf, alpha = 0.05, fill = "yellow")+
+  geom_rect(xmin = 0.70, xmax = 1, ymin = -Inf, ymax = Inf, alpha = 0.03, fill = "green")+
+  geom_bar(aes(x = Barra, y = Proceso), stat = "identity", fill = "gray80", col= "white", width = 0.6)+
+  geom_bar(aes(x = Valor, y = Proceso), stat = "identity", fill = "#41b6c4", width = 0.50)+
+  geom_text(aes(x = Valor, y = Proceso, label = scales::percent(Valor, accuracy = 0.01)), hjust = -0.3, size = 3.5)+
+  labs(x = "\nPorcentaje de ejecución financiera", y = "Estado de los recursos financieros\n")+
+  scale_x_continuous(limits = c(0, 1), 
+                     labels = scales::percent,
+                     n.breaks = 100/12)+
+  scale_y_discrete(labels = c("Con pagos", "Con compromisos", "Con Certificado de   \nDisponibilidad (CDP)"))+
+  theme(aspect.ratio = 1/3,
+        panel.grid = element_blank())
+
+
+# Consulta Avance Feb 10-2026
+
+pp <- QUIPU_2026V2 %>%  
+  inner_join(BPUN_2026, by = c("PROYECTO" = "quipu")) %>% 
+  filter(VIGENCIA_MOV %in% c(2025, 2026)) %>% 
+  select(c("Vigencia" = "VIGENCIA_MOV", 
+           "Apropiacion" =  "VR_APROP_VIGENCIA", 
+           "Disponibilidad" =  "VR_DISPONIBILIDAD", 
+           "Compromisos" = "VR_COMPROMISOS", 
+           "Pagos" ="VR_PAGOS_VIG_ACT")) %>% 
+  summarise(Apropiacion = sum(Apropiacion), 
+            Disponibilidad = sum(Disponibilidad),
+            Compromisos = sum(Compromisos),
+            Pagos = sum(Pagos),
+            .by = c(Vigencia)) %>% 
+  summarise(across(c(Apropiacion:Pagos), ~ sum(.x)), .by = c(Vigencia)) %>% 
+  mutate(P_Disponibilidad = Disponibilidad / Apropiacion,
+         P_Compromisos = Compromisos / Apropiacion,
+         P_Pagos = Pagos / Compromisos) %>%
+  mutate(across(c(P_Disponibilidad:P_Pagos), ~ round(.x, 4))) %>% 
+  pivot_longer(cols = starts_with("P_"),
+               names_to = "Proceso",
+               values_to = "Valor") %>% 
+  mutate(Proceso = fct_rev(fct_inorder(Proceso)),
+         Barra = 1) %>% 
+  filter(Vigencia == 2026) %>% 
+  ggplot()+
+  geom_rect(xmin = 0, xmax = 0.35, ymin = -Inf, ymax = Inf, alpha = 0.04, fill = "red")+
+  geom_rect(xmin = 0.35, xmax = 0.70, ymin = -Inf, ymax = Inf, alpha = 0.05, fill = "yellow")+
+  geom_rect(xmin = 0.70, xmax = 1, ymin = -Inf, ymax = Inf, alpha = 0.03, fill = "green")+
+  geom_bar(aes(x = Barra, y = Proceso), stat = "identity", fill = "gray80", col= "white", width = 0.6)+
+  geom_bar(aes(x = Valor, y = Proceso), stat = "identity", fill = "#41b6c4", width = 0.50)+
+  geom_text(aes(x = Valor, y = Proceso, label = scales::percent(Valor, accuracy = 0.01)), hjust = -0.3, size = 3.5)+
+  labs(x = "\nPorcentaje de ejecución financiera", y = "Estado de los recursos financieros\n")+
+  scale_x_continuous(limits = c(0, 1), labels = scales::percent, n.breaks = 10)+
+  scale_y_discrete(labels = c("Con pagos", "Con compromisos", "Con Certificado de   \nDisponibilidad (CDP)"))+
+  theme(aspect.ratio = 1/3, panel.grid = element_blank()) 
+  ggplotly(pp)
+
+
+  
+  ##%######################################################%##
+  #                                                          #
+  ####              127 Solicitud 3-03-2026              ####
+  #                                                          #
+  ##%######################################################%##
+  
+  
+# Solicitante: Cristina - ONE - Unimedios
+# Distribución de Estudiantes matriculados de pregrado programas PAES-Peama-PAET por Sexo
+
+Especial <- UnalData::Matriculados %>% filter(YEAR == 2025, SEMESTRE == 1, MOD_ADM == "Especial")
+  
+# General 
+  
+Pre_Especial_General <- Especial %>% summarise(Total = n(), .by = c(SEXO))
+Pre_Especial_General
+
+# Programas  
+
+Pre_Especial_Programas <- Especial %>% summarise(Total = n(), .by = c(TIPO_ADM, SEXO)) %>% 
+                          pivot_wider(names_from = SEXO, values_from = Total) %>% 
+                          mutate(Total = Mujeres + Hombres)
+Pre_Especial_Programas
+
+# PAES  
+
+Pre_Especial_Paes <- Especial %>% filter(TIPO_ADM == "PAES") %>% 
+  summarise(Total = n(), .by = c(PAES, SEXO)) %>% 
+  pivot_wider(names_from = SEXO, values_from = Total) %>% 
+  mutate(Total = Mujeres + Hombres)
+Pre_Especial_Paes
+
+# Peama 
+
+Pre_Especial_Peama <- Especial %>% filter(TIPO_ADM == "PEAMA") %>% 
+  summarise(Total = n(), .by = c(PEAMA, SEXO)) %>% 
+  pivot_wider(names_from = SEXO, values_from = Total, values_fill = 0) %>% 
+  mutate(Total = Mujeres + Hombres)
+Pre_Especial_Peama
+  
