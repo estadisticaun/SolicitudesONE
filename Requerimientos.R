@@ -11653,3 +11653,27 @@ Pre_Especial_Peama <- Especial %>% filter(TIPO_ADM == "PEAMA") %>%
   mutate(Total = Mujeres + Hombres)
 Pre_Especial_Peama
   
+
+##%######################################################%##
+#                                                          #
+####              128 Solicitud 9-03-2026              ####
+#                                                          #
+##%######################################################%##
+
+
+# Solicitante: Maria Helena Ramirez Hernandez - Docente Ciencias Bogotá
+# Reciban un cordial saludo, soy profesora de la facultad de ciencias y 
+# quisiera saber si es posible tener un estimado del número de 
+# químicos graduados por nuestra alma mater, 
+# igualmente saber cual es la distribución por género. 
+
+
+
+Gra_Quimica <- UnalData::Graduados %>% 
+  filter(SNIES_PROGRA %in% c(36)) %>% 
+  mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) %>% 
+  summarise(Total = n(), .by = c(PROGRAMA, SNIES_PROGRA, SEXO, Periodo)) %>% 
+  pivot_wider(names_from = SEXO, values_from = Total) %>% 
+  mutate(`Total Graduados` = Hombres + Mujeres)
+
+
