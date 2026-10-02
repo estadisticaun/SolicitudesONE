@@ -11677,3 +11677,904 @@ Gra_Quimica <- UnalData::Graduados %>%
   mutate(`Total Graduados` = Hombres + Mujeres)
 
 
+View(UnalData::Matriculados)
+
+
+##%######################################################%##
+#                                                          #
+####              129 Solicitud 9-04-2026              ####
+#                                                          #
+##%######################################################%##
+
+
+# Solicitante: Alberto Rodríguez R
+# Solicitud: Revisión variable años de servicio funcionarios administrativos UNAL
+
+# Código Jimena
+
+UnalData::Administrativos %>%
+  filter(YEAR == 2025, SEMESTRE == 2, SEDE %in% c('Manizales')) %>%
+  mutate(TOTAL = "Total",
+         CAT_SERVICIO = case_when(SERVICIO < 3 ~ "2 años o menos",
+                                  3 <= SERVICIO & SERVICIO < 10  ~ "3 a 9 años",
+                                  10 <= SERVICIO & SERVICIO < 20  ~ "10 a 19 años",
+                                  20 <= SERVICIO & SERVICIO < 30  ~ "20 a 29 años",
+                                  30 <= SERVICIO & SERVICIO < 40  ~ "30 a 39 años",
+                                  40 <= SERVICIO  ~ "40 o más años"),
+         CAT_SERVICIO = factor(CAT_SERVICIO, levels = c("2 años o menos", 
+                                                        "3 a 9 años", 
+                                                        "10 a 19 años",
+                                                        "20 a 29 años",
+                                                        "30 a 39 años",
+                                                        "40 o más años"))) %>% 
+  summarise(Tonal = n(), .by = c(CAT_SERVICIO))
+
+
+# Código Alberto
+
+
+UnalData::Administrativos %>%
+  filter(YEAR == 2025, SEMESTRE == 2, SEDE %in% c('Manizales')) %>%
+  mutate(TOTAL = "Total",
+         CAT_SERVICIO = case_when(between(SERVICIO, 0, 2.99) ~ "2 años o menos",
+                                  between(SERVICIO, 3, 9.99)  ~ "3 a 9 años",
+                                  between(SERVICIO, 10, 19.99)  ~ "10 a 19 años",
+                                  between(SERVICIO, 20, 29.99)  ~ "20 a 29 años",
+                                  between(SERVICIO, 30, 39.99) ~ "30 a 39 años",
+                                  between(SERVICIO, 40, 100)  ~ "40 o más años")) %>% 
+  summarise(Total = n(), .by = c(CAT_SERVICIO))
+
+
+##%######################################################%##
+#                                                          #
+####              130 Solicitud 19-05-2026              ####
+#                                                          #
+##%######################################################%##
+
+
+# Solicitante: Alberto Rodríguez R
+# Solicitud: Matriculados Primera Vez Programa PAET
+
+
+Mat_PAET <- UnalData::Matriculados %>% filter(MAT_PVEZ == "Sí", TIPO_ADM == "PAET")
+
+
+
+##%######################################################%##
+#                                                          #
+####              131 Solicitud 29-05-2026              ####
+#                                                          #
+##%######################################################%##
+
+# Solicitante: Alberto Rodríguez R
+# Solicitud: Melba Libia Cárdenas Beltrán, PhD - Directora Departamento de Lenguas Extranjeras
+# Universidad Nacional de Colombia
+
+# Específicamente, requerimos conocer la siguiente información:
+# Número de estudiantes matriculados actualmente.
+# Número de egresados.
+# Resultados de nuestro programa curricular en ránquines nacionales e internacionales.
+# Resultados en las pruebas SABER.
+
+
+# Resultados en las pruebas SABER.
+
+# Importar SaberPro Filología e Idiomas
+
+Filo_SaberPro23 <- read_excel("Datos/Fuentes/Filologia_Saber_23.xlsx") %>% 
+  mutate(ID = as.character(ID),
+         NIVEL_LECT_CRIT = as.numeric(NIVEL_LECT_CRIT))
+
+# Base SaberPro Filología e Idiomas
+
+Filologia_SaberPro <- UnalData::SaberPro %>% filter(SNIES_PROGRA == 23)  %>% 
+  bind_rows(Filo_SaberPro23)
+
+
+# Total Graduados
+
+Grad_Filologia <- UnalData::Graduados %>% 
+  filter(SNIES_PROGRA == 23) %>% 
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE))
+  
+  
+##%######################################################%##
+#                                                          #
+####              132 Solicitud 05-06-2026              ####
+#                                                          #
+##%######################################################%##
+
+# Solicitante: Rectoría
+# Solicitud: Total Aspirantes UNAL
+# Universidad Nacional de Colombia
+
+
+Hist_Aspirantes_0815 <- UnalData::Aspirantes %>% 
+  filter(!is.na(TIPO_INS), YEAR <= 2015) %>% 
+  filter(TIPO_NIVEL == "Pregrado" |	(TIPO_NIVEL == "Postgrado" & MOD_INS == "Regular"))
+
+
+Hist_Aspirantes_1620 <- UnalData::Aspirantes %>% 
+  filter(!is.na(TIPO_INS), between(YEAR, 2016, 2020) ) %>% 
+  filter(TIPO_NIVEL == "Pregrado" |	(TIPO_NIVEL == "Postgrado" & MOD_INS == "Regular"))
+
+
+Hist_Aspirantes_2126 <- UnalData::Aspirantes %>% 
+  filter(!is.na(TIPO_INS), between(YEAR, 2021, 2026) ) %>% 
+  filter(TIPO_NIVEL == "Pregrado" |	(TIPO_NIVEL == "Postgrado" & MOD_INS == "Regular"))
+
+# Exportar Tabla
+
+write_xlsx(Hist_Aspirantes_0815, "Datos/Entrega132/Hist_Aspirantes_0815.xlsx")
+write_xlsx(Hist_Aspirantes_1620, "Datos/Entrega132/Hist_Aspirantes_1620.xlsx")
+write_xlsx(Hist_Aspirantes_2126, "Datos/Entrega132/Hist_Aspirantes_2126.xlsx")
+
+
+
+##%######################################################%##
+#                                                          #
+####              133 Solicitud 16-06-2026              ####
+#                                                          #
+##%######################################################%##
+
+
+# Contratista
+# Facultad de Ingeniería y Arquitectura
+# Universidad Nacional de Colombia
+# Sede Manizales
+
+
+
+# De manera atenta, me permito consultar si es posible obtener información correspondiente a docentes y estudiantes por cada programa académico de la sede.
+# Específicamente, se requiere una relación semestral en la que se indique el número de estudiantes y el número de docentes asociados a cada programa, desde el periodo 2022-1 hasta el periodo más reciente disponible.
+# Con el fin de facilitar la solicitud, adjunto una muestra que ilustra de manera aproximada el formato en el que se requiere la información.
+# Agradezco de antemano su colaboración y quedo atento a cualquier observación o información adicional que se requiera.
+
+# INFORMACIÓN MATRICULADOS
+
+# Importar Matricula Temporal 2026-1
+
+Matricula_20261 <- read_excel("Datos/Fuentes/Provisional/2026_1_Matricula.xlsx", guess_max = 50000)
+
+# Calcular Matriculados Manizales por Programas
+
+Matriculados_Man <- UnalData::Matriculados %>%
+  bind_rows(Matricula_20261) %>%
+  filter(YEAR >= 2021, TIPO_NIVEL == "Pregrado") %>% 
+  left_join(Hprogramas, by = "SNIES_PROGRA") %>% 
+  filter(SEDE_PROG == "Manizales") %>% 
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE, TIPO_NIVEL.x, FACULTAD_PROGRA, SNIES_PROGRA, PROGRAMA.y)) %>% 
+  arrange(PROGRAMA.y, desc(YEAR), desc(SEMESTRE)) %>% 
+  rename(Año = YEAR,
+         Semestre = SEMESTRE,
+         Nivel = TIPO_NIVEL.x,
+         Facultad = FACULTAD_PROGRA,
+         `SNIES Programa` = SNIES_PROGRA,
+         Programa = PROGRAMA.y)
+
+# Exportar resultados
+write_xlsx(Matriculados_Man, "Datos/Entrega133/Matriculados_Man.xlsx")
+
+# INFORMACIÓN DOCENTES
+
+# Importar Docentes Temporal 2026-1
+
+Docentes_20261 <- read_excel("Datos/Fuentes/Provisional/BD_Docentes_20261.xlsx", guess_max = 50000) %>% 
+  mutate(ID = as.character(ID)) %>% 
+  filter(SEDE == "Manizales")
+
+# Calcular Docentes Manizales por Unidades
+Docentes_Man <- UnalData::Docentes %>% filter(YEAR >= 2021, SEDE == "Manizales") %>% 
+  bind_rows(Docentes_20261) %>%
+  summarise(Total = n(), .by = c(YEAR, SEMESTRE, FACULTAD_2, UNIDAD)) %>% 
+  arrange(FACULTAD_2, UNIDAD, desc(YEAR), desc(SEMESTRE))
+
+# Exportar resultados
+write_xlsx(Docentes_Man, "Datos/Entrega133/Docentes_Man.xlsx")
+
+
+##%######################################################%##
+#                                                          #
+####              134 Solicitud 16-06-2026              ####
+#                                                          #
+##%######################################################%##
+
+
+# Estimados señores:
+#   
+# Cordial saludo.
+# 
+# Por medio de la presente, solicito amablemente la información estadística correspondiente al número de docentes, estudiantes y personal administrativo de la Universidad Nacional de Colombia para cada uno de los años en que se realizaron elecciones rectorales desde el año 2000 hasta la fecha.
+# 
+# Agradecería que esta información pudiera ser suministrada en formato Excel, incluyendo, en lo posible, el total institucional consolidado para cada año de elección.
+# 
+
+# Histórico Matriculados
+
+# Importar Matricula Temporal 2026-1
+
+Matricula_20261 <- read_excel("Datos/Fuentes/Provisional/2026_1_Matricula.xlsx", guess_max = 50000)
+
+# Calcular Matriculados Manizales por Programas
+
+Matriculados <- UnalData::Matriculados %>%
+  bind_rows(Matricula_20261) %>%
+  filter(YEAR >= 2021)
+
+# Histórico Docentes
+# Histórico Funcionarios
+
+# Generar muestra aletoria aspirantes y graduados
+
+Ejemplo_Graduados_Transformada <- UnalData::Graduados %>% 
+  slice_sample(n = 50)
+
+
+Ejemplo_Aspirantes_Admitidos_Transformada <- UnalData::Aspirantes %>% 
+  filter(!is.na(TIPO_INS), YEAR <= 2015) %>% 
+  filter(TIPO_NIVEL == "Pregrado" |	(TIPO_NIVEL == "Postgrado" & MOD_INS == "Regular")) %>% 
+  slice_sample(n = 50)
+
+
+
+View(UnalData::Docentes %>% filter(YEAR == 2025, SEMESTRE == 2))
+
+
+
+##%######################################################%##
+#                                                          #
+####              135 Solicitud 27-07-2026              ####
+#                                                          #
+##%######################################################%##
+
+
+# Requerimiento
+
+# El número total de estudiantes matriculados y de egresados procedentes del departamento de Nariño, 
+# tomando como criterio de identificación el lugar de nacimiento registrado. Se solicita comedidamente 
+# que la información se presente discriminada por municipio de procedencia, sede, programa y período académico cursado, 
+# desde el año 2010 hasta el último período disponible.
+
+
+# Consulta Graduados - Por Departamento de Nacimiento
+
+Graduados_Nariño <- UnalData::Graduados |> 
+  filter(YEAR >= 2016, TIPO_NIVEL == "Pregrado", COD_DEP_NAC == 52) |> 
+  summarize(Total = n(), .by = c(YEAR, SEMESTRE, SEDE_NOMBRE_MAT, COD_PADRE, PROGRAMA_2, COD_CIU_NAC, CIU_NAC)) |> 
+  rename(Año = YEAR,
+         Semestre = SEMESTRE,
+         `Sede Graduación`= SEDE_NOMBRE_MAT,
+         `Código SNIES Programa` = COD_PADRE,
+         `Programa Académico` = PROGRAMA_2,
+         `Código DIVIPOLA Municipio` = COD_CIU_NAC,
+        `Municipio Nacimiento` =  CIU_NAC)
+ 
+View(Graduados_Nariño) 
+
+# Consulta Matriculados - Por Departamento de Nacimiento
+
+Matriculados_Nariño <- UnalData::Matriculados |> 
+  filter(YEAR >= 2010, TIPO_NIVEL == "Pregrado", COD_DEP_NAC == 52) |> 
+  summarize(Total = n(), .by = c(YEAR, SEMESTRE, SEDE_NOMBRE_MAT, COD_PADRE, PROGRAMA_2, COD_CIU_NAC, CIU_NAC)) |> 
+  rename(Año = YEAR,
+         Semestre = SEMESTRE,
+         `Sede Matrícula`= SEDE_NOMBRE_MAT,
+         `Código SNIES Programa` = COD_PADRE,
+         `Programa Académico` = PROGRAMA_2,
+         `Código DIVIPOLA Municipio` = COD_CIU_NAC,
+         `Municipio Nacimiento` =  CIU_NAC)
+
+View(Matriculados_Nariño)
+  
+
+Matriculados_Nariño <- UnalData::Matriculados |> 
+  filter(YEAR >= 2010, TIPO_NIVEL == "Pregrado", COD_DEP_NAC == 52) |> 
+  summarize(Total = n(), .by = c(YEAR, SEMESTRE)) 
+
+
+
+
+
+##%######################################################%##
+#                                                          #
+####              136 Solicitud 24-08-2026              ####
+#                                                          #
+##%######################################################%##
+
+# Solicitud Rector
+# 
+
+
+# El señor rector, pide lo siguiente: 
+# Por favor, envíame un excel con lo que se publica en la página de estadísticas de planeación 
+# con los datos por sede, facultad, programa de pregrado y posgrado: 
+# número de aspirantes (si se puede los últimos 5 años, si es complicado, los del año 2025 sumados los dos semestres - a menos que ya tengas el 2026 completo), 
+# número de admitidos, 
+# número de estudiantes en primer semestre, 
+# número  de estudiantes matriculados en todo el programa, 
+# número de graduados. 
+
+# ASPIRANTES
+
+Aspirantes_2125 <- UnalData::Aspirantes %>% 
+  filter(!is.na(TIPO_INS), between(YEAR, 2021, 2025)) %>% 
+  filter(TIPO_NIVEL == "Pregrado" |	(TIPO_NIVEL == "Postgrado" & MOD_INS == "Regular"))
+
+
+# Por años
+Hist_Aspirantes_2125_Años <- Aspirantes_2125 |> 
+  summarise(Total = n(), .by = c(YEAR)) |> 
+  rename(Año = YEAR,
+         `Total Aspirantes` = Total)
+  
+
+# Por Sedes
+Hist_Aspirantes_2125_SEDES <- Aspirantes_2125 |> 
+  summarise(Total = n(), .by = c(YEAR, INS_SEDE_NOMBRE, TIPO_NIVEL)) |> 
+  pivot_wider(names_from = TIPO_NIVEL, values_from = c(Total), values_fill = 0) |> 
+  rename(Año = YEAR,
+         `Sede de Inscripción` = INS_SEDE_NOMBRE)
+
+
+# ADMITIDOS
+
+  Admitidos_2125 <- UnalData::Aspirantes %>% 
+  filter(!is.na(TIPO_INS), between(YEAR, 2021, 2025), ADMITIDO == "Sí") %>% 
+  filter(TIPO_NIVEL == "Pregrado" |	(TIPO_NIVEL == "Postgrado" & MOD_INS == "Regular")) 
+
+# Por años
+  
+  Hist_Admitidos_2125_Años <- Admitidos_2125 |> 
+    summarise(Total = n(), .by = c(YEAR)) |> 
+    rename(Año = YEAR,
+           `Total Admitidos` = Total)
+
+# Por Sedes
+  
+  Hist_Admitidos_2125_SEDES <- Admitidos_2125 |> 
+    summarise(Total = n(), .by = c(YEAR, ADM_SEDE_NOMBRE, TIPO_NIVEL)) |> 
+    pivot_wider(names_from = TIPO_NIVEL, values_from = c(Total), values_fill = 0) |> 
+    rename(Año = YEAR,
+           `Sede de Admisión` = ADM_SEDE_NOMBRE)
+
+  
+# Por Facultades
+  
+  Hist_Admitidos_2125_FACULTADES <- Admitidos_2125 |> 
+    filter(ADM_SEDE_NOMBRE %in% c("Bogotá", "Medellín", "Manizales", "Palmira")) |> 
+    summarise(Total = n(), .by = c(YEAR, ADM_SEDE_NOMBRE, FACULTAD, TIPO_NIVEL)) |> 
+    pivot_wider(names_from = TIPO_NIVEL, values_from = c(Total), values_fill = 0) |> 
+    rename(Año = YEAR,
+           `Sede de Admisión` = ADM_SEDE_NOMBRE,
+           Facultad = FACULTAD)
+  
+# Por Programas
+  
+  Hist_Admitidos_2125_Programas <- Admitidos_2125 |> 
+    summarise(Total = n(), .by = c(YEAR, ADM_SEDE_NOMBRE, FACULTAD, TIPO_NIVEL, NIVEL, COD_PADRE, PROGRAMA_2)) |> 
+    rename(Año = YEAR,
+           `Sede de Admisión` = ADM_SEDE_NOMBRE,
+           Facultad = FACULTAD,
+           `Nivel de Formación`= TIPO_NIVEL,
+           `Modalidad de Formación`= NIVEL,
+           `SNIES Programa` = COD_PADRE, 
+           `Programa` = PROGRAMA_2)
+  
+
+# Matriculados Primera Vez
+
+  Matriculados_Pvez_2125 <- UnalData::Matriculados %>% 
+    filter(between(YEAR, 2021, 2025), MAT_PVEZ == "Sí") 
+
+# Por años
+  
+  Hist_MatPvez_2125_Años <- Matriculados_Pvez_2125 |> 
+    summarise(Total = n(), .by = c(YEAR)) |> 
+    rename(Año = YEAR,
+           `Total Matriculados Primera Vez` = Total)
+  
+# Por Sedes
+  
+  Hist_MatPvez_2125_Sedes <- Matriculados_Pvez_2125 |> 
+    summarise(Total = n(), .by = c(YEAR, SEDE_NOMBRE_MAT, TIPO_NIVEL)) |> 
+    pivot_wider(names_from = TIPO_NIVEL, values_from = c(Total), values_fill = 0) |> 
+    rename(Año = YEAR,
+           `Sede de Matrícula` = SEDE_NOMBRE_MAT)
+  
+  
+# Por Facultades
+  
+  Hist_MatPvez_2125_Facultades <- Matriculados_Pvez_2125 |> 
+    filter(SEDE_NOMBRE_MAT %in% c("Bogotá", "Medellín", "Manizales", "Palmira")) |> 
+    summarise(Total = n(), .by = c(YEAR, SEDE_NOMBRE_MAT, FACULTAD, TIPO_NIVEL)) |> 
+    pivot_wider(names_from = TIPO_NIVEL, values_from = c(Total), values_fill = 0) |> 
+    rename(Año = YEAR,
+           `Sede de Matrícula` = SEDE_NOMBRE_MAT,
+           Facultad = FACULTAD)
+  
+# Por Programas
+  
+  Hist_MatPvez_2125_Programas <- Matriculados_Pvez_2125 |> 
+    summarise(Total = n(), .by = c(YEAR, SEDE_NOMBRE_MAT, FACULTAD, TIPO_NIVEL, NIVEL, COD_PADRE, PROGRAMA_2)) |> 
+    rename(Año = YEAR,
+           `Sede de Matrícula` = SEDE_NOMBRE_MAT,
+           Facultad = FACULTAD,
+           `Nivel de Formación`= TIPO_NIVEL,
+           `Modalidad de Formación`= NIVEL,
+           `SNIES Programa` = COD_PADRE, 
+           `Programa` = PROGRAMA_2)
+  
+  
+
+# Matriculados 2026-1 - Provisional
+
+ Matricula_20261 <- read_excel("Datos/Fuentes/Provisional/2026_1_Matricula.xlsx", guess_max = 50000)
+ 
+ 
+ programas <- UnalData::Hprogramas |> 
+               rename(PROGRAMA_2 = PROGRAMA) |> 
+   select(SNIES_PROGRA, COD_PADRE, PROGRAMA_2)
+ 
+ 
+ Matricula_20261 <- Matricula_20261 |> left_join(programas, by = "SNIES_PROGRA")
+ 
+ Matriculados_2126 <- UnalData::Matriculados %>% 
+   filter(between(YEAR, 2021, 2025)) |> 
+   bind_rows(Matricula_20261) 
+ 
+# Por Semestres   
+    
+ 
+ Hist_Mat_2126_Semestres <- Matriculados_2126 |> 
+   summarise(Total = n(), .by = c(YEAR, SEMESTRE)) |> 
+   rename(Año = YEAR,
+          `Total Matriculados` = Total)
+ 
+ 
+# Por Sedes
+  
+ Hist_Mat_2126_Sedes <- Matriculados_2126 |> 
+    summarise(Total = n(), .by = c(YEAR, SEMESTRE, SEDE_NOMBRE_MAT, TIPO_NIVEL)) |> 
+    pivot_wider(names_from = TIPO_NIVEL, values_from = c(Total), values_fill = 0) |> 
+    rename(Año = YEAR,
+           Semestre = SEMESTRE,
+      `Sede de Matrícula` = SEDE_NOMBRE_MAT)
+  
+# Por Facultades
+ 
+ Hist_Mat_2126_Facultades <- Matriculados_2126 |> 
+   filter(SEDE_NOMBRE_MAT %in% c("Bogotá", "Medellín", "Manizales", "Palmira")) |> 
+   summarise(Total = n(), .by = c(YEAR, SEMESTRE, SEDE_NOMBRE_MAT, FACULTAD, TIPO_NIVEL)) |> 
+   pivot_wider(names_from = TIPO_NIVEL, values_from = c(Total), values_fill = 0) |> 
+   rename(Año = YEAR,
+          Semestre = SEMESTRE,
+          `Sede de Matrícula` = SEDE_NOMBRE_MAT,
+          Facultad = FACULTAD)
+ 
+# Por Programas
+
+ Hist_Mat_2126_Programas <- Matriculados_2126 |> 
+   summarise(Total = n(), .by = c(YEAR, SEMESTRE, SEDE_NOMBRE_MAT, FACULTAD, TIPO_NIVEL, NIVEL, COD_PADRE, PROGRAMA_2)) |> 
+   rename(Año = YEAR,
+          Semestre = SEMESTRE,
+          `Sede de Matrícula` = SEDE_NOMBRE_MAT,
+          Facultad = FACULTAD,
+          `Nivel de Formación`= TIPO_NIVEL,
+          `Modalidad de Formación`= NIVEL,
+          `SNIES Programa` = COD_PADRE, 
+          `Programa` = PROGRAMA_2)
+ 
+ 
+ # Graduados
+
+ Graduados_2125 <- UnalData::Graduados %>% 
+   filter(between(YEAR, 2021, 2025)) 
+ 
+# Por años
+ 
+ Hist_Graduados_2125_Años <- Graduados_2125 |> 
+   summarise(Total = n(), .by = c(YEAR)) |> 
+   rename(Año = YEAR,
+          `Total Graduados` = Total)
+ 
+# Por Sedes
+ 
+ Hist_Graduados_2125_Sedes <- Graduados_2125 |> 
+   summarise(Total = n(), .by = c(YEAR, SEDE_NOMBRE_ADM, TIPO_NIVEL)) |> 
+   pivot_wider(names_from = TIPO_NIVEL, values_from = c(Total), values_fill = 0) |> 
+   rename(Año = YEAR,
+          `Sede de Graduación` = SEDE_NOMBRE_ADM)
+ 
+# Por Facultades
+ 
+ Hist_Graduados_2125_Facultades <- Graduados_2125 |> 
+   filter(SEDE_NOMBRE_ADM %in% c("Bogotá", "Medellín", "Manizales", "Palmira")) |> 
+   summarise(Total = n(), .by = c(YEAR, SEDE_NOMBRE_ADM, FACULTAD, TIPO_NIVEL)) |> 
+   pivot_wider(names_from = TIPO_NIVEL, values_from = c(Total), values_fill = 0) |> 
+   rename(Año = YEAR,
+          `Sede de Admisión` = SEDE_NOMBRE_ADM,
+          Facultad = FACULTAD)
+ 
+ # Por Programas
+
+ Hist_Graduados_2125_Programas <- Graduados_2125 |> 
+   summarise(Total = n(), .by = c(YEAR, SEDE_NOMBRE_ADM, FACULTAD, TIPO_NIVEL, NIVEL, COD_PADRE, PROGRAMA_2)) |> 
+   rename(Año = YEAR,
+          `Sede de Matrícula` = SEDE_NOMBRE_ADM,
+          Facultad = FACULTAD,
+          `Nivel de Formación`= TIPO_NIVEL,
+          `Modalidad de Formación`= NIVEL,
+          `SNIES Programa` = COD_PADRE, 
+          `Programa` = PROGRAMA_2)
+ 
+ 
+ 
+ #### ESTADÍSTICAS CONSOLIDADAS POR PROGRAMA
+ 
+ # Aspirantes
+ 
+
+ Hist_Aspirantes_2125_Programas <- Aspirantes_2125 |> 
+   filter(TIPO_NIVEL == "Postgrado") |> 
+   mutate(Periodo = paste0(YEAR, SEMESTRE)) |> 
+   summarise(Total = n(), .by = c(Periodo, INS_SEDE_NOMBRE, FACULTAD, TIPO_NIVEL, NIVEL, COD_PADRE, PROGRAMA_2)) |> 
+   mutate(INS_SEDE_NOMBRE = ifelse(INS_SEDE_NOMBRE == "De La Paz", "La Paz", INS_SEDE_NOMBRE),
+          FACULTAD = ifelse(INS_SEDE_NOMBRE %in% c("De La Paz", "La Paz"), "Escuela de pregrado", FACULTAD)) |> 
+   rename(`Sede` = INS_SEDE_NOMBRE,
+          Facultad = FACULTAD,
+          `Nivel de Formación`= TIPO_NIVEL,
+          `Modalidad de Formación`= NIVEL,
+          `SNIES Programa` = COD_PADRE, 
+          `Programa` = PROGRAMA_2) |> 
+   mutate(Estadistica = "Aspirantes")
+ 
+ # Admitidos
+ Hist_Admitidos_2125_Programas <- Admitidos_2125 |> 
+   mutate(Periodo = paste0(YEAR, SEMESTRE)) |> 
+   summarise(Total = n(), .by = c(Periodo, ADM_SEDE_NOMBRE, FACULTAD, TIPO_NIVEL, NIVEL, COD_PADRE, PROGRAMA_2)) |> 
+   mutate(ADM_SEDE_NOMBRE = ifelse(ADM_SEDE_NOMBRE == "De La Paz", "La Paz", ADM_SEDE_NOMBRE),
+          FACULTAD = ifelse(ADM_SEDE_NOMBRE %in% c("De La Paz", "La Paz"), "Escuela de pregrado", FACULTAD)) |> 
+   rename(`Sede` = ADM_SEDE_NOMBRE,
+          Facultad = FACULTAD,
+          `Nivel de Formación`= TIPO_NIVEL,
+          `Modalidad de Formación`= NIVEL,
+          `SNIES Programa` = COD_PADRE, 
+          `Programa` = PROGRAMA_2) |> 
+   mutate(Estadistica = "Admitidos")
+ 
+ 
+ # Matriculados Primera Vez
+ Hist_MatPvez_2125_Programas <- Matriculados_Pvez_2125 |> 
+   mutate(Periodo = paste0(YEAR, SEMESTRE)) |> 
+   summarise(Total = n(), .by = c(Periodo, SEDE_NOMBRE_MAT, FACULTAD, TIPO_NIVEL, NIVEL, COD_PADRE, PROGRAMA_2)) |> 
+   mutate(FACULTAD = ifelse(SEDE_NOMBRE_MAT %in% c("De La Paz", "La Paz"), "Escuela de pregrado", FACULTAD)) |> 
+   rename(`Sede` = SEDE_NOMBRE_MAT,
+          Facultad = FACULTAD,
+          `Nivel de Formación`= TIPO_NIVEL,
+          `Modalidad de Formación`= NIVEL,
+          `SNIES Programa` = COD_PADRE, 
+          `Programa` = PROGRAMA_2) |> 
+ mutate(Estadistica = "Primera Matrícula")
+ 
+ 
+ # Matriculados 
+ 
+ Matriculados_2125 <- UnalData::Matriculados %>% 
+   filter(between(YEAR, 2021, 2025))
+ 
+ Hist_Mat_2125_Programas <- Matriculados_2125 |> 
+   mutate(Periodo = paste0(YEAR, SEMESTRE)) |> 
+   summarise(Total = n(), .by = c(Periodo, SEDE_NOMBRE_MAT, FACULTAD, TIPO_NIVEL, NIVEL, COD_PADRE, PROGRAMA_2)) |> 
+   mutate(FACULTAD = ifelse(SEDE_NOMBRE_MAT %in% c("De La Paz", "La Paz"), "Escuela de pregrado", FACULTAD)) |> 
+   rename(`Sede` = SEDE_NOMBRE_MAT,
+          Facultad = FACULTAD,
+          `Nivel de Formación`= TIPO_NIVEL,
+          `Modalidad de Formación`= NIVEL,
+          `SNIES Programa` = COD_PADRE, 
+          `Programa` = PROGRAMA_2) |> 
+   mutate(Estadistica = "Matriculados")
+   
+ 
+ # Graduados
+ 
+ Hist_Graduados_2125_Programas <- Graduados_2125 |> 
+   mutate(Periodo = paste0(YEAR, SEMESTRE)) |> 
+   summarise(Total = n(), .by = c(Periodo, SEDE_NOMBRE_ADM, FACULTAD, TIPO_NIVEL, NIVEL, COD_PADRE, PROGRAMA_2)) |> 
+   mutate(SEDE_NOMBRE_ADM = ifelse(SEDE_NOMBRE_ADM == "De La Paz", "La Paz", SEDE_NOMBRE_ADM),
+          FACULTAD = ifelse(SEDE_NOMBRE_ADM %in% c("De La Paz", "La Paz"), "Escuela de pregrado", FACULTAD)) |> 
+   rename(`Sede` = SEDE_NOMBRE_ADM,
+          Facultad = FACULTAD,
+          `Nivel de Formación`= TIPO_NIVEL,
+          `Modalidad de Formación`= NIVEL,
+          `SNIES Programa` = COD_PADRE, 
+          `Programa` = PROGRAMA_2) |> 
+   mutate(Estadistica = "Graduados")
+ 
+ 
+ 
+ # Adicionar poblaciones
+ 
+ Poblaciones <- bind_rows(Hist_Aspirantes_2125_Programas,
+                          Hist_Admitidos_2125_Programas, 
+                          Hist_MatPvez_2125_Programas,
+                          Hist_Mat_2125_Programas,
+                          Hist_Graduados_2125_Programas)
+ 
+ # Consolidado
+ 
+ Consolidado <- Poblaciones |> 
+   pivot_wider(names_from = Estadistica, values_from = c(Total), values_fill = 0) |> 
+   mutate(Periodo = as.numeric(Periodo)) |> 
+   arrange(Periodo, desc(`Nivel de Formación`))
+ 
+ class(Consolidado$Periodo)
+ 
+ 
+ 
+ ##%######################################################%##
+ #                                                          #
+ ####              136 Solicitud 27-07-2026              ####
+ #                                                          #
+ ##%######################################################%##
+ 
+ ##%######################################################%##
+ #                                                          #
+ ####              137 Solicitud 27-07-2026              ####
+ #                                                          #
+ ##%######################################################%##
+ 
+ 
+ ##%######################################################%##
+ #                                                          #
+ ####              138 Solicitud 27-07-2026              ####
+ #                                                          #
+ ##%######################################################%##
+ 
+ 
+ 
+ ##%######################################################%##
+ #                                                          #
+ ####              139 Solicitud 21-09-2026              ####
+ #                                                          #
+ ##%######################################################%##
+ 
+ # AMPLIACIÓN REQUERIMIENTO 135
+ 
+ 
+ # Requerimiento
+ 
+ # El número total de estudiantes matriculados y de egresados procedentes del departamento de Nariño, 
+ # tomando como criterio de identificación el lugar de nacimiento registrado. Se solicita comedidamente 
+ # que la información se presente discriminada por municipio de procedencia, sede, programa y período académico cursado, 
+ # desde el año 2010 hasta el último período disponible.
+ 
+ 
+ # Con el fin de ampliar la caracterización, solicitamos complementar la información ya suministrada, manteniendo los mismos criterios de agregación, 
+ # con las variables sociodemográficas que reposen en sus sistemas de información y puedan ser entregadas de forma estadística, especialmente: sexo; 
+ # identidad de género, edad o rangos de edad; pertenencia étnica, condición de discapacidad, víctima del conflicto armado, grupo del Sisbén, 
+ # condición de madre cabeza de familia o padre de familia, Número de hijos o personas a cargo, fuente de financiación de los
+ # estudios (Beca, Subsidio, Crédito, otro), modalidad de estudio (presencial, virtual), información sobre si los estudiantes y egresados permanecen 
+ # en la ciudad de estudio - retornan a su municipio de origen o migran hacia otro departamento, situación laboral durante y después de los estudios, 
+ # sector en el que trabaja, remuneración salarial, cuenta con emprendimiento o negocio propio, tipo de emprendimiento, continuidad hacia estudios de posgrado, 
+ # ciudad y líneas de estudios y otras variables que considere pertinentes y disponibles para el propósito institucional señalado. 
+ # La información podrá suministrarse preferiblemente en formato abierto y como Excel.
+ 
+ 
+ # Bases de Datos
+ 
+ Matriculados_Nariño <- UnalData::Matriculados |> filter(YEAR >= 2010, TIPO_NIVEL == "Pregrado", COD_DEP_NAC == 52)
+ Matriculados_Nariño_2025 <- UnalData::Matriculados |> filter(YEAR == 2025, TIPO_NIVEL == "Pregrado", COD_DEP_NAC == 52)
+ Graduados_Nariño <- UnalData::Graduados |> filter(YEAR >= 2016, TIPO_NIVEL == "Pregrado", COD_DEP_NAC == 52) 
+ 
+
+# CONSOLIDADO GENERAL (MATRICULADOS Y GRADUADOS) 
+ 
+ 
+ # Consulta Graduados - Por Departamento de Nacimiento
+ 
+ Graduados_Nariño <- UnalData::Graduados |> 
+   filter(YEAR >= 2016, TIPO_NIVEL == "Pregrado", COD_DEP_NAC == 52) |> 
+   summarize(Total = n(), .by = c(YEAR, SEMESTRE, SEDE_NOMBRE_MAT, COD_PADRE, PROGRAMA_2, COD_CIU_NAC, CIU_NAC, 
+                                  SEXO, CAT_EDAD, SEXO, CAT_EDAD, MOD_ADM, TIPO_ADM, PAES, PEAMA)) |> 
+   rename(Año = YEAR,
+          Semestre = SEMESTRE,
+          `Sede Matrícula`= SEDE_NOMBRE_MAT,
+          `Código SNIES Programa` = COD_PADRE,
+          `Programa Académico` = PROGRAMA_2,
+          `Código DIVIPOLA Municipio` = COD_CIU_NAC,
+          `Municipio Nacimiento` =  CIU_NAC,
+           Sexo = SEXO,	
+          `Grupo etáreo` = CAT_EDAD,
+          `Tipo de Inscripción`= TIPO_ADM,
+          `Modalidad de Inscripción` = MOD_ADM) |> 
+   mutate(PAES = ifelse(PAES == "Sin información", NA_character_, PAES),
+          PEAMA = ifelse(PEAMA == "Sin información", NA_character_, PEAMA),
+          "Programa de Inscripción" = ifelse(!is.na(PAES), PAES, ifelse(!is.na(PEAMA), PEAMA, `Tipo de Inscripción`))) |> 
+   select(-c(PAES:PEAMA)) |> 
+   relocate(`Programa de Inscripción`, .before = Total)
+ 
+ 
+ View(Graduados_Nariño) 
+
+ 
+ # Consulta Matriculados - Por Departamento de Nacimiento
+ 
+ Matriculados_Nariño <- UnalData::Matriculados |> 
+   filter(YEAR >= 2010, TIPO_NIVEL == "Pregrado", COD_DEP_NAC == 52) |> 
+   summarize(Total = n(), .by = c(YEAR, SEMESTRE, SEDE_NOMBRE_MAT, COD_PADRE, PROGRAMA_2, COD_CIU_NAC, CIU_NAC, SEXO, CAT_EDAD, 
+                                  SEXO, CAT_EDAD, MOD_ADM, TIPO_ADM, PAES, PEAMA, PAET)) |> 
+   rename(Año = YEAR,
+          Semestre = SEMESTRE,
+          `Sede Matrícula`= SEDE_NOMBRE_MAT,
+          `Código SNIES Programa` = COD_PADRE,
+          `Programa Académico` = PROGRAMA_2,
+          `Código DIVIPOLA Municipio` = COD_CIU_NAC,
+          `Municipio Nacimiento` =  CIU_NAC,
+           Sexo = SEXO,	
+          `Grupo etáreo` = CAT_EDAD,
+          `Tipo de Inscripción`= TIPO_ADM,
+          `Modalidad de Inscripción` = MOD_ADM) |> 
+   mutate(PAES = ifelse(PAES == "Sin información", NA_character_, PAES),
+          PEAMA = ifelse(PEAMA == "Sin información", NA_character_, PEAMA),
+          "Programa de Inscripción" = ifelse(!is.na(PAES), PAES, ifelse(!is.na(PEAMA), PEAMA, ifelse(!is.na(PAET), PAET, `Tipo de Inscripción`)))) |> 
+   select(-c(PAES:PAET)) |> 
+   relocate(`Programa de Inscripción`, .before = Total)
+ 
+
+ # SISBEN 2025
+ 
+ # Base Sisben
+ Sisben_2025 <- read_excel("Datos/Fuentes/Sisben_PRE_2025.xlsx") |> mutate(Documento = paste0(NUM_DOCUMENTO, PERIODO))
+ 
+ # Base Matriculados
+  Mat_Nariño_2025 <- Matriculados_Nariño_2025 |> mutate(Documento =paste0(ID, paste0(YEAR, SEMESTRE)))
+ 
+ 
+ # Sisben Nariño 2025
+
+Sisben_Nariño_2025 <- Mat_Nariño_2025 |> left_join(Sisben_2025, by ="Documento") |> 
+                       mutate(PUNTAJE_SISBEN = ifelse(is.na(PUNTAJE_SISBEN), "Sin Sisben", PUNTAJE_SISBEN)) |> 
+                       summarize(Total = n(), .by = c(YEAR, SEMESTRE, SEDE_NOMBRE_MAT, COD_PADRE, PROGRAMA_2, COD_CIU_NAC, CIU_NAC, SEXO, CAT_EDAD, 
+                                                      PUNTAJE_SISBEN, SEXO, CAT_EDAD, MOD_ADM, TIPO_ADM, PAES, PEAMA, PAET)) |> 
+                       rename(Año = YEAR,
+                       Semestre = SEMESTRE,
+                      `Sede Matrícula`= SEDE_NOMBRE_MAT,
+                      `Código SNIES Programa` = COD_PADRE,
+                      `Programa Académico` = PROGRAMA_2,
+                      `Código DIVIPOLA Municipio` = COD_CIU_NAC,
+                      `Municipio Nacimiento` =  CIU_NAC,
+                      `Puntaje Sisben` = PUNTAJE_SISBEN,
+                      Sexo = SEXO,	
+                      `Grupo etáreo` = CAT_EDAD,
+                      `Tipo de Inscripción`= TIPO_ADM,
+                      `Modalidad de Inscripción` = MOD_ADM) |> 
+                    mutate(PAES = ifelse(PAES == "Sin información", NA_character_, PAES),
+                           PEAMA = ifelse(PEAMA == "Sin información", NA_character_, PEAMA),
+                           "Programa de Inscripción" = ifelse(!is.na(PAES), PAES, ifelse(!is.na(PEAMA), PEAMA, ifelse(!is.na(PAET), PAET, `Tipo de Inscripción`)))) |> 
+                    select(-c(PAES:PAET)) |> 
+                    relocate(`Programa de Inscripción`, .before = Total)
+ 
+
+##%######################################################%##
+#                                                          #
+####              140 Solicitud 24-09-2026              ####
+#                                                          #
+##%######################################################%##
+
+# Apoyo Derecho de Petición hecho a la OPE Manizales
+
+# Estadísticas de Estudiantes (Últimos 5 años): 
+# Solicito se sirvan informar la cantidad total de estudiantes de la Sede Manizales de los últimos 5 años académicos (2021 a 2025), 
+# discriminados por: ○ Año. ○ Facultad. ○ Departamento. ○ Programa Académico. 
+# Agradezco que la información se presente en formato tabulado o de base de datos para su fácil comprensión.
+
+
+Matricula_Manizales <- UnalData::Matriculados |> filter(SNIES_SEDE_MAT == 1103, between(YEAR, 2021, 2025)) |> 
+                       mutate(Periodo = paste(YEAR, SEMESTRE, sep = "-")) |> 
+                       select(Periodo, FACULTAD, NIVEL, SNIES_PROGRA, PROGRAMA_2) |> 
+                       summarise(Total = n(), .by = c(Periodo, FACULTAD, NIVEL, SNIES_PROGRA, PROGRAMA_2)) |> 
+                       pivot_wider(names_from = Periodo, values_from = c(Total), values_fill = 0) |> 
+                       rename(`Nivel de Formación` = NIVEL,
+                              Programa = PROGRAMA_2,
+                              Facultad = FACULTAD)
+                       
+
+
+##%######################################################%##
+#                                                          #
+####              141 Solicitud 2-10-2026              ####
+#                                                          #
+##%######################################################%##
+
+
+# Ruby Esther León Díaz
+# Trabajadora Social, ms Políticas Públicas, dra. Trabajo Social
+# Profesora asociada
+# Co-líder Grupo de investigación Idcarán-DTS-CES, https://www.humanas.unal.edu.co/idcaran/
+
+
+# Junto con saludar, en el marco del proyecto "Políticas de inclusión y reducción de desigualdades en la educación superior en Brasil, Argentina y Colombia", del cual soy directora (Código Hermes 66890) y considerando nuestra reunión con el asesor Alberto Rodríguez Rodríguez del día 05 de junio de 2026, quisiéramos solicitar el siguiente conjunto de información con el fin de caracterizar a la comunidad de estudiantes ingresantes vía PAES. De manera particular: comunidades indígenas (con distinción de pueblo), víctimas del conflicto armado interno, población afrocolombiana (palenqueros, raizales y comunidades negras o afro).
+# 
+# Información de caracterización sociodemográfica (lugar de nacimiento; lugar de procedencia; sexo; edad; estrato; discapacidad) y educativa (naturaleza y nombre del colegio; sede UNAL) de la población de aspirantes PAES en formación de pregrado (de manera particular: comunidades indígenas, víctimas del conflicto armado interno, población afrocolombiana).
+# 
+# Información de caracterización sociodemográfica (lugar de nacimiento; lugar de procedencia; sexo; edad; estrato; discapacidad) y educativa (naturaleza del colegio y nombre; PBM; área del conocimiento CINE, facultad, programa, matriculados por primera vez) de la población de matriculados PAES en formación de pregrado (de manera particular: comunidades indígenas, víctimas del conflicto armado interno, población afrocolombiana).
+# 
+# Información de caracterización sociodemográfica (lugar de nacimiento; lugar de procedencia; sexo; edad; estrato; discapacidad) y educativa (naturaleza y nombre del colegio; PBM; área del conocimiento CINE, facultad, programa, matriculados por primera vez) de la población de graduados PAES en formación de pregrado (de manera particular: comunidades indígenas, víctimas del conflicto armado interno, población afrocolombiana).
+# 
+# Información de caracterización sociodemográfica (lugar de nacimiento; lugar de procedencia; sexo; edad; estrato; discapacidad) y educativa (naturaleza y nombre del colegio; PBM; área del conocimiento CINE, facultad, programa, puntaje por cada competencia Saber Pro) de la población PAES que rindió competencias Saber Pro (de manera particular: comunidades indígenas, víctimas del conflicto armado interno, población afrocolombiana).
+#  
+
+
+# SELECCIONAR CONJUNTOS DE DATOS REQUERIDOS
+
+PAES_Aspirantes_23_26 <- UnalData::Aspirantes |> filter(YEAR >= 2023, PAES %in% c("Comunidades indígenas", 
+                                                                                  "Población afrocolombiana", 
+                                                                                  "Victimas del conflicto armado interno en Colombia")) |> 
+  select("ID", "YEAR", "SEMESTRE", "DEP_NAC":"LAT_CIU_RES", "PAES", "SEXO", "ESTRATO_ORIG", "EDAD_MOD", 
+         "DISCAPACIDAD", "TIPO_DISC", "ADMITIDO",   "SNIES_SEDE", "INS_SEDE_NOMBRE", 
+         "COD_PADRE", "SNIES_PROGRA", "PROGRAMA_2", "CA_CINE", "CD_CINE", "AREA_CINE")
+
+
+PAES_Aspirantes_08_22 <- UnalData::Aspirantes |> filter(between(YEAR, 2008, 2022), PAES %in% c("Comunidades indígenas", 
+                                                                                               "Población afrocolombiana", 
+                                                                                               "Victimas del conflicto armado interno en Colombia")) |> 
+  select("ID", "YEAR", "SEMESTRE", "DEP_NAC":"LAT_CIU_RES", "PAES", "SEXO", "ESTRATO_ORIG", "EDAD_MOD", 
+         "DISCAPACIDAD", "TIPO_DISC", "ADMITIDO",   "SNIES_SEDE", "INS_SEDE_NOMBRE", 
+         "COD_PADRE", "SNIES_PROGRA", "PROGRAMA_2", "CA_CINE", "CD_CINE", "AREA_CINE")
+
+
+# 
+# PAES_Aspirantes <- UnalData::Aspirantes |> filter(PAES %in% c("Comunidades indígenas", 
+#                                                               "Población afrocolombiana", 
+#                                                               "Victimas del conflicto armado interno en Colombia")) |> 
+#                                           select("ID", "YEAR", "SEMESTRE", "DEP_NAC":"LAT_CIU_RES", "PAES", "SEXO", "ESTRATO_ORIG", "EDAD_MOD", 
+#                                                   "DISCAPACIDAD", "TIPO_DISC", "ADMITIDO",   "SNIES_SEDE", "INS_SEDE_NOMBRE", 
+#                                                   "COD_PADRE", "SNIES_PROGRA", "PROGRAMA_2", "CA_CINE", "CD_CINE", "AREA_CINE")
+
+PAES_Matriculados <- UnalData::Matriculados |> filter(PAES %in% c("Comunidades indígenas", 
+                                                                  "Población afrocolombiana", 
+                                                                  "Victimas del conflicto armado interno en Colombia")) |> 
+                                          select("ID", "YEAR", "SEMESTRE", "DEP_NAC":"LAT_CIU_PROC", "PAES", "SEXO" , "EDAD_MOD", "ESTRATO_ORIG",
+                                                 "TIPO_COL", "PBM_ORIG", "MAT_PVEZ", "SNIES_SEDE_MAT", "SEDE_NOMBRE_MAT", "FACULTAD",
+                                                 "COD_PADRE", "SNIES_PROGRA",  "PROGRAMA_2", "CA_CINE", "CD_CINE", "AREA_CINE")
+
+PAES_Graduados <- UnalData::Graduados |> filter(PAES %in% c("Comunidades indígenas", 
+                                                            "Población afrocolombiana",
+                                                            "Victimas del conflicto armado interno en Colombia")) |> 
+                                          select("ID", "YEAR", "SEMESTRE", "DEP_NAC":"LAT_CIU_PROC", "PAES", "SEXO" , "EDAD_MOD", "ESTRATO_ORIG",
+                                                 "TIPO_COL", "PBM_ORIG", "MAT_PVEZ", "SNIES_SEDE_MAT", "SEDE_NOMBRE_MAT", "FACULTAD",
+                                                 "COD_PADRE", "SNIES_PROGRA",  "PROGRAMA_2", "CA_CINE", "CD_CINE", "AREA_CINE")
+                           
+PAES_Saber <- UnalData::SaberPro |> filter(PAES %in% c("Comunidades indígenas", 
+                                                       "Población afrocolombiana", 
+                                                       "Víctimas del conflicto armado interno en Colombia", 
+                                                       "Victimas del conflicto armado interno en Colombia")) |> 
+                                          select("ID", "YEAR", "SEMESTRE", "DEP_NAC":"LAT_CIU_PROC", "PAES", "SEXO" , "EDAD_MOD", "ESTRATO_ORIG",
+                                                "TIPO_COL", "PBM_ORIG", "SNIES_SEDE_MAT", "SEDE_NOMBRE_MAT", "FACULTAD",
+                                                "COD_PADRE", "SNIES_PROGRA",  "PROGRAMA_2", "CA_CINE", "CD_CINE", "AREA_CINE", starts_with("PUNT"))
+
+# seleccionar base de documentos
+
+Base_ID <- bind_rows(PAES_Aspirantes_23_26 |> select(ID) |> mutate(Población = "Aspirantes"),
+                     PAES_Matriculados |> select(ID) |> mutate(Población = "Matriculados"),
+                     PAES_Graduados |> select(ID) |> mutate(Población = "Graduados"),
+                     PAES_Saber |> select(ID) |> mutate(Población = "SaberPro")) |> 
+                     summarise(Total = n(), .by = c(ID, Población)) |> 
+                     pivot_wider(names_from = Población, values_from = c(Total), values_fill = 0) |> 
+                     mutate(`Código Seguimiento` = row_number()) |> 
+                     select(ID, `Código Seguimiento`)
+                 
+                     
+# Adicionar Código de Seguimiento y eliminar ID de individuos
+
+
+
+
+
+
+
+
+
+
+
+
